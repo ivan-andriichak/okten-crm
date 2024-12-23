@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  #  crm-2024-mysql:
+  #    image: mysql:8.0.36
+  #    ports:
+  #      - '${MYSQL_PORT:-3308}:3306'
+  #    environment:
+  #      MYSQL_USER: '${MYSQL_USER:-oktencrm}'
+  #      MYSQL_PASSWORD: '${MYSQL_PASSWORD:-12q12q}'
+  #      MYSQL_DATABASE: '${MYSQL_DATABASE:-crm_school}'
+  #    volumes:
+  #      - ./crm-2024-api-mysql-db:/var/lib/mysql
+
+  crm-redis:
+    image: redis:7.2.3
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    command: >
+      --requirepass '${REDIS_PASSWORD:-redispass}'
+    restart: unless-stopped
+
+  crm-2024-s3:
+    image: quay.io/minio/minio:latest
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    ports:
+      - '8000:9000'
+      - '8001:9001'
+    volumes:
+      - ./crm-2024-api-s3-db:/usr/src/app/s3
+    environment:
+      MINIO_ROOT_USER: '${AWS_S3_ACCESS_KEY:-user}'
+      MINIO_ROOT_PASSWORD: '${AWS_S3_SECRET_KEY:-password}'
+
+volumes:
+  crm-2024-api-db:
+  crm-2024-api-s3:
