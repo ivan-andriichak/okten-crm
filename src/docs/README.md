@@ -5,7 +5,7 @@
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+<p align="center">A custom CRM backend built with <a href="https://nestjs.com/" target="_blank">NestJS</a>, designed for managing a programming school. This application leverages scalable technologies and supports cloud databases like Redis and MySQL.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
@@ -24,7 +24,12 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **User Management:** Admins and Managers with role-based access control.
+- **Database Support:** Redis and MySQL (via a remote server).
+- **Cloud Integration:** Scalable architecture ready for cloud deployments.
+- **API Documentation:** Swagger integration for comprehensive API documentation.
+- **Postman Collection:** Provided for testing API endpoints.
+- **Project Structure:** Built with scalability and maintainability in mind.
 
 ## Project setup
 

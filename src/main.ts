@@ -4,7 +4,6 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-// import { redirectToLogin } from './common/middlewares/redirect.middleware';
 import { AppConfig } from './config/config.type';
 
 async function bootstrap() {
