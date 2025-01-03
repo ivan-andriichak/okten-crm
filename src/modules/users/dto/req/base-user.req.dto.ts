@@ -4,6 +4,7 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, Length, Matches } fr
 
 import { Role } from '../../../../common/enums/role.enum';
 import { TransformHelper } from '../../../../common/helpers/transform.helper';
+import { IsRoleBasedPasswordValid } from '../../decorators/password-valid.decorator';
 
 export class BaseUserReqDto {
   @ApiProperty({
@@ -54,11 +55,8 @@ export class BaseUserReqDto {
   @ApiProperty({
     example: '123qwe!@#QWE',
     description: 'The password of the user.',
-    maxLength: 300,
   })
-  @IsString()
-  @Length(0, 300)
-  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%_*#?&])[A-Za-z\d@$_!%*#?&]{8,}$/)
+  @IsRoleBasedPasswordValid()
   password: string;
 
   @ApiProperty({

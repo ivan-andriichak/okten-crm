@@ -19,4 +19,5 @@ export default new DataSource({
   entities: [path.join(process.cwd(), 'src', 'database', 'entities', '*.entity.ts')],
   migrations: [path.join(process.cwd(), 'src', 'database', 'migrations', '*.ts')],
   synchronize: false,
+  dropSchema: false,
 });

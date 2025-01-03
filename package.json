@@ -11,6 +11,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:docker:db": "docker compose --env-file ./environments/local.env -f docker-compose.db.yaml up --build",
+    "start:sync-db": "mysqldump -h owu.linkpc.net -P 3306 -u oktencrm -p12q12q oktencrm > backup.sql && mysql -h localhost -P 3307 -u oktencrm -p12q12q crm_school < backup.sql",
     "start:local": "nest start --watch -e \"node --env-file ./environments/local.env\"",
     "start:dev": "nest start --env-file ./environments/dev.env",
     "start:prod": "node dist/main --env-file ./environments/prod.env",

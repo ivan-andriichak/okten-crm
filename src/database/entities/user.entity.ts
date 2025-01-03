@@ -21,11 +21,11 @@ export class UserEntity extends CreateUpdateModel {
   @Column('text', { select: false })
   password: string;
 
-  @Column('boolean')
+  @Column('boolean', { default: false })
   is_active: boolean;
 
-  @Column('text')
-  last_login: string;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  last_login: Date;
 
   @Column('text', { nullable: true })
   image?: string;

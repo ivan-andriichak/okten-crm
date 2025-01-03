@@ -16,6 +16,7 @@ export type MysqlConfig = {
   port: number;
   host: string;
   user: string;
+  rootPassword: string;
   password: string;
   dbName: string;
 };
@@ -23,7 +24,7 @@ export type MysqlConfig = {
 export type RedisConfig = {
   port: number;
   host: string;
-  password: string;
+  // password: string;
 };
 
 export type SentryConfig = {

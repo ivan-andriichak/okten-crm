@@ -40,13 +40,6 @@ export class UsersService {
     return user;
   }
 
-  public async isEmailExistOrThrow(email: string): Promise<void> {
-    const user = await this.userRepository.findOneBy({ email });
-    if (user) {
-      throw new ConflictException('Email already exists');
-    }
-  }
-
   public async uploadAvatar(userData: IUserData, avatar: Express.Multer.File): Promise<void> {
     const image = await this.fileStorageService.uploadFile(avatar, ContentType.AVATAR, userData.userId);
     await this.userRepository.update(userData.userId, { image });
@@ -57,6 +50,13 @@ export class UsersService {
     if (user.image) {
       await this.fileStorageService.deleteFile(user.image);
       await this.userRepository.save(this.userRepository.merge(user, { image: null }));
+    }
+  }
+
+  public async isEmailExistOrThrow(email: string): Promise<void> {
+    const user = await this.userRepository.findOneBy({ email });
+    if (user) {
+      throw new ConflictException('Email already exists');
     }
   }
 }

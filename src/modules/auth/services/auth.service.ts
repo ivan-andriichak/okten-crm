@@ -1,6 +1,7 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+import { Role } from '../../../common/enums/role.enum';
 import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { UserMapper } from '../../users/user.maper';
@@ -15,7 +16,6 @@ import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly userRepository: UserRepository,
@@ -24,17 +24,43 @@ export class AuthService {
     private readonly authCacheService: AuthCacheService
   ) {}
 
+  public async createDefaultAdmin(): Promise<AuthResDto> {
+    const defaultAdminDto: RegisterReqDto = {
+      email: 'admin@gmail.com',
+      password: 'admin',
+      deviceId: '550e8400-e29b-41d4-a716-446655440001',
+      name: 'Admin',
+      surname: 'Default',
+      role: Role.ADMIN,
+    };
+
+    return await this.register(defaultAdminDto);
+  }
+
+  // Реєстрація нового користувача
   public async register(dto: RegisterReqDto): Promise<AuthResDto> {
     try {
+      // Перевірка на існування email
       await this.userService.isEmailExistOrThrow(dto.email);
 
+      // Хешування пароля
       const password = await bcrypt.hash(dto.password, 10);
-      const user = await this.userRepository.save(this.userRepository.create({ ...dto, password }));
+
+      // Збереження користувача
+      const user = await this.userRepository.save(
+        this.userRepository.create({
+          ...dto,
+          password,
+        })
+      );
+
+      // Генерація токенів
       const tokens = await this.tokenService.generateAuthTokens({
         userId: user.id,
         deviceId: dto.deviceId,
       });
 
+      // Збереження токенів
       await Promise.all([
         this.refreshTokenRepository.save({
           deviceId: dto.deviceId,
@@ -43,13 +69,14 @@ export class AuthService {
         }),
         this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
       ]);
+
       return { user: UserMapper.toResponseDTO(user), tokens };
     } catch (error) {
-      this.logger.error('Registration failed', error.stack);
-      throw new Error('Registration failed');
+      throw new Error(error);
     }
   }
 
+  // Логін користувача
   public async login(dto: LoginReqDto): Promise<AuthResDto> {
     try {
       const user = await this.userRepository.findOne({
@@ -59,6 +86,7 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException();
       }
+
       const isPasswordValid = await bcrypt.compare(dto.password, user.password);
       if (!isPasswordValid) {
         throw new UnauthorizedException();
@@ -84,14 +112,16 @@ export class AuthService {
         }),
         this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
       ]);
+
       const userEntity = await this.userRepository.findOneBy({ id: user.id });
+
       return { user: UserMapper.toResponseDTO(userEntity), tokens };
     } catch (error) {
-      this.logger.error('Login failed', error.stack);
-      throw new Error('Login failed');
+      throw new Error(error);
     }
   }
 
+  // Оновлення токенів
   public async refresh(userData: IUserData): Promise<TokenPairResDto> {
     await Promise.all([
       this.refreshTokenRepository.delete({
@@ -118,6 +148,7 @@ export class AuthService {
     return tokens;
   }
 
+  // Логаут користувача
   public async logOut(userData: IUserData): Promise<void> {
     await Promise.all([
       this.refreshTokenRepository.delete({

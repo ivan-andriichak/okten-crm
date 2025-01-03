@@ -5,6 +5,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './common/guards/roles.guard';
 import { GlobalExceptionFilter } from './common/http/global-exception.filter';
 import configuration from './config/configuration';
+import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { FileStorageModule } from './modules/file-storage/file-storage.module';
 import { LoggerModule } from './modules/logger/logger.module';
@@ -21,6 +22,7 @@ import { UsersModule } from './modules/users/users.module';
     }),
     AuthModule,
     UsersModule,
+    AdminModule,
     MysqlModule,
     RedisModule,
     LoggerModule,

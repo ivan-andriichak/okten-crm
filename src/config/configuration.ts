@@ -11,13 +11,14 @@ export default (): Config => ({
     port: Number(process.env.MYSQL_PORT),
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
+    rootPassword: process.env.MYSQL_ROOT_PASSWORD,
     password: process.env.MYSQL_PASSWORD,
     dbName: process.env.MYSQL_DATABASE,
   },
   redis: {
     port: Number(process.env.REDIS_PORT),
     host: process.env.REDIS_HOST,
-    password: process.env.REDIS_PASSWORD,
+    // password: process.env.REDIS_PASSWORD,
   },
   sentry: {
     dsn: process.env.SENTRY_DSN,

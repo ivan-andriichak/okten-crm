@@ -3,8 +3,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 
 import { RolesGuard } from '../../common/guards/roles.guard';
-// import { CreateDefaultAdminHook } from './hooks/default-admin.hook';
-import { AdminService } from '../admin/services/admin.service';
 import { RedisModule } from '../redis/redis.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
@@ -26,10 +24,8 @@ import { TokenService } from './services/token.service';
       useClass: RolesGuard,
     },
     AuthService,
-    AdminService,
     TokenService,
     AuthCacheService,
-    // CreateDefaultAdminHook,
   ],
   exports: [AuthCacheService],
 })

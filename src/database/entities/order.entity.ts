@@ -9,22 +9,22 @@ import { UserEntity } from './user.entity';
 
 @Entity(TableNameEnum.ORDERS)
 export class OrderEntity extends CreateUpdateModel {
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 25, nullable: true })
   name: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 25, nullable: true })
   surname: string;
 
-  @Column('text', { nullable: true })
+  @Column({ type: 'varchar', length: 25, nullable: true })
   email: string;
 
-  @Column('text', { nullable: true })
+  @Column('varchar', { length: 12, nullable: true })
   phone: string;
 
-  @Column('int')
+  @Column('int', { nullable: true })
   age: number;
 
-  @Column({ type: 'enum', enum: CourseEnum })
+  @Column({ nullable: true, type: 'enum', enum: CourseEnum })
   course: string;
 
   @Column({ type: 'enum', enum: CourseFormatEnum })
@@ -36,18 +36,29 @@ export class OrderEntity extends CreateUpdateModel {
   @Column({ type: 'enum', enum: StatusEnum })
   status: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column('int', { nullable: true })
   sum: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column('int', { nullable: true })
   alreadyPaid: number;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
-  group_: string;
+  group: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   created_at: Date;
 
+  @ManyToOne(() => UserEntity, { nullable: true })
+  @JoinColumn({ name: 'manager_id' })
+  manager: UserEntity;
+
+  @Column('varchar', { length: 100, nullable: true })
+  utm: string;
+
+  @Column('text', { nullable: true })
+  msg: string;
+
+  @Column('text', { nullable: true })
   @ManyToOne(() => UserEntity, (user) => user.orders, { nullable: true })
   @JoinColumn({ name: 'user_id' })
   user?: string;
@@ -57,5 +68,5 @@ export class OrderEntity extends CreateUpdateModel {
 
   @ManyToOne(() => GroupEntity, (group) => group.orders, { nullable: true })
   @JoinColumn({ name: 'group_id' })
-  group?: string;
+  group_?: string;
 }

@@ -52,5 +52,12 @@ pids
 *.seed
 *.pid.lock
 
+crm-2024-api-mysql-db/
+*.tmp
+*.sdi
+*.CSV
+*.CSM
+
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json!/okten-school-crm.iml

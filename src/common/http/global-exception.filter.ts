@@ -71,9 +71,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       messages = 'Internal server error'; // Стандартне повідомлення про помилку сервера.
     }
 
-    // Логуємо помилку для подальшого аналізу.
-    this.logger.error(exception);
-
     // Перетворюємо повідомлення в масив (якщо це не масив).
     messages = Array.isArray(messages) ? messages : [messages];
 

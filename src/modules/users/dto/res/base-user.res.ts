@@ -14,7 +14,7 @@ export class BaseUserResDto {
   surname: string;
 
   @ApiProperty()
-  last_login: string;
+  last_login: Date;
 
   @ApiProperty()
   is_active: boolean;

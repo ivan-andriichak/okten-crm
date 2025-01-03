@@ -1,9 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Redirect, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from '../../common/decorators/roles.decorator';
-import { Role } from '../../common/enums/role.enum';
-import { AdminService } from '../admin/services/admin.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { SkipAuth } from './decorators/skip-auth.decorator';
 import { LoginReqDto } from './dto/req/login.req.dto';
@@ -17,9 +14,11 @@ import { AuthService } from './services/auth.service';
 @ApiTags('Auth')
 @Controller('/')
 export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
   @ApiResponse({
     status: 302,
-    description: 'Перенаправляє на сторінку входу або на панель керування в залежності від статусу автентифікації',
+    description: 'Redirect to login page if user is not authenticated, otherwise redirect to dashboard',
   })
   @Get('/')
   @Redirect()
@@ -30,20 +29,14 @@ export class AuthController {
     };
   }
 
-  constructor(
-    private readonly authService: AuthService,
-    private readonly adminService: AdminService
-  ) {}
-
   @ApiResponse({ status: HttpStatus.FOUND, description: 'Admin created successfully' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Admin already exists' })
-  @Roles(Role.ADMIN)
+  @SkipAuth()
   @Get('create-admin')
-  public async createDefaultAdmin(): Promise<string> {
-    return await this.adminService.createDefaultAdmin();
+  public async createDefaultAdmin(): Promise<AuthResDto> {
+    return await this.authService.createDefaultAdmin();
   }
 
-  @Roles(Role.ADMIN)
   @SkipAuth()
   @Post('register')
   public async register(@Body() dto: RegisterReqDto): Promise<AuthResDto> {

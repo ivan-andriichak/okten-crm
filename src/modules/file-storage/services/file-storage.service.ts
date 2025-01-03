@@ -45,7 +45,7 @@ export class FileStorageService {
       );
       return filePath;
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(error, error.stack);
     }
   }
 
@@ -58,7 +58,7 @@ export class FileStorageService {
         })
       );
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(error, error.stack);
     }
   }
 

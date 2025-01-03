@@ -8,6 +8,6 @@ export function AgeValid() {
     IsInt(),
     IsNumber(),
     Max(100),
-    Min(15)
+    Min(18)
   );
 }
