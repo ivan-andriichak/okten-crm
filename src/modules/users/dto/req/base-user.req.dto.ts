@@ -66,14 +66,14 @@ export class BaseUserReqDto {
   @IsNotEmpty()
   @IsUUID()
   @IsString()
-  readonly deviceId: string;
+  readonly deviceId?: string;
 
   @ApiProperty({
     enum: Role,
     description: 'The role of the user.',
-    example: 'Manager',
+    example: 'manager',
   })
   @IsOptional()
   @IsString()
-  role: Role;
+  role?: Role;
 }

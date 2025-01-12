@@ -18,12 +18,9 @@ export class IsRoleBasedPasswordValidator implements ValidatorConstraintInterfac
     if (object.role === Role.ADMIN) {
       return true;
     }
-
-    // Для інших ролей перевіряємо, чи відповідає пароль регулярному виразу
     return passwordRegex.test(value);
   }
 
-  // Метод для визначення повідомлення про помилку
   defaultMessage(): string {
     return 'Password must be at least 8  (@$!%_*#?&).';
   }

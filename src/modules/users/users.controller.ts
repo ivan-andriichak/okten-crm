@@ -69,7 +69,7 @@ export class UsersController {
   @ApiConflictResponse({ description: 'Conflict' })
   @ApiNoContentResponse({ description: 'User has been removed' })
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles(Role.ADMIN)
+  // @Roles(Role.ADMIN)
   @Delete('me')
   public async removeMe(@CurrentUser() userData: IUserData): Promise<void> {
     return await this.usersService.removeMe(userData);

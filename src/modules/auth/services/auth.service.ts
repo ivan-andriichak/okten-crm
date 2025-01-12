@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { Role } from '../../../common/enums/role.enum';
@@ -25,6 +25,13 @@ export class AuthService {
   ) {}
 
   public async createDefaultAdmin(): Promise<AuthResDto> {
+    const existingAdmin = await this.userRepository.findOne({
+      where: { email: 'admin@gmail.com', role: Role.ADMIN },
+    });
+    if (existingAdmin) {
+      throw new ConflictException('Admin already exists');
+    }
+
     const defaultAdminDto: RegisterReqDto = {
       email: 'admin@gmail.com',
       password: 'admin',
@@ -112,6 +119,9 @@ export class AuthService {
         }),
         this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
       ]);
+
+      // Оновлення поля `last_login`
+      await this.userRepository.update(user.id, { last_login: new Date() });
 
       const userEntity = await this.userRepository.findOneBy({ id: user.id });
 

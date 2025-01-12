@@ -45,9 +45,6 @@ export class OrderEntity extends CreateUpdateModel {
   @Column({ type: 'varchar', length: 50, nullable: true })
   group: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  created_at: Date;
-
   @ManyToOne(() => UserEntity, { nullable: true })
   @JoinColumn({ name: 'manager_id' })
   manager: UserEntity;
@@ -68,5 +65,5 @@ export class OrderEntity extends CreateUpdateModel {
 
   @ManyToOne(() => GroupEntity, (group) => group.orders, { nullable: true })
   @JoinColumn({ name: 'group_id' })
-  group_?: string;
+  groupEntity: GroupEntity;
 }

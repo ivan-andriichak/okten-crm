@@ -30,12 +30,22 @@ export default [
       import: importPlugin,
     },
     rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          args: 'after-used',
+          ignoreRestSiblings: true,
+          varsIgnorePattern: '^_', // Ігнорувати змінні, що починаються з "_"
+        },
+      ],
       '@typescript-eslint/interface-name-prefix': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/return-await': ['error', 'always'],
-      '@typescript-eslint/no-unused-vars': 'warn',
+      // '@typescript-eslint/no-unused-vars': 'warn',
+
       'simple-import-sort/imports': 'error',
       'import/first': 'error',
       'import/newline-after-import': ['error', { count: 1 }],

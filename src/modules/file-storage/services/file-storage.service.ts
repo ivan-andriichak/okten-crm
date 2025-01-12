@@ -45,7 +45,7 @@ export class FileStorageService {
       );
       return filePath;
     } catch (error) {
-      this.logger.error(error, error.stack);
+      this.logger.error(error);
     }
   }
 
@@ -58,11 +58,11 @@ export class FileStorageService {
         })
       );
     } catch (error) {
-      this.logger.error(error, error.stack);
+      this.logger.error(error);
     }
   }
 
   private buildPath(itemType: ContentType, itemId: string, fileName: string): string {
-    return `${itemType}/${itemId}/${randomUUID()}${path.extname(fileName)}`; // use only  template string
+    return `${itemType}/${itemId}/${randomUUID()}${path.extname(fileName)}`;
   }
 }
