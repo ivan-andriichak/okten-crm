@@ -26,7 +26,7 @@ async function bootstrap() {
 
   // Увімкнення CORS
   app.enableCors({
-    origin: 'http://frontend-app.com',
+    origin: '*',
     credentials: true,
     allowedHeaders: ['Authorization', 'Content-Type'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],

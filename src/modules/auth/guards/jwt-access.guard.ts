@@ -19,7 +19,6 @@ export class JwtAccessGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const skipAuth = this.reflector.getAllAndOverride<boolean>('SKIP_AUTH', [context.getHandler(), context.getClass()]);
     if (skipAuth) return true;
-
     const request = context.switchToHttp().getRequest();
     const accessToken = request.get('Authorization')?.split('Bearer ')[1];
     if (!accessToken) {
@@ -47,5 +46,10 @@ export class JwtAccessGuard implements CanActivate {
     }
     request.user = UserMapper.toIUserData(user, payload);
     return true;
+  }
+
+  async validate(payload: any): Promise<any> {
+    console.log('JWT payload:', payload);
+    return payload;
   }
 }

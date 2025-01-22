@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+</head>
+<body>
+
+<script>
+  // Перевірка, чи користувач аутентифікований
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/check-auth', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`, // або використовувати cookie
+        },
+      });
+
+      if (!response.ok) {
+        window.location.href = '/login'; // Перенаправлення на сторінку логіну, якщо користувач не аутентифікований
+      } else {
+        window.location.href = '/orders'; // Якщо аутентифікований, редирект на сторінку замовлень
+      }
+    } catch (error) {
+      console.error('Error checking authentication status:', error);
+      window.location.href = '/login';
+    }
+  };
+
+  // Функція для відправки запиту на сервер (логін)
+  const sendLoginRequest = async () => {
+    const formData = {
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+      deviceId: "550e8400-e29b-41d4-a716-446655440000",
+      role: "manager"
+    };
+
+    try {
+      const response = await fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      console.log('Response:', result);
+
+      if (response.ok) {
+        // Збереження токену в localStorage або cookie
+        localStorage.setItem('token', result.token);
+        window.location.href = '/orders'; // Перенаправлення на сторінку замовлень
+      } else {
+        alert('Невірний логін або пароль');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  // Викликаємо перевірку аутентифікації при завантаженні сторінки
+  window.onload = checkAuthStatus;
+</script>
+
+<!-- Форма для логіну (показується тільки якщо користувач не аутентифікований) -->
+<div id="login-form">
+  <h2>Login</h2>
+  <form onsubmit="event.preventDefault(); sendLoginRequest();">
+    <label>Email: <input type="email" id="email" required /></label><br/>
+    <label>Password: <input type="password" id="password" required /></label><br/>
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+</body>
+</html>

@@ -1,6 +1,15 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Redirect,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
 
 import { CurrentUser } from './decorators/current-user.decorator';
 import { SkipAuth } from './decorators/skip-auth.decorator';
@@ -21,41 +30,12 @@ export class AuthController {
     status: 302,
     description: 'Redirect to login page if user is not authenticated, otherwise redirect to dashboard',
   })
-  @Get('/')
   @SkipAuth()
-  public redirectToDashboardOrLogin(@Res() res: Response, @CurrentUser() user?: IUserData): void {
-    if (user) {
-      res.redirect('dashboard');
-    } else {
-      res.redirect('login');
-    }
+  @Get()
+  @Redirect('/login', 302)
+  redirectToLogin() {
+    return;
   }
-
-  // @ApiResponse({ status: 200, description: 'Intermediate route for POST login' })
-  // @Get('login')
-  // @SkipAuth()
-  // public redirectToLoginPage(@Res() res: Response): void {
-  //   res.send(`
-  //     <!DOCTYPE html>
-  //     <html lang="en">
-  //     <head>
-  //       <meta charset="UTF-8">
-  //       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  //       <title>Redirecting...</title>
-  //     </head>
-  //     <body>
-  //       <form id="loginForm" action="/login" method="POST">
-  //         <input type="hidden" name="email" value="test@gmail.com">
-  //         <input type="hidden" name="password" value="23qwe!@#QWE">
-  //         <input type="hidden" name="deviceId"" value="550e8400-e29b-41d4-a716-446655440000">
-  //       </form>
-  //       <script>
-  //         document.getElementById('loginForm').submit(); // Автоматичне відправлення форми
-  //       </script>
-  //     </body>
-  //     </html>
-  //   `);
-  // }
 
   @ApiResponse({ status: HttpStatus.FOUND, description: 'Admin created successfully' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Admin already exists' })
@@ -68,12 +48,21 @@ export class AuthController {
   @SkipAuth()
   @ApiResponse({
     status: 201,
-    description: 'Користувач створений',
+    description: 'user created successfully',
     type: AuthResDto,
   })
   @Post('register')
   public async register(@Body() dto: RegisterReqDto): Promise<AuthResDto> {
     return await this.authService.register(dto);
+  }
+
+  @ApiBearerAuth()
+  @SkipAuth()
+  @Get('check-auth')
+  public async checkAuth(@CurrentUser() userData: IUserData): Promise<void> {
+    if (!userData) {
+      throw new UnauthorizedException();
+    }
   }
 
   @SkipAuth()
