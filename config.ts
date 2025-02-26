@@ -21,3 +21,4 @@ export default new DataSource({
   synchronize: false,
   dropSchema: false,
 });
+console.log('Database config:', databaseConfig);

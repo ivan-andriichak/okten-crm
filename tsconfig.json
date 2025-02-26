@@ -16,14 +16,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
-  },
-  "include": [
-    "src/**/*.ts",
-    "ormconfig.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+    "noFallthroughCasesInSwitch": false,
+    "moduleResolution": "node"
+  }
 }

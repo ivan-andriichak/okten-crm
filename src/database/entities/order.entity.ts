@@ -15,7 +15,7 @@ export class OrderEntity extends CreateUpdateModel {
   @Column({ type: 'varchar', length: 25, nullable: true })
   surname: string;
 
-  @Column({ type: 'varchar', length: 25, nullable: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   email: string;
 
   @Column('varchar', { length: 12, nullable: true })
@@ -27,13 +27,13 @@ export class OrderEntity extends CreateUpdateModel {
   @Column({ nullable: true, type: 'enum', enum: CourseEnum })
   course: string;
 
-  @Column({ type: 'enum', enum: CourseFormatEnum })
+  @Column({ type: 'enum', enum: CourseFormatEnum, default: 'static' })
   course_format: string;
 
-  @Column({ type: 'enum', enum: CourseTypeEnum })
+  @Column({ type: 'enum', enum: CourseTypeEnum, default: 'minimal' })
   course_type: string;
 
-  @Column({ type: 'enum', enum: StatusEnum })
+  @Column({ type: 'enum', enum: StatusEnum, default: 'New' })
   status: string;
 
   @Column('int', { nullable: true })
