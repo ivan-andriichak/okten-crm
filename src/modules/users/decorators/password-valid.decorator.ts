@@ -8,10 +8,13 @@ import {
 
 import { Role } from '../../../common/enums/role.enum';
 
-const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%_*#?&])[A-Za-z\d@$_!%*#?&]{8,}$/;
+const passwordRegex =
+  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%_*#?&])[A-Za-z\d@$_!%*#?&]{8,}$/;
 
 @ValidatorConstraint({ async: false })
-export class IsRoleBasedPasswordValidator implements ValidatorConstraintInterface {
+export class IsRoleBasedPasswordValidator
+  implements ValidatorConstraintInterface
+{
   validate(value: string, args: ValidationArguments) {
     const object = args.object as { role: Role };
 

@@ -1,6 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
-import { CourseEnum, CourseFormatEnum, CourseTypeEnum, StatusEnum } from '../../modules/orders/enums/order.enums';
+import {
+  CourseEnum,
+  CourseFormatEnum,
+  CourseTypeEnum,
+  StatusEnum,
+} from '../../modules/orders/enums/order.enums';
 import { CommentEntity } from './comment.entity';
 import { TableNameEnum } from './enums/table-name.enum';
 import { GroupEntity } from './group.entity';
@@ -61,7 +66,10 @@ export class OrderEntity extends CreateUpdateModel {
   user?: string;
 
   @OneToMany(() => CommentEntity, (comment) => comment.order, { cascade: true })
-  comments?: (CommentEntity | { createdAt: Date; author: string; text: string })[];
+  comments?: (
+    | CommentEntity
+    | { createdAt: Date; author: string; text: string }
+  )[];
 
   @ManyToOne(() => GroupEntity, (group) => group.orders, { nullable: true })
   @JoinColumn({ name: 'group_id' })

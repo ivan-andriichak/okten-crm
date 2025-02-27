@@ -28,7 +28,8 @@ export class AuthController {
 
   @ApiResponse({
     status: 302,
-    description: 'Redirect to login page if user is not authenticated, otherwise redirect to dashboard',
+    description:
+      'Redirect to login page if user is not authenticated, otherwise redirect to dashboard',
   })
   @SkipAuth()
   @Get()
@@ -37,8 +38,14 @@ export class AuthController {
     return;
   }
 
-  @ApiResponse({ status: HttpStatus.FOUND, description: 'Admin created successfully' })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Admin already exists' })
+  @ApiResponse({
+    status: HttpStatus.FOUND,
+    description: 'Admin created successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Admin already exists',
+  })
   @SkipAuth()
   @Get('create-admin')
   public async createDefaultAdmin(): Promise<AuthResDto> {
@@ -75,7 +82,9 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @SkipAuth()
   @Post('refresh')
-  public async refresh(@CurrentUser() userData: IUserData): Promise<TokenPairResDto> {
+  public async refresh(
+    @CurrentUser() userData: IUserData,
+  ): Promise<TokenPairResDto> {
     return await this.authService.refresh(userData);
   }
 

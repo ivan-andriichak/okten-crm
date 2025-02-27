@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { Role } from '../../../common/enums/role.enum';
@@ -21,7 +25,7 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private readonly userService: UsersService,
     private readonly tokenService: TokenService,
-    private readonly authCacheService: AuthCacheService
+    private readonly authCacheService: AuthCacheService,
   ) {}
 
   public async createDefaultAdmin(): Promise<AuthResDto> {
@@ -58,7 +62,7 @@ export class AuthService {
         this.userRepository.create({
           ...dto,
           password,
-        })
+        }),
       );
 
       // Генерація токенів
@@ -74,7 +78,11 @@ export class AuthService {
           refreshToken: tokens.refreshToken,
           user_id: user.id,
         }),
-        this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
+        this.authCacheService.saveToken(
+          tokens.accessToken,
+          user.id,
+          dto.deviceId,
+        ),
       ]);
 
       return { user: UserMapper.toResponseDTO(user), tokens };
@@ -117,7 +125,11 @@ export class AuthService {
           refreshToken: tokens.refreshToken,
           user_id: user.id,
         }),
-        this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
+        this.authCacheService.saveToken(
+          tokens.accessToken,
+          user.id,
+          dto.deviceId,
+        ),
       ]);
 
       // Оновлення поля `last_login`
@@ -152,7 +164,11 @@ export class AuthService {
         refreshToken: tokens.refreshToken,
         user_id: userData.userId,
       }),
-      this.authCacheService.saveToken(tokens.accessToken, userData.userId, userData.deviceId),
+      this.authCacheService.saveToken(
+        tokens.accessToken,
+        userData.userId,
+        userData.deviceId,
+      ),
     ]);
 
     return tokens;

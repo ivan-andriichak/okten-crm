@@ -1,19 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 
+import { Role } from '../../../common/enums/role.enum';
 import { OrderEntity } from '../../../database/entities/order.entity';
+import { IUserData } from '../../auth/interfaces/user-data.interface';
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
 import { EditOrderDto } from '../dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from '../dto/req/excel-guery.req.dto';
-import { PaginationReqDto } from '../dto/req/pagination.req.dto';
+import { OrderListQueryDto } from '../dto/req/order-list.query.dto';
 
 @Injectable()
-export class OrdersService {
+export class OrderService {
   constructor(private readonly ordersRepository: OrdersRepository) {}
 
-  public async getOrders(paginationDto: PaginationReqDto) {
-    return await this.ordersRepository.getOrders(paginationDto);
+  public async getListOrders(
+    userData: IUserData,
+    query: OrderListQueryDto,
+  ): Promise<[OrderEntity[], number]> {
+    const userId = userData.role === Role.MANAGER ? userData.userId : undefined;
+    return await this.ordersRepository.getListOrders(userId, query);
   }
 
   async getOrderById(id: string): Promise<OrderEntity> {
@@ -24,11 +30,16 @@ export class OrdersService {
     return order;
   }
 
-  async addComment(orderId: string, commentDto: CommentDto): Promise<OrderEntity> {
-    const order = await this.ordersRepository.findOne({ where: { id: orderId } });
+  async addComment(
+    orderId: string,
+    commentDto: CommentDto,
+  ): Promise<OrderEntity> {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+    });
 
     if (!order) {
-      throw new Error('Order not found');
+      throw new NotFoundException(`Order with id ${orderId} not found`);
     }
 
     const newComment = {
@@ -38,7 +49,9 @@ export class OrdersService {
     };
 
     // Додаємо коментар до існуючого масиву
-    order.comments = order.comments ? [...order.comments, newComment] : [newComment];
+    order.comments = order.comments
+      ? [...order.comments, newComment]
+      : [newComment];
 
     // Якщо статус був "null" або "New", змінюємо на "In Work" і записуємо менеджера
     if (order.status === null) {
@@ -50,24 +63,20 @@ export class OrdersService {
     return order;
   }
 
-  async editOrder(orderId: string, editOrderDto: EditOrderDto): Promise<OrderEntity> {
-    const order = await this.ordersRepository.findOne({ where: { id: orderId.toString() } });
+  async editOrder(
+    orderId: string,
+    editOrderDto: EditOrderDto,
+  ): Promise<OrderEntity> {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId.toString() },
+    });
 
     if (!order) {
       throw new NotFoundException(`Order with id ${orderId} not found`);
     }
 
-    // Оновлюємо необхідні поля
-    order.status = editOrderDto.status;
-    order.course = editOrderDto.course;
-    order.course_type = editOrderDto.courseType;
-    order.course_format = editOrderDto.courseFormat;
-    order.group = editOrderDto.group;
-
-    // Зберігаємо зміни
-    await this.ordersRepository.save(order);
-
-    return order;
+    Object.assign(order, editOrderDto); // Оновлюємо поля з DTO
+    return await this.ordersRepository.save(order);
   }
 
   async generateExcel(query: ExcelQueryDto): Promise<Buffer> {

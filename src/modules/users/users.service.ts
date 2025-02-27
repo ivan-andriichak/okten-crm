@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Express } from 'express';
 
 import { UserEntity } from '../../database/entities/user.entity';
@@ -14,14 +18,17 @@ export class UsersService {
   constructor(
     private readonly fileStorageService: FileStorageService,
     private readonly userRepository: UserRepository,
-    private readonly authCacheService: AuthCacheService
+    private readonly authCacheService: AuthCacheService,
   ) {}
 
   public async findMe(userData: IUserData): Promise<UserEntity> {
     return await this.userRepository.findOneBy({ id: userData.userId });
   }
 
-  public async updateMe(userData: IUserData, dto: UpdateUserDto): Promise<UserEntity> {
+  public async updateMe(
+    userData: IUserData,
+    dto: UpdateUserDto,
+  ): Promise<UserEntity> {
     const user = await this.userRepository.findOneBy({ id: userData.userId });
     this.userRepository.merge(user, dto);
     return await this.userRepository.save(user);
@@ -40,8 +47,15 @@ export class UsersService {
     return user;
   }
 
-  public async uploadAvatar(userData: IUserData, avatar: Express.Multer.File): Promise<void> {
-    const image = await this.fileStorageService.uploadFile(avatar, ContentType.AVATAR, userData.userId);
+  public async uploadAvatar(
+    userData: IUserData,
+    avatar: Express.Multer.File,
+  ): Promise<void> {
+    const image = await this.fileStorageService.uploadFile(
+      avatar,
+      ContentType.AVATAR,
+      userData.userId,
+    );
     await this.userRepository.update(userData.userId, { image });
   }
 
@@ -49,7 +63,9 @@ export class UsersService {
     const user = await this.userRepository.findOneBy({ id: userData.userId });
     if (user.image) {
       await this.fileStorageService.deleteFile(user.image);
-      await this.userRepository.save(this.userRepository.merge(user, { image: null }));
+      await this.userRepository.save(
+        this.userRepository.merge(user, { image: null }),
+      );
     }
   }
 

@@ -20,7 +20,7 @@ export class AdminController {
   // }
 
   // @Get()
-  //   async getManagers(@Query() query: PaginationReqDto): Promise<ManagerListDto> {
+  //   async getManagers(@Query() query: OrderListQueryDto): Promise<ManagerListDto> {
   //     return this.managerService.getManagers(query);
   //   }
   //

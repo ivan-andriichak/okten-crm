@@ -6,7 +6,6 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
   {
     files: ['**/*.{ts,js}'],
@@ -36,7 +35,7 @@ export default [
           vars: 'all',
           args: 'after-used',
           ignoreRestSiblings: true,
-          varsIgnorePattern: '^_', // Ігнорувати змінні, що починаються з "_"
+          varsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/interface-name-prefix': 'off',
@@ -44,14 +43,12 @@ export default [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/return-await': ['error', 'always'],
-      // '@typescript-eslint/no-unused-vars': 'warn',
-
       'simple-import-sort/imports': 'error',
       'import/first': 'error',
       'import/newline-after-import': ['error', { count: 1 }],
       'import/no-duplicates': 'error',
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
-      'no-console': 'warn',
+      // 'no-console': 'warn',
       'sort-imports': [
         'error',
         {
@@ -66,7 +63,7 @@ export default [
     },
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.ts'],
     languageOptions: {
       sourceType: 'commonjs',
     },

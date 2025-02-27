@@ -1,6 +1,6 @@
-import { OrderDto } from './order.res.dto';
+import { OrderListItemResDto } from './order-list-item.res.dto';
 
 export class OrderListDto {
-  orders: OrderDto[];
-  totalCount: number;
+  orders: OrderListItemResDto[];
+  total: number;
 }

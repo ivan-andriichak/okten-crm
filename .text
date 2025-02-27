@@ -1,0 +1,14 @@
+// Запит на пагінацю orders
+curl -X 'GET' \
+  'http://localhost:3002/orders?page=2' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkMTRmYTVlZS02NjU1LTQ4OTktYmU0NS01YTJlMDIxOWQyMWYiLCJkZXZpY2VJZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAwMCIsImlhdCI6MTc0MDY0NTE3NiwiZXhwIjoxNzQwNjgxMTc2fQ.XrmqnZbS4N8zb05IoTRsVaBCun82OM1O3wryTFnNwXE'
+___________________________________________________________________________
+Login admin:
+{
+  "email": "admin@gmail.com",
+  "password": "admin",
+  "deviceId": "550e8400-e29b-41d4-a716-446655440000",
+  "role": "admin"
+}
+____________________________________________________________________________

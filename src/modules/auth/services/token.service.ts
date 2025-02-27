@@ -13,7 +13,7 @@ export class TokenService {
 
   constructor(
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService<Config>
+    private readonly configService: ConfigService<Config>,
   ) {
     this.jwtConfig = configService.get<JwtConfig>('jwt');
   }
@@ -31,7 +31,10 @@ export class TokenService {
     return { accessToken, refreshToken };
   }
 
-  public async verifyToken(token: string, type: TokenType): Promise<IJwtPayload> {
+  public async verifyToken(
+    token: string,
+    type: TokenType,
+  ): Promise<IJwtPayload> {
     try {
       return await this.jwtService.verifyAsync(token, {
         secret: this.getSecret(type),

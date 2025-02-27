@@ -10,7 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FileStorageModule } from './modules/file-storage/file-storage.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { MysqlModule } from './modules/mysql/mysql.module';
-import { OrdersModule } from './modules/orders/orders.module';
+import { OrderModule } from './modules/orders/order.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { RepositoryModule } from './modules/repository/repository.module';
 import { UsersModule } from './modules/users/users.module';
@@ -24,7 +24,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     UsersModule,
     AdminModule,
-    OrdersModule,
+    OrderModule,
     MysqlModule,
     RedisModule,
     LoggerModule,

@@ -19,5 +19,5 @@ export class ExcelQueryDto {
 
   @IsOptional()
   @IsBoolean()
-  myOrdersOnly?: boolean; // Для фільтрації лише власних замовлень
+  myOrdersOnly?: boolean;
 }

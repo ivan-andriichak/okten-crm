@@ -5,7 +5,8 @@ import { IUserData } from '../auth/interfaces/user-data.interface';
 import { UserResDto } from './dto/res/user.res.dto';
 
 export class UserMapper {
-  public static toResponseDTO(data: UserEntity): UserResDto {
+  public static toResponseDTO(data: UserEntity): UserResDto | null {
+    if (!data) return null;
     const awsConfig = ConfigStaticService.get().aws;
     return {
       id: data.id,

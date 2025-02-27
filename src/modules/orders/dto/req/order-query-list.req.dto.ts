@@ -1,6 +1,6 @@
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
-export class OrderQueryDto {
+export class OrderQueryListReqDtoDto {
   @IsOptional()
   @IsString()
   name?: string;
