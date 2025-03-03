@@ -28,13 +28,25 @@ export class AddEntities1735820313278 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE \`refresh_tokens\` DROP FOREIGN KEY \`FK_3ddc983c5f7bcf132fd8732c3f4\``);
-    await queryRunner.query(`ALTER TABLE \`comments\` DROP FOREIGN KEY \`FK_4c675567d2a58f0b07cef09c13d\``);
-    await queryRunner.query(`ALTER TABLE \`comments\` DROP FOREIGN KEY \`FK_9bb41adf4431f6de42c79c4d305\``);
-    await queryRunner.query(`ALTER TABLE \`orders\` DROP FOREIGN KEY \`FK_77b9403790bf253dd71cfcdb6a4\``);
-    await queryRunner.query(`ALTER TABLE \`orders\` DROP FOREIGN KEY \`FK_a922b820eeef29ac1c6800e826a\``);
+    await queryRunner.query(
+      `ALTER TABLE \`refresh_tokens\` DROP FOREIGN KEY \`FK_3ddc983c5f7bcf132fd8732c3f4\``,
+    );
+    await queryRunner.query(
+      `ALTER TABLE \`comments\` DROP FOREIGN KEY \`FK_4c675567d2a58f0b07cef09c13d\``,
+    );
+    await queryRunner.query(
+      `ALTER TABLE \`comments\` DROP FOREIGN KEY \`FK_9bb41adf4431f6de42c79c4d305\``,
+    );
+    await queryRunner.query(
+      `ALTER TABLE \`orders\` DROP FOREIGN KEY \`FK_77b9403790bf253dd71cfcdb6a4\``,
+    );
+    await queryRunner.query(
+      `ALTER TABLE \`orders\` DROP FOREIGN KEY \`FK_a922b820eeef29ac1c6800e826a\``,
+    );
     await queryRunner.query(`DROP TABLE \`users\``);
-    await queryRunner.query(`DROP INDEX \`IDX_9769b295a8d670435ce210ba15\` ON \`refresh_tokens\``);
+    await queryRunner.query(
+      `DROP INDEX \`IDX_9769b295a8d670435ce210ba15\` ON \`refresh_tokens\``,
+    );
     await queryRunner.query(`DROP TABLE \`refresh_tokens\``);
   }
 }
