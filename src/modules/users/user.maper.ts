@@ -23,6 +23,8 @@ export class UserMapper {
   public static toIUserData(user: UserEntity, payload: IJwtPayload): IUserData {
     return {
       userId: payload.userId,
+      name: user.name,
+      surname: user.surname,
       deviceId: payload.deviceId,
       email: user.email,
       role: user.role,

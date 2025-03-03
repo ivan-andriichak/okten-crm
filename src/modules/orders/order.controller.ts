@@ -22,6 +22,7 @@ import { CommentDto } from './dto/req/comment.req.dto';
 import { EditOrderDto } from './dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from './dto/req/excel-guery.req.dto';
 import { OrderListQueryDto } from './dto/req/order-list.query.dto';
+import { OrderListItemResDto } from './dto/res/order-list-item.res.dto';
 import { OrderListDto } from './dto/res/ored-list.res';
 import { OrderMapper } from './services/order.mapper';
 import { OrderService } from './services/order.service';
@@ -88,8 +89,9 @@ export class OrderController {
   async addComment(
     @Param('orderId') id: string,
     @Body() commentDto: CommentDto,
-  ): Promise<OrderEntity> {
-    return await this.ordersService.addComment(id, commentDto);
+    @CurrentUser() userData: IUserData,
+  ): Promise<OrderListItemResDto> {
+    return await this.ordersService.addComment(id, commentDto, userData);
   }
 
   @Patch(':id/edit')

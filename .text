@@ -4,7 +4,7 @@ curl -X 'GET' \
   -H 'accept: application/json' \
   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkMTRmYTVlZS02NjU1LTQ4OTktYmU0NS01YTJlMDIxOWQyMWYiLCJkZXZpY2VJZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAwMCIsImlhdCI6MTc0MDY0NTE3NiwiZXhwIjoxNzQwNjgxMTc2fQ.XrmqnZbS4N8zb05IoTRsVaBCun82OM1O3wryTFnNwXE'
 ___________________________________________________________________________
-Login admin:
+// Login admin:
 {
   "email": "admin@gmail.com",
   "password": "admin",
@@ -12,3 +12,15 @@ Login admin:
   "role": "admin"
 }
 ____________________________________________________________________________
+mysql -h owu.linkpc.net -P 3306 -u crm -p12q crm -e "DESCRIBE orders;"
+mysql -h owu.linkpc.net -P 3306 -u crm -p12q crm -e "DESCRIBE comments;"
+
+_______________________________________________________________________________
+// створення міграції
+npm run migration:generate --name=changed_order_entity
+_________________________________________________________________________________
+//show migration
+ mysql -h owu.linkpc.net -P 3306 -u crm -p12q crm -e "SELECT * FROM migrations ORDER BY id DESC;"
+___________________________________________________________________________________________
+//delete migration
+mysql -h owu.linkpc.net -P 3306 -u crm -p12q crm -e "DELETE FROM migrations WHERE timestamp = 1741006566368;"

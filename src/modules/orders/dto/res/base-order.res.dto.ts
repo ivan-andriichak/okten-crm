@@ -2,7 +2,40 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { UserResDto } from '../../../users/dto/res/user.res.dto';
 
+export class CommentResDto {
+  @ApiProperty({
+    example: 'Good student',
+    description: 'Text of the comment.',
+  })
+  text: string;
+
+  @ApiProperty({
+    example: 'utm_source=google',
+    description: 'UTM parameters for the comment.',
+    required: false,
+  })
+  utm: string | null;
+
+  @ApiProperty({
+    example: 'Default',
+    description: 'Surname of the comment author.',
+  })
+  author: string;
+
+  @ApiProperty({
+    example: '2025-02-28T16:40:00.000Z',
+    description: 'Date when the comment was created.',
+  })
+  createdAt: Date;
+}
+
 export class BaseOrderResDto {
+  @ApiProperty({
+    example: '796cea24-a328-4463-a5e1-85a779e4780f',
+    description: 'Unique identifier for the order.',
+  })
+  id: string;
+
   @ApiProperty({
     example: 'John',
     description: 'First name of the customer.',
@@ -90,16 +123,9 @@ export class BaseOrderResDto {
   group?: string;
 
   @ApiProperty({
-    example: 'This is a message.',
-    description: 'Additional message related to the order.',
+    type: [CommentResDto],
+    description: 'List of comments associated with the order.',
     required: false,
   })
-  msg?: string;
-
-  @ApiProperty({
-    example: 'utm_source=google',
-    description: 'UTM parameters for tracking.',
-    required: false,
-  })
-  utm?: string;
+  comments?: CommentResDto[];
 }

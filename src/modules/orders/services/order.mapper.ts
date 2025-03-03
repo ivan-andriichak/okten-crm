@@ -10,7 +10,7 @@ export class OrderMapper {
     query: OrderListQueryDto,
   ) {
     return {
-      orders: entities.map((order) => OrderMapper.toOrderListItemResDto(order)), // змінено `data` на `orders`
+      orders: entities.map((order) => OrderMapper.toOrderListItemResDto(order)),
       total,
       query,
     };
@@ -20,6 +20,7 @@ export class OrderMapper {
     entity: OrderEntity,
   ): OrderListItemResDto {
     return {
+      id: entity.id,
       name: entity.name,
       surname: entity.surname,
       email: entity.email,
@@ -33,9 +34,13 @@ export class OrderMapper {
       alreadyPaid: entity.alreadyPaid,
       created_at: entity.created_at,
       group: entity.group,
-      msg: entity.msg,
-      utm: entity.utm,
       manager: entity.manager ? UserMapper.toResponseDTO(entity.manager) : null,
+      comments: entity.comments?.map((comment) => ({
+        text: comment.text,
+        utm: comment.utm,
+        author: comment.user?.surname || 'Unknown',
+        createdAt: comment.created_at,
+      })),
     };
   }
 }

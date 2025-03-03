@@ -1,3 +1,4 @@
+// src/database/entities/order.entity.ts
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 import {
@@ -54,22 +55,12 @@ export class OrderEntity extends CreateUpdateModel {
   @JoinColumn({ name: 'manager_id' })
   manager: UserEntity;
 
-  @Column('varchar', { length: 100, nullable: true })
-  utm: string;
-
-  @Column('text', { nullable: true })
-  msg: string;
-
-  @Column('text', { nullable: true })
   @ManyToOne(() => UserEntity, (user) => user.orders, { nullable: true })
   @JoinColumn({ name: 'user_id' })
-  user?: string;
+  user?: UserEntity;
 
   @OneToMany(() => CommentEntity, (comment) => comment.order, { cascade: true })
-  comments?: (
-    | CommentEntity
-    | { createdAt: Date; author: string; text: string }
-  )[];
+  comments?: CommentEntity[];
 
   @ManyToOne(() => GroupEntity, (group) => group.orders, { nullable: true })
   @JoinColumn({ name: 'group_id' })

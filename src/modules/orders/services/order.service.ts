@@ -1,14 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 
 import { Role } from '../../../common/enums/role.enum';
+import { CommentEntity } from '../../../database/entities/comment.entity';
 import { OrderEntity } from '../../../database/entities/order.entity';
+import { UserEntity } from '../../../database/entities/user.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
 import { EditOrderDto } from '../dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from '../dto/req/excel-guery.req.dto';
 import { OrderListQueryDto } from '../dto/req/order-list.query.dto';
+import { OrderListItemResDto } from '../dto/res/order-list-item.res.dto';
+import { OrderMapper } from './order.mapper';
 
 @Injectable()
 export class OrderService {
@@ -33,34 +41,40 @@ export class OrderService {
   async addComment(
     orderId: string,
     commentDto: CommentDto,
-  ): Promise<OrderEntity> {
+    userData: IUserData,
+  ): Promise<OrderListItemResDto> {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
+      relations: ['manager'],
     });
+
+    // Перевірка: менеджер відсутній або це поточний користувач
+    if (order.manager && order.manager.id !== userData.userId) {
+      throw new ForbiddenException(
+        'You can only comment on orders without a manager or assigned to you',
+      );
+    }
 
     if (!order) {
       throw new NotFoundException(`Order with id ${orderId} not found`);
     }
 
-    const newComment = {
-      text: commentDto.text,
-      author: commentDto.author,
-      createdAt: new Date(),
-    };
+    const newComment = new CommentEntity();
+    newComment.text = commentDto.text;
+    newComment.user = { id: userData.userId } as UserEntity;
+    newComment.order = order;
 
-    // Додаємо коментар до існуючого масиву
     order.comments = order.comments
       ? [...order.comments, newComment]
       : [newComment];
 
-    // Якщо статус був "null" або "New", змінюємо на "In Work" і записуємо менеджера
-    if (order.status === null) {
+    if (!order.status || order.status === 'New') {
       order.status = 'In Work';
-      order.user = commentDto.author;
+      order.manager = { id: userData.userId } as UserEntity;
     }
 
     await this.ordersRepository.save(order);
-    return order;
+    return OrderMapper.toOrderListItemResDto(order);
   }
 
   async editOrder(
