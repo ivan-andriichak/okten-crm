@@ -6,3 +6,13 @@
 node_modules
 package-lock.json
 !/.idea/
+/.idea/.gitignore
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/libraries/information_schema_FNRwLQ.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/okten-crm.iml
+/.idea/prettier.xml
+/.idea/codeStyles/Project.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
