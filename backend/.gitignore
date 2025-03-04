@@ -1,7 +1,10 @@
 # compiled output
-/dist
 /node_modules
 /build
+.idea
+dist
+node_modules
+package-lock.json
 
 # Logs
 logs
@@ -28,12 +31,6 @@ lerna-debug.log*
 .settings/
 *.sublime-workspace
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 
 # dotenv environment variable files
 .env
@@ -58,6 +55,7 @@ crm-2024-api-mysql-db/
 *.CSV
 *.CSM
 
-
 # Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json!/okten-school-crm.iml
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+
