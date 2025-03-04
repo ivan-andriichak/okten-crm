@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8c9be179-ca23-4ec1-892f-629077a1e21e" name="Changes" comment="Created frontend part.">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/index.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8c9be179-ca23-4ec1-892f-629077a1e21e" name="Changes" comment="Added idea to .gitignore/idea." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,7 +56,7 @@
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore_missing_gitignore&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/vasil/IdeaProjects/My-projects/okten-crm/frontend&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/vasil/IdeaProjects/My-projects/okten-crm/.idea&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -83,6 +80,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\vasil\IdeaProjects\My-projects\okten-crm\.idea" />
       <recent name="C:\Users\vasil\IdeaProjects\My-projects\okten-crm\frontend" />
       <recent name="C:\Users\vasil\IdeaProjects\My-projects\okten-crm" />
     </key>
@@ -155,6 +153,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Moved backend to backend folder" />
     <MESSAGE value="Created frontend part." />
-    <option name="LAST_COMMIT_MESSAGE" value="Created frontend part." />
+    <MESSAGE value="Added idea to .gitignore." />
+    <MESSAGE value="Added idea to .gitignore/idea." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added idea to .gitignore/idea." />
   </component>
 </project>
