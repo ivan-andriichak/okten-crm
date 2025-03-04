@@ -45,7 +45,7 @@ export class OrderService {
   ): Promise<OrderListItemResDto> {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
-      relations: ['manager'],
+      relations: ['manager', 'comments', 'comments.user'],
     });
 
     // Перевірка: менеджер відсутній або це поточний користувач

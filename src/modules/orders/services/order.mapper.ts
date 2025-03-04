@@ -38,7 +38,8 @@ export class OrderMapper {
       comments: entity.comments?.map((comment) => ({
         text: comment.text,
         utm: comment.utm,
-        author: comment.user?.surname || 'Unknown',
+        author:
+          `${comment.user?.name || 'Unknown'} ${comment.user?.surname || ''}`.trim(),
         createdAt: comment.created_at,
       })),
     };

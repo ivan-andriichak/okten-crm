@@ -64,8 +64,6 @@ export class OrdersRepository extends Repository<OrderEntity> {
       'order.alreadyPaid',
       'order.created_at',
       'order.group',
-      'order.msg',
-      'order.utm',
       'manager.id',
       'manager.email',
       'manager.name',

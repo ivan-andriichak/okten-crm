@@ -5,7 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Redirect,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -27,25 +26,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiResponse({
-    status: 302,
-    description:
-      'Redirect to login page if user is not authenticated, otherwise redirect to dashboard',
+    status: 200,
+    description: 'API is running',
   })
   @SkipAuth()
   @Get()
-  @Redirect('/login', 302)
-  redirectToLogin() {
-    return;
+  healthCheck() {
+    return { message: 'API is running' };
   }
-
-  @ApiResponse({
-    status: HttpStatus.FOUND,
-    description: 'Admin created successfully',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Admin already exists',
-  })
   @SkipAuth()
   @Get('create-admin')
   public async createDefaultAdmin(): Promise<AuthResDto> {
