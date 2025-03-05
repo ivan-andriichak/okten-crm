@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  LoggerService,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -26,6 +27,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly tokenService: TokenService,
     private readonly authCacheService: AuthCacheService,
+    private readonly logger: LoggerService,
   ) {}
 
   public async createDefaultAdmin(): Promise<AuthResDto> {
@@ -51,13 +53,11 @@ export class AuthService {
   // Реєстрація нового користувача
   public async register(dto: RegisterReqDto): Promise<AuthResDto> {
     try {
-      // Перевірка на існування email
+      this.logger.log(`Register called for email ${dto.email}`);
       await this.userService.isEmailExistOrThrow(dto.email);
 
-      // Хешування пароля
       const password = await bcrypt.hash(dto.password, 10);
 
-      // Збереження користувача
       const user = await this.userRepository.save(
         this.userRepository.create({
           ...dto,
@@ -70,6 +70,26 @@ export class AuthService {
         userId: user.id,
         deviceId: dto.deviceId,
       });
+
+      const existingTokens = await this.refreshTokenRepository.find({
+        where: { deviceId: dto.deviceId },
+      });
+      this.logger.log(
+        'Existing tokens before delete (register):',
+        existingTokens,
+      );
+
+      // Видалення старих токенів
+      const deleteResult = await this.refreshTokenRepository.delete({
+        deviceId: dto.deviceId,
+      });
+      console.log('Delete result (register):', deleteResult);
+
+      // Перевірка після видалення
+      const tokensAfterDelete = await this.refreshTokenRepository.find({
+        where: { deviceId: dto.deviceId },
+      });
+      console.log('Tokens after delete (register):', tokensAfterDelete);
 
       // Збереження токенів
       await Promise.all([
@@ -111,11 +131,36 @@ export class AuthService {
         deviceId: dto.deviceId,
       });
 
+      // Логування перед видаленням
+      const existingTokens = await this.refreshTokenRepository.find({
+        where: { deviceId: dto.deviceId },
+      });
+      console.log('Existing tokens before delete:', existingTokens);
+
+      // Видалення старих токенів
+      const deleteResult = await this.refreshTokenRepository.delete({
+        deviceId: dto.deviceId,
+      });
+      this.logger.log('Delete result (register):', deleteResult);
+
+      // Перевірка після видалення
+      const tokensAfterDelete = await this.refreshTokenRepository.find({
+        where: { deviceId: dto.deviceId },
+      });
+      this.logger.log('Tokens after delete (register):', tokensAfterDelete);
+
       await Promise.all([
-        this.refreshTokenRepository.delete({
-          deviceId: dto.deviceId,
-          user_id: user.id,
-        }),
+        this.refreshTokenRepository
+          .delete({
+            deviceId: dto.deviceId,
+            user_id: user.id,
+          })
+          .then((result) =>
+            console.log(
+              `Deleted refresh tokens for user ${user.id} and device ${dto.deviceId}:`,
+              result,
+            ),
+          ),
         this.authCacheService.deleteToken(user.id, dto.deviceId),
       ]);
 
@@ -131,14 +176,15 @@ export class AuthService {
           dto.deviceId,
         ),
       ]);
+      this.logger.log(`User registered with id ${user.id}`);
 
-      // Оновлення поля `last_login`
       await this.userRepository.update(user.id, { last_login: new Date() });
 
       const userEntity = await this.userRepository.findOneBy({ id: user.id });
 
       return { user: UserMapper.toResponseDTO(userEntity), tokens };
     } catch (error) {
+      this.logger.error('Error during registration:', error);
       throw new Error(error);
     }
   }

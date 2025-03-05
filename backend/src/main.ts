@@ -1,5 +1,11 @@
-// import { BadRequestException, Logger, ValidationError, ValidationPipe } from '@nestjs/common';
-import { Logger } from '@nestjs/common';
+// import './instrument';
+
+import {
+  BadRequestException,
+  Logger,
+  ValidationError,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -45,19 +51,22 @@ async function bootstrap() {
   });
 
   // Глобальні Validation Pipes
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     whitelist: true,
-  //     transform: true,
-  //     forbidNonWhitelisted: true,
-  //     exceptionFactory: (validationErrors: ValidationError[] = []) => {
-  //       Logger.error('Validation failed', JSON.stringify(validationErrors));
-  //       return new BadRequestException(
-  //         validationErrors.map((error) => ({ property: error.property, constraints: error.constraints }))
-  //       );
-  //     },
-  //   })
-  // );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (validationErrors: ValidationError[] = []) => {
+        Logger.error('Validation failed', JSON.stringify(validationErrors));
+        return new BadRequestException(
+          validationErrors.map((error) => ({
+            property: error.property,
+            constraints: error.constraints,
+          })),
+        );
+      },
+    }),
+  );
 
   await app.listen(appConfig.port, () => {
     Logger.log(`Server running on http://${appConfig.host}:${appConfig.port}`);

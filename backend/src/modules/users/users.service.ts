@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  LoggerService,
   NotFoundException,
 } from '@nestjs/common';
 import { Express } from 'express';
@@ -19,9 +20,11 @@ export class UsersService {
     private readonly fileStorageService: FileStorageService,
     private readonly userRepository: UserRepository,
     private readonly authCacheService: AuthCacheService,
+    private readonly logger: LoggerService,
   ) {}
 
   public async findMe(userData: IUserData): Promise<UserEntity> {
+    this.logger.log(`findMe called for user ${userData.userId}`);
     return await this.userRepository.findOneBy({ id: userData.userId });
   }
 
@@ -29,17 +32,20 @@ export class UsersService {
     userData: IUserData,
     dto: UpdateUserDto,
   ): Promise<UserEntity> {
+    this.logger.log(`updateMe called for user ${userData.userId}`);
     const user = await this.userRepository.findOneBy({ id: userData.userId });
     this.userRepository.merge(user, dto);
     return await this.userRepository.save(user);
   }
 
   public async removeMe(userData: IUserData): Promise<void> {
+    this.logger.warn(`removeMe called for user ${userData.userId}`);
     await this.userRepository.delete({ id: userData.userId });
     await this.authCacheService.deleteToken(userData.userId, userData.deviceId);
   }
 
   public async findOne(userId: string): Promise<UserEntity> {
+    this.logger.log(`findOne called for user ${userId}`);
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       throw new NotFoundException(`User with id ${userId} not found`);
@@ -51,6 +57,7 @@ export class UsersService {
     userData: IUserData,
     avatar: Express.Multer.File,
   ): Promise<void> {
+    this.logger.log(`uploadAvatar called for user ${userData.userId}`);
     const image = await this.fileStorageService.uploadFile(
       avatar,
       ContentType.AVATAR,
@@ -60,6 +67,7 @@ export class UsersService {
   }
 
   public async deleteAvatar(userData: IUserData): Promise<void> {
+    this.logger.log(`deleteAvatar called for user ${userData.userId}`);
     const user = await this.userRepository.findOneBy({ id: userData.userId });
     if (user.image) {
       await this.fileStorageService.deleteFile(user.image);

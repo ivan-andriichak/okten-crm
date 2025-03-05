@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  LoggerService,
   NotFoundException,
 } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
@@ -20,7 +21,10 @@ import { OrderMapper } from './order.mapper';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly ordersRepository: OrdersRepository) {}
+  constructor(
+    private readonly ordersRepository: OrdersRepository,
+    private readonly logger: LoggerService,
+  ) {}
 
   public async getListOrders(
     userData: IUserData,
@@ -43,6 +47,9 @@ export class OrderService {
     commentDto: CommentDto,
     userData: IUserData,
   ): Promise<OrderListItemResDto> {
+    this.logger.log(
+      `addComment called for order ${orderId} by user ${userData.userId}`,
+    );
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
       relations: ['manager', 'comments', 'comments.user'],
@@ -81,6 +88,7 @@ export class OrderService {
     orderId: string,
     editOrderDto: EditOrderDto,
   ): Promise<OrderEntity> {
+    this.logger.log(`editOrder called for order ${orderId}`);
     const order = await this.ordersRepository.findOne({
       where: { id: orderId.toString() },
     });

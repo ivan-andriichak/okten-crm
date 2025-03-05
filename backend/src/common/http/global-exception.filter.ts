@@ -5,6 +5,7 @@ import {
   ExceptionFilter,
   HttpException,
 } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 import { Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
 
@@ -36,6 +37,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       messages = 'Internal server error';
     }
     this.logger.error(exception);
+    Sentry.captureException(exception);
     messages = Array.isArray(messages) ? messages : [messages];
     response.status(status).json({
       statusCode: status,

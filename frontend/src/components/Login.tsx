@@ -5,10 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { AuthResponse, LoginRequest } from '../types/auth';
 
 interface LoginProps {
-  setToken: (token: string) => void;
+  setTokenAndRole: (token: string, role: 'admin' | 'manager') => void;
 }
 
-const Login: React.FC<LoginProps> = ({ setToken }) => {
+const Login: React.FC<LoginProps> = ({ setTokenAndRole }) => {
   const [email, setEmail] = useState<string>('admin@gmail.com');
   const [password, setPassword] = useState<string>('admin');
   const [deviceId] = useState<string>('550e8400-e29b-41d4-a716-446655440000');
@@ -26,10 +26,10 @@ const Login: React.FC<LoginProps> = ({ setToken }) => {
         role,
       } as LoginRequest);
       const { accessToken } = response.data.tokens;
-      setToken(accessToken);
-      localStorage.setItem('token', accessToken);
-      console.log('Logged in successfully:', accessToken);
-      navigate('/orders'); // Перенаправлення на /orders
+      const userRole = response.data.user.role;
+      setTokenAndRole(accessToken, userRole);
+      console.log('Logged in successfully:', accessToken, 'Role:', userRole);
+      navigate('/orders');
     } catch (err: any) {
       setError(err.response?.data?.messages?.[0] || 'Login failed');
     }

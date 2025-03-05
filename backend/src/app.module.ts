@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { SentryModule } from '@sentry/nestjs/setup';
 
 import { RolesGuard } from './common/guards/roles.guard';
 import { GlobalExceptionFilter } from './common/http/global-exception.filter';
@@ -17,6 +18,7 @@ import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true,
