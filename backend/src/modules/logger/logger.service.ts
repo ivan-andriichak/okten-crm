@@ -52,9 +52,10 @@ export class LoggerService {
     }
   }
 
-  public error(error: any): void {
+  public error(error: any, trace: string = ''): void {
+    const finalTrace = trace || (error && error.stack ? error.stack : '');
     if (this.isLocal) {
-      this.logger.error(error, error.stack);
+      this.logger.error(error, finalTrace);
     } else {
       Sentry.captureException(error, { level: 'error' });
     }

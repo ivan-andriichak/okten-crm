@@ -36,7 +36,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status = 500;
       messages = 'Internal server error';
     }
-    this.logger.error(exception);
+    this.logger.error(
+      exception,
+      exception instanceof Error ? exception.stack : '',
+    );
     Sentry.captureException(exception);
     messages = Array.isArray(messages) ? messages : [messages];
     response.status(status).json({

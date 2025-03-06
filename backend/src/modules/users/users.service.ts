@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  LoggerService,
   NotFoundException,
 } from '@nestjs/common';
 import { Express } from 'express';
@@ -11,6 +10,7 @@ import { IUserData } from '../auth/interfaces/user-data.interface';
 import { AuthCacheService } from '../auth/services/auth-cach.service';
 import { ContentType } from '../file-storage/enums/content-type.enum';
 import { FileStorageService } from '../file-storage/services/file-storage.service';
+import { LoggerService } from '../logger/logger.service';
 import { UserRepository } from '../repository/services/user.repository';
 import { UpdateUserDto } from './dto/req/update-user.dto';
 

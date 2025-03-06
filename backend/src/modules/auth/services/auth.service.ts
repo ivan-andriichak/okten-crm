@@ -1,12 +1,12 @@
 import {
   ConflictException,
   Injectable,
-  LoggerService,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { Role } from '../../../common/enums/role.enum';
+import { LoggerService } from '../../logger/logger.service';
 import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { UserMapper } from '../../users/user.maper';
@@ -31,6 +31,7 @@ export class AuthService {
   ) {}
 
   public async createDefaultAdmin(): Promise<AuthResDto> {
+    this.logger.info('Attempting to create default admin');
     const existingAdmin = await this.userRepository.findOne({
       where: { email: 'admin@gmail.com', role: Role.ADMIN },
     });
@@ -53,45 +54,33 @@ export class AuthService {
   // Реєстрація нового користувача
   public async register(dto: RegisterReqDto): Promise<AuthResDto> {
     try {
-      this.logger.log(`Register called for email ${dto.email}`);
+      this.logger.log(`Registering user with email: ${dto.email}`);
       await this.userService.isEmailExistOrThrow(dto.email);
 
-      const password = await bcrypt.hash(dto.password, 10);
-
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
       const user = await this.userRepository.save(
         this.userRepository.create({
           ...dto,
-          password,
+          password: hashedPassword,
         }),
       );
 
-      // Генерація токенів
       const tokens = await this.tokenService.generateAuthTokens({
         userId: user.id,
         deviceId: dto.deviceId,
       });
 
-      const existingTokens = await this.refreshTokenRepository.find({
-        where: { deviceId: dto.deviceId },
-      });
+      await Promise.all([
+        this.refreshTokenRepository.delete({
+          deviceId: dto.deviceId,
+          user_id: user.id,
+        }),
+        this.authCacheService.deleteToken(user.id, dto.deviceId),
+      ]);
       this.logger.log(
-        'Existing tokens before delete (register):',
-        existingTokens,
+        `Old tokens removed for user ${user.id} and device ${dto.deviceId}`,
       );
 
-      // Видалення старих токенів
-      const deleteResult = await this.refreshTokenRepository.delete({
-        deviceId: dto.deviceId,
-      });
-      console.log('Delete result (register):', deleteResult);
-
-      // Перевірка після видалення
-      const tokensAfterDelete = await this.refreshTokenRepository.find({
-        where: { deviceId: dto.deviceId },
-      });
-      console.log('Tokens after delete (register):', tokensAfterDelete);
-
-      // Збереження токенів
       await Promise.all([
         this.refreshTokenRepository.save({
           deviceId: dto.deviceId,
@@ -104,65 +93,45 @@ export class AuthService {
           dto.deviceId,
         ),
       ]);
+      this.logger.log(`Tokens saved for user ${user.id}`);
 
       return { user: UserMapper.toResponseDTO(user), tokens };
     } catch (error) {
-      throw new Error(error);
+      this.logger.error(error);
+      throw error;
     }
   }
 
   // Логін користувача
   public async login(dto: LoginReqDto): Promise<AuthResDto> {
     try {
+      this.logger.log(`Login attempt for email: ${dto.email}`);
       const user = await this.userRepository.findOne({
         where: { email: dto.email },
         select: { id: true, password: true },
       });
       if (!user) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Invalid credentials');
       }
 
       const isPasswordValid = await bcrypt.compare(dto.password, user.password);
       if (!isPasswordValid) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Invalid credentials');
       }
+
       const tokens = await this.tokenService.generateAuthTokens({
         userId: user.id,
         deviceId: dto.deviceId,
       });
 
-      // Логування перед видаленням
-      const existingTokens = await this.refreshTokenRepository.find({
-        where: { deviceId: dto.deviceId },
-      });
-      console.log('Existing tokens before delete:', existingTokens);
-
-      // Видалення старих токенів
-      const deleteResult = await this.refreshTokenRepository.delete({
-        deviceId: dto.deviceId,
-      });
-      this.logger.log('Delete result (register):', deleteResult);
-
-      // Перевірка після видалення
-      const tokensAfterDelete = await this.refreshTokenRepository.find({
-        where: { deviceId: dto.deviceId },
-      });
-      this.logger.log('Tokens after delete (register):', tokensAfterDelete);
-
       await Promise.all([
-        this.refreshTokenRepository
-          .delete({
-            deviceId: dto.deviceId,
-            user_id: user.id,
-          })
-          .then((result) =>
-            console.log(
-              `Deleted refresh tokens for user ${user.id} and device ${dto.deviceId}:`,
-              result,
-            ),
-          ),
+        this.refreshTokenRepository.delete({
+          deviceId: dto.deviceId,
+          user_id: user.id,
+        }),
         this.authCacheService.deleteToken(user.id, dto.deviceId),
       ]);
+      this.logger.log(`Old tokens removed for user ${user.id}`);
 
       await Promise.all([
         this.refreshTokenRepository.save({
@@ -176,58 +145,73 @@ export class AuthService {
           dto.deviceId,
         ),
       ]);
-      this.logger.log(`User registered with id ${user.id}`);
+      this.logger.log(`New tokens saved for user ${user.id}`);
 
       await this.userRepository.update(user.id, { last_login: new Date() });
+      this.logger.log(`Updated last_login for user ${user.id}`);
 
       const userEntity = await this.userRepository.findOneBy({ id: user.id });
 
       return { user: UserMapper.toResponseDTO(userEntity), tokens };
     } catch (error) {
-      this.logger.error('Error during registration:', error);
-      throw new Error(error);
+      this.logger.error(error.message, error.stack);
+      throw error;
     }
   }
 
   // Оновлення токенів
   public async refresh(userData: IUserData): Promise<TokenPairResDto> {
-    await Promise.all([
-      this.refreshTokenRepository.delete({
+    try {
+      this.logger.log(`Refreshing tokens for user ${userData.userId}`);
+      await Promise.all([
+        this.refreshTokenRepository.delete({
+          deviceId: userData.deviceId,
+          user_id: userData.userId,
+        }),
+        this.authCacheService.deleteToken(userData.userId, userData.deviceId),
+      ]);
+
+      const tokens = await this.tokenService.generateAuthTokens({
+        userId: userData.userId,
         deviceId: userData.deviceId,
-        user_id: userData.userId,
-      }),
-      this.authCacheService.deleteToken(userData.userId, userData.deviceId),
-    ]);
+      });
 
-    const tokens = await this.tokenService.generateAuthTokens({
-      userId: userData.userId,
-      deviceId: userData.deviceId,
-    });
+      await Promise.all([
+        this.refreshTokenRepository.save({
+          deviceId: userData.deviceId,
+          refreshToken: tokens.refreshToken,
+          user_id: userData.userId,
+        }),
+        this.authCacheService.saveToken(
+          tokens.accessToken,
+          userData.userId,
+          userData.deviceId,
+        ),
+      ]);
 
-    await Promise.all([
-      this.refreshTokenRepository.save({
-        deviceId: userData.deviceId,
-        refreshToken: tokens.refreshToken,
-        user_id: userData.userId,
-      }),
-      this.authCacheService.saveToken(
-        tokens.accessToken,
-        userData.userId,
-        userData.deviceId,
-      ),
-    ]);
-
-    return tokens;
+      this.logger.log(`Tokens refreshed for user ${userData.userId}`);
+      return tokens;
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
   }
 
   // Логаут користувача
   public async logOut(userData: IUserData): Promise<void> {
-    await Promise.all([
-      this.refreshTokenRepository.delete({
-        deviceId: userData.deviceId,
-        user_id: userData.userId,
-      }),
-      this.authCacheService.deleteToken(userData.userId, userData.deviceId),
-    ]);
+    try {
+      this.logger.log(`Logging out user ${userData.userId}`);
+      await Promise.all([
+        this.refreshTokenRepository.delete({
+          deviceId: userData.deviceId,
+          user_id: userData.userId,
+        }),
+        this.authCacheService.deleteToken(userData.userId, userData.deviceId),
+      ]);
+      this.logger.log(`User ${userData.userId} logged out successfully`);
+    } catch (error) {
+      this.logger.error(error.message, error.stack);
+      throw error;
+    }
   }
 }

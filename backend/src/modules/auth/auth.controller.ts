@@ -5,7 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -49,15 +48,6 @@ export class AuthController {
   @Post('register')
   public async register(@Body() dto: RegisterReqDto): Promise<AuthResDto> {
     return await this.authService.register(dto);
-  }
-
-  @ApiBearerAuth()
-  @SkipAuth()
-  @Get('check-auth')
-  public async checkAuth(@CurrentUser() userData: IUserData): Promise<void> {
-    if (!userData) {
-      throw new UnauthorizedException();
-    }
   }
 
   @SkipAuth()

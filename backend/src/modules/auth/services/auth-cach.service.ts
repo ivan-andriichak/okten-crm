@@ -39,10 +39,7 @@ export class AuthCacheService {
 
   public async deleteToken(userId: string, deviceId: string): Promise<void> {
     const key = this.getKey(userId, deviceId);
-    console.log(`Deleting Redis key: ${key}`);
     await this.redisService.deleteByKey(key);
-    const remainingTokens = await this.redisService.sMembers(key);
-    console.log(`Remaining tokens after delete for ${key}:`, remainingTokens);
   }
 
   private getKey(userId: string, deviceId: string): string {

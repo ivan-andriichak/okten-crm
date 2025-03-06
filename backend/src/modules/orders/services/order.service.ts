@@ -1,7 +1,6 @@
 import {
   ForbiddenException,
   Injectable,
-  LoggerService,
   NotFoundException,
 } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
@@ -11,6 +10,7 @@ import { CommentEntity } from '../../../database/entities/comment.entity';
 import { OrderEntity } from '../../../database/entities/order.entity';
 import { UserEntity } from '../../../database/entities/user.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
+import { LoggerService } from '../../logger/logger.service';
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
 import { EditOrderDto } from '../dto/req/edit-order.req.dto';
@@ -30,6 +30,7 @@ export class OrderService {
     userData: IUserData,
     query: OrderListQueryDto,
   ): Promise<[OrderEntity[], number]> {
+    this.logger.log(`getListOrders called for user ${userData.userId}`);
     const userId = userData.role === Role.MANAGER ? userData.userId : undefined;
     return await this.ordersRepository.getListOrders(userId, query);
   }
@@ -88,7 +89,6 @@ export class OrderService {
     orderId: string,
     editOrderDto: EditOrderDto,
   ): Promise<OrderEntity> {
-    this.logger.log(`editOrder called for order ${orderId}`);
     const order = await this.ordersRepository.findOne({
       where: { id: orderId.toString() },
     });
