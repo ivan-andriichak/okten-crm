@@ -9,6 +9,7 @@ import configuration from './config/configuration';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { FileStorageModule } from './modules/file-storage/file-storage.module';
+import { GroupModule } from './modules/groups/group.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { MysqlModule } from './modules/mysql/mysql.module';
 import { OrderModule } from './modules/orders/order.module';
@@ -32,6 +33,7 @@ import { UsersModule } from './modules/users/users.module';
     LoggerModule,
     RepositoryModule,
     FileStorageModule,
+    GroupModule,
   ],
   providers: [
     {

@@ -2,16 +2,19 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login';
+import Orders from './components/Orders';
 
 const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [userRole, setUserRole] = useState<'admin' | 'manager' | null>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'manager' | null>(
+    localStorage.getItem('role') as 'admin' | 'manager' | null
+  );
 
   const handleSetTokenAndRole = (token: string, role: 'admin' | 'manager') => {
     setToken(token);
     setUserRole(role);
     localStorage.setItem('token', token);
-    localStorage.setItem('role', role); // Зберігаємо роль
+    localStorage.setItem('role', role);
   };
 
   const handleLogout = () => {
@@ -31,13 +34,8 @@ const App: React.FC = () => {
         <Route
           path="/orders"
           element={
-            token ? (
-              <div>
-                <h2>Orders Page</h2>
-                <p>Token: {token}</p>
-                <p>Role: {userRole}</p>
-                <button onClick={handleLogout}>Logout</button>
-              </div>
+            token && userRole ? (
+              <Orders token={token} role={userRole} onLogout={handleLogout} />
             ) : (
               <Navigate to="/" />
             )

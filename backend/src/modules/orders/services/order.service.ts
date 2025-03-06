@@ -10,6 +10,7 @@ import { CommentEntity } from '../../../database/entities/comment.entity';
 import { OrderEntity } from '../../../database/entities/order.entity';
 import { UserEntity } from '../../../database/entities/user.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
+import { GroupService } from '../../groups/services/group.services';
 import { LoggerService } from '../../logger/logger.service';
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
@@ -23,6 +24,7 @@ import { OrderMapper } from './order.mapper';
 export class OrderService {
   constructor(
     private readonly ordersRepository: OrdersRepository,
+    private readonly groupService: GroupService,
     private readonly logger: LoggerService,
   ) {}
 
