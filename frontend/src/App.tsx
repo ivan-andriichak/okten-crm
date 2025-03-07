@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Orders from './components/Orders';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
@@ -29,13 +30,26 @@ const App: React.FC = () => {
       <Routes>
         <Route
           path="/"
-          element={token ? <Navigate to="/orders" /> : <Login setTokenAndRole={handleSetTokenAndRole} />}
+          element={
+            token ? (
+              <Navigate to="/orders" />
+            ) : (
+              <Login setTokenAndRole={handleSetTokenAndRole} />
+            )
+          }
         />
         <Route
           path="/orders"
           element={
             token && userRole ? (
-              <Orders token={token} role={userRole} onLogout={handleLogout} />
+              <ErrorBoundary>
+              <Orders
+                token={token}
+                role={userRole}
+                onLogout={handleLogout}
+                currentUserId={''}
+              />
+              </ErrorBoundary>
             ) : (
               <Navigate to="/" />
             )

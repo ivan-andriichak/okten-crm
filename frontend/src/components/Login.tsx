@@ -27,8 +27,7 @@ const Login: React.FC<LoginProps> = ({ setTokenAndRole }) => {
       } as LoginRequest);
       const { accessToken } = response.data.tokens;
       const userRole = response.data.user.role;
-      setTokenAndRole(accessToken, userRole);
-      console.log('Logged in successfully:', accessToken, 'Role:', userRole);
+setTokenAndRole(accessToken, response.data.user.role);      console.log('Logged in successfully:', accessToken, 'Role:', userRole);
       navigate('/orders');
     } catch (err: any) {
       setError(err.response?.data?.messages?.[0] || 'Login failed');

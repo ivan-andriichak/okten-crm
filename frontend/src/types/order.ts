@@ -17,8 +17,8 @@ export interface Order {
   manager: { id: string; name: string; surname: string } | null;
   comments?: {
     text: string;
-    utm: string | null;
+    utm?: string | null;
     author?: string;
     createdAt: string;
-  }[] | null;
+  }[];
 }
