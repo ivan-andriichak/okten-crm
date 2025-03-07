@@ -24,10 +24,11 @@ export class OrdersRepository extends Repository<OrderEntity> {
       search,
     } = query;
 
-    const qb = this.createQueryBuilder('order').leftJoinAndSelect(
-      'order.manager',
-      'manager',
-    );
+    const qb = this.createQueryBuilder('order')
+      .leftJoinAndSelect('order.manager', 'manager')
+      .leftJoinAndSelect('order.groupEntity', 'groupEntity')
+      .leftJoinAndSelect('order.comments', 'comments')
+      .leftJoinAndSelect('comments.user', 'commentUser');
 
     // Фільтр за userId (якщо передано)
     if (userId) {
@@ -64,13 +65,23 @@ export class OrdersRepository extends Repository<OrderEntity> {
       'order.alreadyPaid',
       'order.created_at',
       'order.group',
+      'groupEntity.id',
       'manager.id',
       'manager.email',
       'manager.name',
       'manager.surname',
       'manager.role',
+      'comments.id',
+      'comments.text',
+      'comments.utm',
+      'comments.created_at',
+      'commentUser.id',
+      'commentUser.name',
+      'commentUser.surname',
     ]);
 
-    return await qb.getManyAndCount();
+    const [orders, total] = await qb.getManyAndCount();
+    console.log('Orders fetched:', orders);
+    return [orders, total];
   }
 }

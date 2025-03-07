@@ -13,6 +13,7 @@ import { IUserData } from '../../auth/interfaces/user-data.interface';
 import { GroupService } from '../../groups/services/group.services';
 import { LoggerService } from '../../logger/logger.service';
 import { OrdersRepository } from '../../repository/services/orders.repository';
+import { UserRepository } from '../../repository/services/user.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
 import { EditOrderDto } from '../dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from '../dto/req/excel-guery.req.dto';
@@ -24,6 +25,7 @@ import { OrderMapper } from './order.mapper';
 export class OrderService {
   constructor(
     private readonly ordersRepository: OrdersRepository,
+    private readonly userRepository: UserRepository,
     private readonly groupService: GroupService,
     private readonly logger: LoggerService,
   ) {}
@@ -92,14 +94,30 @@ export class OrderService {
     editOrderDto: EditOrderDto,
   ): Promise<OrderEntity> {
     const order = await this.ordersRepository.findOne({
-      where: { id: orderId.toString() },
+      where: { id: orderId },
+      relations: ['manager', 'groupEntity'],
     });
 
     if (!order) {
-      throw new NotFoundException(`Order with id ${orderId} not found`);
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
     }
 
-    Object.assign(order, editOrderDto); // Оновлюємо поля з DTO
+    // Оновлюємо поля
+    Object.assign(order, editOrderDto);
+
+    // Якщо передано manager_id, перевіряємо існування менеджера
+    if (editOrderDto.manager_id) {
+      const manager = await this.userRepository.findOne({
+        where: { id: editOrderDto.manager_id },
+      });
+      if (!manager) {
+        throw new NotFoundException(
+          `Manager with ID ${editOrderDto.manager_id} not found`,
+        );
+      }
+      order.manager = manager;
+    }
+
     return await this.ordersRepository.save(order);
   }
 

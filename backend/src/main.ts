@@ -47,7 +47,7 @@ async function bootstrap() {
     origin: '*',
     credentials: true,
     allowedHeaders: ['Authorization', 'Content-Type'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   });
 
   // Глобальні Validation Pipes

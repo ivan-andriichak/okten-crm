@@ -1,6 +1,3 @@
-// src/types/order.ts
-// import { useState } from 'react';
-
 export interface Order {
   id: string;
   name: string | null;
@@ -14,11 +11,14 @@ export interface Order {
   status: string;
   sum: number | null;
   alreadyPaid: number | null;
-  groupEntity: { id: string; name: string } | null;
   created_at: string;
+  group: string | null;
+  groupEntity: { id: string; name: string } | null;
+  manager: { id: string; name: string; surname: string } | null;
+  comments?: {
+    text: string;
+    utm: string | null;
+    author?: string;
+    createdAt: string;
+  }[] | null;
 }
-
-export interface OrderWithGroupId extends Order {
-  groupId?: string;
-}
-

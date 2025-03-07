@@ -9,6 +9,7 @@ export class OrderListQueryDto {
   @IsOptional()
   page: number = 1;
 
+  @Type(() => Number)
   @IsOptional()
   @IsInt()
   limit?: number = 20;
@@ -25,5 +26,5 @@ export class OrderListQueryDto {
 
   @IsOptional()
   @IsIn(['ASC', 'DESC'])
-  order: 'ASC' | 'DESC' = 'DESC';
+  order?: 'ASC' | 'DESC' = 'DESC';
 }
