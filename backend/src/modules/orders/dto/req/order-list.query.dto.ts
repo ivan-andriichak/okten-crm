@@ -1,5 +1,5 @@
 import { Transform, Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 
 import { TransformHelper } from '../../../../common/helpers/transform.helper';
 
@@ -12,7 +12,7 @@ export class OrderListQueryDto {
   @Type(() => Number)
   @IsOptional()
   @IsInt()
-  limit?: number = 20;
+  limit?: number = 25;
 
   @IsOptional()
   @IsString()
@@ -27,4 +27,8 @@ export class OrderListQueryDto {
   @IsOptional()
   @IsIn(['ASC', 'DESC'])
   order?: 'ASC' | 'DESC' = 'DESC';
+
+  @IsUUID()
+  @IsOptional()
+  manager_id?: string;
 }

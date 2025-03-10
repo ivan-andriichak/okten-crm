@@ -1,182 +1,82 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Order } from '../types/order';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addComment,
+  AppDispatch, closeEditModal,
+  fetchOrders,
+  logout, openEditModal,
+  RootState, setCommentText,
+  setSort, toggleExpand,
+  updateEditForm,
+  updateOrder,
+} from '../../store';
 
-interface OrdersResponse {
-  orders: Order[];
-  total: number;
-  query: {
-    page: number;
-    limit: number;
-    sort: string;
-    order: 'ASC' | 'DESC';
-  };
-}
 
 interface OrdersProps {
   token: string;
   role: 'admin' | 'manager';
   onLogout: () => void;
-  currentUserId: string; // Додаємо ID поточного користувача
+  currentUserId: string;
 }
 
-const Orders: React.FC<OrdersProps> = ({
-  token,
-  role,
-  onLogout,
-  currentUserId,
-}) => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string>('created_at');
-  const [order, setOrder] = useState<'ASC' | 'DESC'>('DESC');
-  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
-  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
-  const [editForm, setEditForm] = useState<Partial<Order>>({});
-  const [commentText, setCommentText] = useState<string>('');
-
-
-  const fetchOrders = async () => {
-    try {
-      const params: any = {
-        page: 1,
-        limit: 20,
-        sort: sortBy,
-        order,
-        manager_id: role === 'manager' ? currentUserId : undefined,
-      };
-      const response = await axios.get<OrdersResponse>(
-        'http://localhost:3001/orders',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params,
-        },
-      );
-      console.log('Response from backend:', response.data);
-      setOrders(response.data.orders);
-    } catch (err: any) {
-      console.error(
-        'Error fetching orders:',
-        err.response?.data || err.message,
-      );
-      setError(err.response?.data?.message || 'Failed to fetch orders');
-    }
-  };
+const Orders: React.FC<OrdersProps> = ({ role }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    orders,
+    loading,
+    error,
+    sort,
+    order: sortOrder,
+    expandedOrderId,
+    editingOrder,
+    editForm,
+    commentText,
+  } = useSelector((state: RootState) => state.orders);
+  const {  currentUserId, token } = useSelector(
+    (state: RootState) => state.auth,
+  );
 
   useEffect(() => {
-    fetchOrders();
-  }, [token, sortBy, order]);
+    if (token) {
+      dispatch(fetchOrders());
+    }
+  }, [dispatch, token, sort, sortOrder]);
 
   const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setOrder(order === 'ASC' ? 'DESC' : 'ASC');
-    } else {
-      setSortBy(field);
-      setOrder('ASC');
-    }
+    const newOrder = sort === field && sortOrder === 'ASC' ? 'DESC' : 'ASC';
+    dispatch(setSort({ sort: field, order: newOrder }));
   };
 
-  const toggleExpand = (orderId: string) => {
-    setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
-  };
-
-  const openEditModal = (order: Order) => {
-    const canEdit = !order.manager || order.manager.id === currentUserId;
-    if (!canEdit) {
-      setError('You can only edit orders without a manager or assigned to you');
-      return;
-    }
-    setEditingOrder(order);
-    setEditForm({ ...order });
-  };
-
-  const closeEditModal = () => {
-    setEditingOrder(null);
-    setEditForm({});
-    setError(null);
+  const handleLogout = () => {
+    dispatch(logout());
   };
 
   const handleEditChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-    setEditForm(prev => ({ ...prev, [name]: value }));
+    dispatch(updateEditForm({ [name]: value }));
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingOrder) return;
-
-    const allowedFields: Partial<Order> = {
-      name: editForm.name,
-      surname: editForm.surname,
-      email: editForm.email,
-      phone: editForm.phone,
-      age: editForm.age,
-      course: editForm.course,
-      course_format: editForm.course_format,
-      course_type: editForm.course_type,
-      status: editForm.status,
-      sum: editForm.sum,
-      alreadyPaid: editForm.alreadyPaid,
-      group: editForm.group,
-      manager:editForm.manager,
-    };
-
-    try {
-      const response = await axios.patch(
-        `http://localhost:3001/orders/${editingOrder.id}/edit`,
-        allowedFields,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      setOrders(prev =>
-        prev.map(order =>
-          order.id === editingOrder.id ? { ...order, ...response.data } : order,
-        ),
-      );
-      closeEditModal();
-    } catch (err: any) {
-      console.error('Edit error:', err.response?.data);
-      setError(err.response?.data?.message || 'Failed to update order');
-    }
+    if (!editingOrder || !token) return;
+    await dispatch(updateOrder(editingOrder.id));
   };
 
   const handleCommentSubmit = async (orderId: string) => {
-    if (!commentText) return;
-
-    try {
-      const response = await axios.post(
-        `http://localhost:3001/orders/${orderId}/comment`,
-        { text: commentText },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      setOrders(prev =>
-        prev.map(order =>
-          order.id === orderId
-            ? { ...order, comments: [...(order.comments || []), response.data.comment] }
-            : order,
-        ),
-      );
-      setCommentText('');
-      await fetchOrders();
-    } catch (err: any) {
-      console.error('Comment error:', err.response?.data);
-      setError(err.response?.data?.message || 'Failed to add comment');
-    }
+    if (!commentText || !token) return;
+    await dispatch(addComment(orderId));
   };
+
   return (
     <div style={{ padding: '20px' }}>
       <h2>Orders Page</h2>
-      <p>Token: {token}</p>
       <p>Role: {role}</p>
-      <button onClick={onLogout}>Logout</button>
+      <p>User ID: {currentUserId || 'Not available'}</p>
+      <button onClick={handleLogout}>Logout</button>
 
+      {loading && <p>Loading...</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {orders.length > 0 ? (
@@ -195,7 +95,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('id')}>
-                ID {sortBy === 'id' && (order === 'ASC' ? '↑' : '↓')}
+                ID {sort === 'id' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -204,7 +104,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('name')}>
-                Name {sortBy === 'name' && (order === 'ASC' ? '↑' : '↓')}
+                Name {sort === 'name' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -213,7 +113,8 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('surname')}>
-                Surname {sortBy === 'surname' && (order === 'ASC' ? '↑' : '↓')}
+                Surname{' '}
+                {sort === 'surname' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -222,7 +123,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('email')}>
-                Email {sortBy === 'email' && (order === 'ASC' ? '↑' : '↓')}
+                Email {sort === 'email' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -231,7 +132,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('phone')}>
-                Phone {sortBy === 'phone' && (order === 'ASC' ? '↑' : '↓')}
+                Phone {sort === 'phone' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -240,7 +141,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('age')}>
-                Age {sortBy === 'age' && (order === 'ASC' ? '↑' : '↓')}
+                Age {sort === 'age' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -249,7 +150,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('course')}>
-                Course {sortBy === 'course' && (order === 'ASC' ? '↑' : '↓')}
+                Course {sort === 'course' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -259,7 +160,7 @@ const Orders: React.FC<OrdersProps> = ({
                 }}
                 onClick={() => handleSort('course_format')}>
                 Course Format{' '}
-                {sortBy === 'course_format' && (order === 'ASC' ? '↑' : '↓')}
+                {sort === 'course_format' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -269,7 +170,7 @@ const Orders: React.FC<OrdersProps> = ({
                 }}
                 onClick={() => handleSort('course_type')}>
                 Course Type{' '}
-                {sortBy === 'course_type' && (order === 'ASC' ? '↑' : '↓')}
+                {sort === 'course_type' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -278,7 +179,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('status')}>
-                Status {sortBy === 'status' && (order === 'ASC' ? '↑' : '↓')}
+                Status {sort === 'status' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -287,7 +188,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('sum')}>
-                Sum {sortBy === 'sum' && (order === 'ASC' ? '↑' : '↓')}
+                Sum {sort === 'sum' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -297,7 +198,7 @@ const Orders: React.FC<OrdersProps> = ({
                 }}
                 onClick={() => handleSort('alreadyPaid')}>
                 Already Paid{' '}
-                {sortBy === 'alreadyPaid' && (order === 'ASC' ? '↑' : '↓')}
+                {sort === 'alreadyPaid' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -306,7 +207,7 @@ const Orders: React.FC<OrdersProps> = ({
                   cursor: 'pointer',
                 }}
                 onClick={() => handleSort('group')}>
-                Group {sortBy === 'group' && (order === 'ASC' ? '↑' : '↓')}
+                Group {sort === 'group' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th
                 style={{
@@ -316,7 +217,7 @@ const Orders: React.FC<OrdersProps> = ({
                 }}
                 onClick={() => handleSort('created_at')}>
                 Created At{' '}
-                {sortBy === 'created_at' && (order === 'ASC' ? '↑' : '↓')}
+                {sort === 'created_at' && (sortOrder === 'ASC' ? '↑' : '↓')}
               </th>
               <th style={{ border: '1px solid #ddd', padding: '8px' }}>
                 Actions
@@ -327,7 +228,7 @@ const Orders: React.FC<OrdersProps> = ({
             {orders.map(order => (
               <React.Fragment key={order.id}>
                 <tr
-                  onClick={() => toggleExpand(order.id)}
+                  onClick={() => dispatch(toggleExpand(order.id))}
                   style={{ cursor: 'pointer' }}>
                   <td style={{ border: '1px solid #ddd', padding: '8px' }}>
                     {order.id}
@@ -375,7 +276,18 @@ const Orders: React.FC<OrdersProps> = ({
                     <button
                       onClick={e => {
                         e.stopPropagation();
-                        openEditModal(order);
+                        const canEdit =
+                          !order.manager || order.manager?.id === currentUserId;
+                        if (!canEdit) {
+                          dispatch(
+                            updateEditForm({
+                              comments: [],
+                              course_format: '',
+                            }),
+                          );
+                          return;
+                        }
+                        dispatch(openEditModal(order));
                       }}>
                       Edit
                     </button>
@@ -442,44 +354,57 @@ const Orders: React.FC<OrdersProps> = ({
                             : 'None'}
                         </p>
                         <p>
-                          <strong>Message:</strong> {order.comments && order.comments.length > 0 ? order.comments[0].text : 'N/A'}
+                          <strong>Message:</strong>{' '}
+                          {order.comments && order.comments.length > 0
+                            ? order.comments[0]?.text
+                            : 'N/A'}
                         </p>
                         <p>
-                          <strong>UTM:</strong> {order.comments && order.comments.length > 0 ? order.comments[0].utm : 'N/A'}
+                          <strong>UTM:</strong>{' '}
+                          {order.comments && order.comments.length > 0
+                            ? order.comments[0]?.utm
+                            : 'N/A'}
                         </p>
-
                         <p>
-                          <strong>Group (Text):</strong> {order.group || 'No group'}
+                          <strong>Group (Text):</strong>{' '}
+                          {order.group || 'No group'}
                         </p>
                         <p>
-                          <strong>Group Entity:</strong> {order.groupEntity?.name || 'No group entity'}
+                          <strong>Group Entity:</strong>{' '}
+                          {order.groupEntity?.name || 'No group entity'}
                         </p>
-
-                          <strong>Comments:</strong>
+                        <strong>Comments:</strong>
                         {order.comments && order.comments.length > 0 ? (
-                          order.comments.map((comment, index) => (
+                          order.comments.map((comment, index) =>
                             comment ? (
                               <div key={index}>
                                 <p>
-                                  <strong>Message:</strong> {comment.text || 'N/A'}<br />
-                                  <strong>UTM:</strong> {comment.utm || 'N/A'}<br />
-                                  <strong>Author:</strong> {comment.author || 'Unknown'}<br />
-                                  <strong>Created At:</strong> {new Date(comment.createdAt).toLocaleString()}
+                                  <strong>Message:</strong>{' '}
+                                  {comment.text || 'N/A'}
+                                  <br />
+                                  <strong>UTM:</strong> {comment.utm || 'N/A'}
+                                  <br />
+                                  <strong>Author:</strong>{' '}
+                                  {comment.author || 'Unknown'}
+                                  <br />
+                                  <strong>Created At:</strong>{' '}
+                                  {new Date(comment.createdAt).toLocaleString()}
                                 </p>
                               </div>
-                            ) : null
-                          ))
+                            ) : null,
+                          )
                         ) : (
                           <p>No comments yet.</p>
                         )}
-
                         {(!order.manager ||
-                          order.manager.id === currentUserId) && (
+                          order.manager?.id === currentUserId) && (
                           <div>
                             <input
                               type="text"
                               value={commentText}
-                              onChange={e => setCommentText(e.target.value)}
+                              onChange={e =>
+                                dispatch(setCommentText(e.target.value))
+                              }
                               placeholder="Add a comment"
                               style={{
                                 width: '70%',
@@ -717,7 +642,7 @@ const Orders: React.FC<OrdersProps> = ({
                 <button type="submit">Submit</button>
                 <button
                   type="button"
-                  onClick={closeEditModal}
+                  onClick={() => dispatch(closeEditModal())}
                   style={{ marginLeft: '10px' }}>
                   Close
                 </button>

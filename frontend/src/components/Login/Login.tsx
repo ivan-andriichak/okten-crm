@@ -1,36 +1,29 @@
-// src/components/Login.tsx
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AuthResponse, LoginRequest } from '../types/auth';
+import { AppDispatch, login, RootState } from '../../store';
 
-interface LoginProps {
-  setTokenAndRole: (token: string, role: 'admin' | 'manager') => void;
-}
-
-const Login: React.FC<LoginProps> = ({ setTokenAndRole }) => {
+const Login: React.FC = () => {
   const [email, setEmail] = useState<string>('admin@gmail.com');
   const [password, setPassword] = useState<string>('admin');
   const [deviceId] = useState<string>('550e8400-e29b-41d4-a716-446655440000');
-  const [role] = useState<'admin' | 'manager'>('admin');
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await axios.post<AuthResponse>('http://localhost:3001/login', {
+
+    const result = await dispatch(
+      login({
         email,
         password,
         deviceId,
-        role,
-      } as LoginRequest);
-      const { accessToken } = response.data.tokens;
-      const userRole = response.data.user.role;
-setTokenAndRole(accessToken, response.data.user.role);      console.log('Logged in successfully:', accessToken, 'Role:', userRole);
+      }),
+    );
+
+    if (login.fulfilled.match(result)) {
       navigate('/orders');
-    } catch (err: any) {
-      setError(err.response?.data?.messages?.[0] || 'Login failed');
     }
   };
 
@@ -43,8 +36,9 @@ setTokenAndRole(accessToken, response.data.user.role);      console.log('Logged 
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
         <div>
@@ -52,12 +46,15 @@ setTokenAndRole(accessToken, response.data.user.role);      console.log('Logged 
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
     </div>
   );

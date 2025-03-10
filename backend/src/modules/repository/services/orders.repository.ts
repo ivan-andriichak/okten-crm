@@ -18,7 +18,7 @@ export class OrdersRepository extends Repository<OrderEntity> {
   ): Promise<[OrderEntity[], number]> {
     const {
       page = 1,
-      limit = 20,
+      limit = 25,
       sort = 'created_at',
       order = 'DESC',
       search,
