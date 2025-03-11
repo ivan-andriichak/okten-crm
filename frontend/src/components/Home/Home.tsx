@@ -1,43 +1,25 @@
-import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { RootState } from '../../store';
 import Login from '../Login/Login';
-import ErrorBoundary from '../ErrorBoundary';
-import Orders from '../Orders/Orders';
-import { RootState, AppDispatch, logout } from '../../store';
 
-const Home: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { token, role } = useSelector((state: RootState) => state.auth);
+const Home = () => {
+  const navigate = useNavigate();
+  const { token } = useSelector((state: RootState) => state.auth);
 
-  const handleLogout = () => {
-    dispatch(logout());
-  };
+  useEffect(() => {
+    if (token) {
+      navigate('/orders'); // Редірект на /orders, якщо є токен
+    }
+  }, [token, navigate]);
 
   return (
-    <Routes>
-      <Route
-        path="/*"
-        element={token ? <Navigate to="/orders" /> : <Login />}
-      />
-      <Route
-        path="/orders"
-        element={
-          token && role ? (
-            <ErrorBoundary>
-              <Orders
-                role={role as 'manager' | 'admin'}
-                onLogout={handleLogout}
-                token={''}
-                currentUserId={''}
-              />
-            </ErrorBoundary>
-          ) : (
-            <Navigate to="/" />
-          )
-        }
-      />
-    </Routes>
+    <div>
+      <h2>Welcome to CRM</h2>
+      <p>Please log in to continue.</p>
+      <Login/>
+    </div>
   );
 };
 

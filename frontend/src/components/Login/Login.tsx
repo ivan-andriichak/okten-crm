@@ -19,6 +19,7 @@ const Login: React.FC = () => {
         email,
         password,
         deviceId,
+        role: 'admin',
       }),
     );
 

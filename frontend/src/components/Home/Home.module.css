@@ -1,7 +1,7 @@
 .home_container {
   overflow: hidden;
   min-height: 100%;
-  background-image: url('../../images/PNG/apartment_background.jpeg');
+  /*background-image: url('');*/
   background-size: cover;
   background-repeat: no-repeat;
   color: white;

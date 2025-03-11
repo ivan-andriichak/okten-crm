@@ -1,33 +1,42 @@
-import { createBrowserRouter } from 'react-router-dom';
-import { MainLayout } from './layouts';
-import Home from './components/Home/Home';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState, logout } from './store';
 import Login from './components/Login/Login';
 import Orders from './components/Orders/Orders';
+import { MainLayout } from './layouts';
 import { ErrorPage } from './pages';
+import HomePage from './pages/HomePage';
 
-const router = createBrowserRouter([
+// Компонент для захищеного маршруту /orders
+const ProtectedOrdersRoute = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { token, role, currentUserId } = useSelector((state: RootState) => state.auth);
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  return token && role ? (
+    <Orders
+      token={token}
+      role={role}
+      onLogout={handleLogout}
+      currentUserId={currentUserId || ''}
+    />
+  ) : (
+    <Navigate to="/login" replace />
+  );
+};
+
+export const router = createBrowserRouter([
   {
-    path: '/', // Базовий маршрут
+    path: '/',
     element: <MainLayout />,
+    errorElement: <ErrorPage />,
     children: [
-      { index: true, element: <Home /> }, // Це рендерить Home за "/"
-      { path: 'login', element: <Login /> },
-      {
-        path: 'orders',
-        element: (
-          <Orders
-            role={'manager'}
-            onLogout={function (): void {
-              throw new Error('Function not implemented.');
-            }}
-            token={''}
-            currentUserId={''}
-          />
-        ),
-      },
-      { path: '*', element: <ErrorPage /> },
+      { path: '/', element: <HomePage /> },
+      { path: '/login', element: <Login /> },
+      { path: '/orders', element: <ProtectedOrdersRoute /> },
     ],
   },
 ]);
-
-export { router };

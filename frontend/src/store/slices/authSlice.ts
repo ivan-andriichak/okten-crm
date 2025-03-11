@@ -26,6 +26,7 @@ export const login = createAsyncThunk(
         email,
         password,
         deviceId,
+        role: 'admin',
       });
       console.log('Login response:', response);
 
