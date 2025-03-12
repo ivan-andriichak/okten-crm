@@ -31,10 +31,10 @@ export class CommentResDto {
 
 export class BaseOrderResDto {
   @ApiProperty({
-    example: '796cea24-a328-4463-a5e1-85a779e4780f',
+    example: 796,
     description: 'Unique identifier for the order.',
   })
-  id: string;
+  id: number;
 
   @ApiProperty({
     example: 'John',

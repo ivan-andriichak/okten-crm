@@ -16,7 +16,6 @@ const Home = () => {
 
   return (
     <div>
-      <h2>Welcome to CRM</h2>
       <p>Please log in to continue.</p>
       <Login/>
     </div>

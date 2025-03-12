@@ -1,5 +1,13 @@
-// src/database/entities/order.entity.ts
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 import {
   CourseEnum,
@@ -10,11 +18,19 @@ import {
 import { CommentEntity } from './comment.entity';
 import { TableNameEnum } from './enums/table-name.enum';
 import { GroupEntity } from './group.entity';
-import { CreateUpdateModel } from './models/create-update.model';
 import { UserEntity } from './user.entity';
 
 @Entity(TableNameEnum.ORDERS)
-export class OrderEntity extends CreateUpdateModel {
+export class OrderEntity {
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
   @Column({ type: 'varchar', length: 25, nullable: true })
   name: string;
 
@@ -24,7 +40,7 @@ export class OrderEntity extends CreateUpdateModel {
   @Column({ type: 'varchar', length: 100, nullable: true })
   email: string;
 
-  @Column('varchar', { length: 12, nullable: true })
+  @Column('varchar', { length: 13, nullable: true })
   phone: string;
 
   @Column('int', { nullable: true })

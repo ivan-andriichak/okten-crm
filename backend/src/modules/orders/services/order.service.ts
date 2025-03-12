@@ -39,7 +39,7 @@ export class OrderService {
     return await this.ordersRepository.getListOrders(userId, query);
   }
 
-  async getOrderById(id: string): Promise<OrderEntity> {
+  async getOrderById(id: number): Promise<OrderEntity> {
     const order = await this.ordersRepository.findOne({ where: { id: id } });
     if (!order) {
       throw new Error('Order not found');
@@ -48,7 +48,7 @@ export class OrderService {
   }
 
   async addComment(
-    orderId: string,
+    orderId: number,
     commentDto: CommentDto,
     userData: IUserData,
   ): Promise<OrderListItemResDto> {
@@ -90,7 +90,7 @@ export class OrderService {
   }
 
   async editOrder(
-    orderId: string,
+    orderId: number,
     editOrderDto: EditOrderDto,
   ): Promise<OrderEntity> {
     const order = await this.ordersRepository.findOne({

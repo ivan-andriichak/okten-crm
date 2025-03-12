@@ -79,7 +79,7 @@ export class OrderController {
   @Get(':orderId')
   @ApiOkResponse({ description: 'Single order details', type: OrderEntity })
   public async getOrderById(
-    @Param('orderId') id: string,
+    @Param('orderId') id: number,
   ): Promise<OrderEntity> {
     return await this.ordersService.getOrderById(id);
   }
@@ -87,7 +87,7 @@ export class OrderController {
   @Post(':orderId/comment')
   @ApiOkResponse({ description: 'Order with added comment', type: OrderEntity })
   async addComment(
-    @Param('orderId') id: string,
+    @Param('orderId') id: number,
     @Body() commentDto: CommentDto,
     @CurrentUser() userData: IUserData,
   ): Promise<OrderListItemResDto> {
@@ -97,7 +97,7 @@ export class OrderController {
   @Patch(':id/edit')
   @ApiOkResponse({ description: 'Updated order', type: OrderEntity })
   async editOrder(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() editOrderDto: EditOrderDto,
   ): Promise<OrderEntity> {
     return await this.ordersService.editOrder(id, editOrderDto);

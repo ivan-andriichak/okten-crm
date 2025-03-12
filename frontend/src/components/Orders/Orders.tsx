@@ -43,10 +43,11 @@ const Orders: React.FC<OrdersProps> = ({ role }) => {
   }, [dispatch, token, sort, sortOrder]);
 
   const handleSort = (field: string) => {
+    const sortableFields = ['id', 'name', 'surname', 'email', 'phone', 'age', 'status', 'created_at'];
+    if (!sortableFields.includes(field)) return;
     const newOrder = sort === field && sortOrder === 'ASC' ? 'DESC' : 'ASC';
     dispatch(setSort({ sort: field, order: newOrder }));
   };
-
   const handleLogout = () => {
     dispatch(logout());
   };
