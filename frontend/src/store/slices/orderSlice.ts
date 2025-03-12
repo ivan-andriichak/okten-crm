@@ -34,7 +34,7 @@ const initialState: OrderState = {
 
 export const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
-  async (_, { getState }) => {
+  async (page: number, { getState }) => {
     const state = getState() as {
       orders: OrderState;
       auth: {
@@ -43,7 +43,7 @@ export const fetchOrders = createAsyncThunk(
         role: 'admin' | 'manager' | null;
       };
     };
-    const { page, limit, sort, order } = state.orders;
+    const { limit, sort, order } = state.orders;
     const { token, currentUserId, role } = state.auth;
 
     const params: any = {
@@ -116,7 +116,7 @@ export const addComment = createAsyncThunk(
       { text: commentText },
       { headers: { Authorization: `Bearer ${token}` } },
     );
-    await dispatch(fetchOrders()); // Оновлюємо список після додавання коментаря
+    await dispatch(fetchOrders(1));
     return response.data.comment;
   },
 );

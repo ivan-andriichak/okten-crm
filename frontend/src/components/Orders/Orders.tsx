@@ -2,15 +2,18 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addComment,
-  AppDispatch, closeEditModal,
+  AppDispatch,
+  closeEditModal,
   fetchOrders,
-  logout, openEditModal,
-  RootState, setCommentText,
-  setSort, toggleExpand,
+  logout,
+  openEditModal,
+  RootState,
+  setCommentText,
+  setSort,
+  toggleExpand,
   updateEditForm,
   updateOrder,
 } from '../../store';
-
 
 interface OrdersProps {
   token: string;
@@ -20,6 +23,7 @@ interface OrdersProps {
 }
 
 const Orders: React.FC<OrdersProps> = ({ role }) => {
+  const [currentPage, setCurrentPage] = React.useState(1);
   const dispatch = useDispatch<AppDispatch>();
   const {
     orders,
@@ -32,18 +36,31 @@ const Orders: React.FC<OrdersProps> = ({ role }) => {
     editForm,
     commentText,
   } = useSelector((state: RootState) => state.orders);
-  const {  currentUserId, token } = useSelector(
+  const { currentUserId, token } = useSelector(
     (state: RootState) => state.auth,
   );
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchOrders());
+      dispatch(fetchOrders(currentPage));
     }
-  }, [dispatch, token, sort, sortOrder]);
+  }, [dispatch, token, sort, sortOrder, currentPage]);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   const handleSort = (field: string) => {
-    const sortableFields = ['id', 'name', 'surname', 'email', 'phone', 'age', 'status', 'created_at'];
+    const sortableFields = [
+      'id',
+      'name',
+      'surname',
+      'email',
+      'phone',
+      'age',
+      'status',
+      'created_at',
+    ];
     if (!sortableFields.includes(field)) return;
     const newOrder = sort === field && sortOrder === 'ASC' ? 'DESC' : 'ASC';
     dispatch(setSort({ sort: field, order: newOrder }));
@@ -430,6 +447,20 @@ const Orders: React.FC<OrdersProps> = ({ role }) => {
       ) : (
         <p>No orders found.</p>
       )}
+
+      <div style={{ marginTop: '20px' }}>
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}>
+          Previous
+        </button>
+        <span style={{ margin: '0 10px' }}>Page {currentPage}</span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={orders.length < 25}>
+          Next
+        </button>
+      </div>
 
       {editingOrder && (
         <div
