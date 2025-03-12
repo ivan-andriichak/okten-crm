@@ -6,6 +6,8 @@ export interface AuthState {
   token: string | null;
   role: 'admin' | 'manager' | null;
   currentUserId: string | null;
+  name: string | null;
+  surname: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -14,6 +16,8 @@ const initialState: AuthState = {
   token: localStorage.getItem('token') || null,
   role: localStorage.getItem('role') as 'admin' | 'manager' | null,
   currentUserId: localStorage.getItem('currentUserId') || null,
+  name:localStorage.getItem('name') || null,
+  surname:localStorage.getItem('surname') || null,
   loading: false,
   error: null,
 };
@@ -28,12 +32,15 @@ export const login = createAsyncThunk(
         deviceId,
         role: 'admin',
       });
-      console.log('Login response:', response);
+      console.log('Login response data:', response.data);
+      // console.log('Login response:', response);
 
       return {
         token: response.data.tokens.accessToken,
         role: response.data.user.role,
         currentUserId: response.data.user.id,
+        name: response.data.user.name,
+        surname: response.data.user.surname,
       };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed');
@@ -65,9 +72,13 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.role = action.payload.role;
         state.currentUserId = action.payload.currentUserId;
+        state.name = action.payload.name;
+        state.surname = action.payload.surname;
         localStorage.setItem('token', action.payload.token);
         localStorage.setItem('role', action.payload.role);
         localStorage.setItem('currentUserId', action.payload.currentUserId);
+        localStorage.setItem('name', action.payload.name || '');
+        localStorage.setItem('surname', action.payload.surname || '');
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

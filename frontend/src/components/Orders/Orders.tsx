@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addComment,
@@ -14,15 +14,9 @@ import {
   updateEditForm,
   updateOrder,
 } from '../../store';
+import { OrdersProps } from '../../interfaces/order';
 
-interface OrdersProps {
-  token: string;
-  role: 'admin' | 'manager';
-  onLogout: () => void;
-  currentUserId: string;
-}
-
-const Orders: React.FC<OrdersProps> = ({ role }) => {
+const Orders: FC<OrdersProps> = ({ role}) => {
   const [currentPage, setCurrentPage] = React.useState(1);
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -36,9 +30,10 @@ const Orders: React.FC<OrdersProps> = ({ role }) => {
     editForm,
     commentText,
   } = useSelector((state: RootState) => state.orders);
-  const { currentUserId, token } = useSelector(
+  const { currentUserId, token, name, surname } = useSelector(
     (state: RootState) => state.auth,
   );
+  // console.log('Auth state:', useSelector((state: RootState) => state.auth));
 
   useEffect(() => {
     if (token) {
@@ -91,12 +86,36 @@ const Orders: React.FC<OrdersProps> = ({ role }) => {
     <div style={{ padding: '20px' }}>
       <h2>Orders Page</h2>
       <p>Role: {role}</p>
-      <p>User ID: {currentUserId || 'Not available'}</p>
+      <p>User: {name && surname ? `${name} ${surname}` : 'Not available'}</p>
       <button onClick={handleLogout}>Logout</button>
-
-      {loading && <p>Loading...</p>}
+      {loading && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: '20px',
+            borderRadius: '10px',
+            boxShadow: '0 0 20px rgba(0,0,0,0.2)',
+            textAlign: 'center',
+          }}>
+          <div
+            className="spinner"
+            style={{
+              border: '4px solid rgba(0, 0, 0, 0.1)',
+              borderTop: '4px solid #3498db',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 10px',
+            }}></div>
+          <p>Loading...</p>
+        </div>
+      )}{' '}
       {error && <p style={{ color: 'red' }}>{error}</p>}
-
       {orders.length > 0 ? (
         <table
           style={{
@@ -447,7 +466,6 @@ const Orders: React.FC<OrdersProps> = ({ role }) => {
       ) : (
         <p>No orders found.</p>
       )}
-
       <div style={{ marginTop: '20px' }}>
         <button
           onClick={() => handlePageChange(currentPage - 1)}
@@ -461,7 +479,6 @@ const Orders: React.FC<OrdersProps> = ({ role }) => {
           Next
         </button>
       </div>
-
       {editingOrder && (
         <div
           style={{

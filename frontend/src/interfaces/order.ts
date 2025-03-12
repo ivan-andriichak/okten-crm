@@ -22,3 +22,10 @@ export interface Order {
     createdAt: string;
   }[];
 }
+
+export interface OrdersProps {
+  token: string;
+  role: 'admin' | 'manager';
+  onLogout: () => void;
+  currentUserId: string;
+}

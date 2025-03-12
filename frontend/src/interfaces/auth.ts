@@ -1,4 +1,8 @@
 export interface AuthResponse {
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+  };
   user: {
     id: string;
     email: string;
@@ -8,10 +12,6 @@ export interface AuthResponse {
     last_login: string;
     image: string | null;
     role: 'admin' | 'manager';
-  };
-  tokens: {
-    accessToken: string;
-    refreshToken: string;
   };
 }
 

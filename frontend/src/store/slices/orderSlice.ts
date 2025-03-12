@@ -41,6 +41,8 @@ export const fetchOrders = createAsyncThunk(
         token: string | null;
         currentUserId: string | null;
         role: 'admin' | 'manager' | null;
+        name: string | null;
+        surname: string | null;
       };
     };
     const { limit, sort, order } = state.orders;
