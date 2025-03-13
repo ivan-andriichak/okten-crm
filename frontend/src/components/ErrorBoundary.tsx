@@ -1,4 +1,4 @@
-import { Component, ReactNode } from 'react';
+import React, { Component, ReactNode } from "react";
 
 export default class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -10,9 +10,22 @@ export default class ErrorBoundary extends Component<
     return { hasError: true };
   }
 
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  handleReload = () => {
+    window.location.reload();
+  };
+
   render() {
     if (this.state.hasError) {
-      return <h1>Something went wrong. Please try refreshing the page.</h1>;
+      return (
+        <div>
+          <h1>Oops! Something went wrong.</h1>
+          <button onClick={this.handleReload}>Reload Page</button>
+        </div>
+      );
     }
     return this.props.children;
   }

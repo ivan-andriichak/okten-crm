@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   addComment,
   AppDispatch,
-  closeEditModal,
   fetchOrders,
   logout,
   openEditModal,
@@ -12,11 +11,13 @@ import {
   setSort,
   toggleExpand,
   updateEditForm,
-  updateOrder,
 } from '../../store';
 import { OrdersProps } from '../../interfaces/order';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
+import EditOrderModal from '../EditOrderModal/EditOrderModal';
+import { EditForm } from '../../interfaces/editForm';
 
-const Orders: FC<OrdersProps> = ({ role}) => {
+const Orders: FC<OrdersProps> = ({ role }) => {
   const [currentPage, setCurrentPage] = React.useState(1);
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -33,7 +34,6 @@ const Orders: FC<OrdersProps> = ({ role}) => {
   const { currentUserId, token, name, surname } = useSelector(
     (state: RootState) => state.auth,
   );
-  // console.log('Auth state:', useSelector((state: RootState) => state.auth));
 
   useEffect(() => {
     if (token) {
@@ -60,21 +60,9 @@ const Orders: FC<OrdersProps> = ({ role}) => {
     const newOrder = sort === field && sortOrder === 'ASC' ? 'DESC' : 'ASC';
     dispatch(setSort({ sort: field, order: newOrder }));
   };
+
   const handleLogout = () => {
     dispatch(logout());
-  };
-
-  const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    dispatch(updateEditForm({ [name]: value }));
-  };
-
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingOrder || !token) return;
-    await dispatch(updateOrder(editingOrder.id));
   };
 
   const handleCommentSubmit = async (orderId: string) => {
@@ -88,33 +76,7 @@ const Orders: FC<OrdersProps> = ({ role}) => {
       <p>Role: {role}</p>
       <p>User: {name && surname ? `${name} ${surname}` : 'Not available'}</p>
       <button onClick={handleLogout}>Logout</button>
-      {loading && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            padding: '20px',
-            borderRadius: '10px',
-            boxShadow: '0 0 20px rgba(0,0,0,0.2)',
-            textAlign: 'center',
-          }}>
-          <div
-            className="spinner"
-            style={{
-              border: '4px solid rgba(0, 0, 0, 0.1)',
-              borderTop: '4px solid #3498db',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 10px',
-            }}></div>
-          <p>Loading...</p>
-        </div>
-      )}{' '}
+      {loading && <LoadingSpinner />}
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {orders.length > 0 ? (
         <table
@@ -480,225 +442,11 @@ const Orders: FC<OrdersProps> = ({ role}) => {
         </button>
       </div>
       {editingOrder && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <div
-            style={{
-              backgroundColor: 'white',
-              padding: '20px',
-              borderRadius: '5px',
-              width: '400px',
-            }}>
-            <h3>Edit Order</h3>
-            <form onSubmit={handleEditSubmit}>
-              <div>
-                <label>Name:</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={editForm.name || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}
-                />
-              </div>
-              <div>
-                <label>Surname:</label>
-                <input
-                  type="text"
-                  name="surname"
-                  value={editForm.surname || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}
-                />
-              </div>
-              <div>
-                <label>Email:</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={editForm.email || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}
-                />
-              </div>
-              <div>
-                <label>Phone:</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={editForm.phone || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}
-                />
-              </div>
-              <div>
-                <label>Age:</label>
-                <input
-                  type="number"
-                  name="age"
-                  value={editForm.age || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}
-                />
-              </div>
-              <div>
-                <label>Course:</label>
-                <select
-                  name="course"
-                  value={editForm.course || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}>
-                  <option value="">Select Course</option>
-                  <option value="FS">FS</option>
-                  <option value="QACX">QACX</option>
-                  <option value="JCX">JCX</option>
-                  <option value="JSCX">JSCX</option>
-                  <option value="FE">FE</option>
-                  <option value="PCX">PCX</option>
-                </select>
-              </div>
-              <div>
-                <label>Course Format:</label>
-                <select
-                  name="course_format"
-                  value={editForm.course_format || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}>
-                  <option value="">Select Format</option>
-                  <option value="static">Static</option>
-                  <option value="online">Online</option>
-                </select>
-              </div>
-              <div>
-                <label>Course Type:</label>
-                <select
-                  name="course_type"
-                  value={editForm.course_type || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}>
-                  <option value="">Select Type</option>
-                  <option value="pro">Pro</option>
-                  <option value="minimal">Minimal</option>
-                  <option value="premium">Premium</option>
-                  <option value="incubator">Incubator</option>
-                  <option value="vip">VIP</option>
-                </select>
-              </div>
-              <div>
-                <label>Status:</label>
-                <select
-                  name="status"
-                  value={editForm.status || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}>
-                  <option value="">Select Status</option>
-                  <option value="In work">In work</option>
-                  <option value="New">New</option>
-                  <option value="Aggre">Aggre</option>
-                  <option value="Disaggre">Disaggre</option>
-                  <option value="Dubbing">Dubbing</option>
-                </select>
-              </div>
-              <div>
-                <label>Sum:</label>
-                <input
-                  type="number"
-                  name="sum"
-                  value={editForm.sum || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}
-                />
-              </div>
-              <div>
-                <label>Already Paid:</label>
-                <input
-                  type="number"
-                  name="alreadyPaid"
-                  value={editForm.alreadyPaid || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}
-                />
-              </div>
-              <div>
-                <label>Group:</label>
-                <input
-                  type="text"
-                  name="group"
-                  value={editForm.group || ''}
-                  onChange={handleEditChange}
-                  style={{
-                    width: '100%',
-                    padding: '5px',
-                    marginBottom: '10px',
-                  }}
-                />
-              </div>
-              <div style={{ marginTop: '10px' }}>
-                <button type="submit">Submit</button>
-                <button
-                  type="button"
-                  onClick={() => dispatch(closeEditModal())}
-                  style={{ marginLeft: '10px' }}>
-                  Close
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <EditOrderModal
+          editingOrder={editingOrder}
+      editForm={editForm as EditForm}
+          token={token}
+        />
       )}
     </div>
   );

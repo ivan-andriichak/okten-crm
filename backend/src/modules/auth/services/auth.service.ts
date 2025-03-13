@@ -51,7 +51,6 @@ export class AuthService {
     return await this.register(defaultAdminDto);
   }
 
-  // Реєстрація нового користувача
   public async register(dto: RegisterReqDto): Promise<AuthResDto> {
     try {
       this.logger.log(`Registering user with email: ${dto.email}`);
@@ -102,7 +101,6 @@ export class AuthService {
     }
   }
 
-  // Логін користувача
   public async login(dto: LoginReqDto): Promise<AuthResDto> {
     try {
       this.logger.log(`Login attempt for email: ${dto.email}`);
@@ -159,7 +157,6 @@ export class AuthService {
     }
   }
 
-  // Оновлення токенів
   public async refresh(userData: IUserData): Promise<TokenPairResDto> {
     try {
       this.logger.log(`Refreshing tokens for user ${userData.userId}`);
@@ -197,7 +194,6 @@ export class AuthService {
     }
   }
 
-  // Логаут користувача
   public async logOut(userData: IUserData): Promise<void> {
     try {
       this.logger.log(`Logging out user ${userData.userId}`);

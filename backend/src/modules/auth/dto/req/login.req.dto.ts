@@ -1,12 +1,11 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsOptional, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 import { BaseAuthReqDto } from './base-auth.req.dto';
 
 export class LoginReqDto extends PickType(BaseAuthReqDto, [
   'email',
   'password',
-  'role',
   'deviceId',
 ]) {
   @ApiProperty({
@@ -16,4 +15,9 @@ export class LoginReqDto extends PickType(BaseAuthReqDto, [
   @IsOptional()
   @IsUUID()
   deviceId?: string;
+
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  @IsString()
+  password!: string;
 }

@@ -10,7 +10,7 @@ const Home = () => {
 
   useEffect(() => {
     if (token) {
-      navigate('/orders'); // Редірект на /orders, якщо є токен
+      navigate('/orders');
     }
   }, [token, navigate]);
 

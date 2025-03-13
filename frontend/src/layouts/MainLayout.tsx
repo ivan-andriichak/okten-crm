@@ -1,14 +1,16 @@
-import React from 'react';
 import { Outlet } from 'react-router-dom';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { FC } from 'react';
 
-export const MainLayout: React.FC = () => {
+const MainLayout: FC = () => {
   return (
     <ErrorBoundary>
       <div>
-        <h1>CRM Dashboard</h1>
+        <h1 style={{ textAlign : 'center' }}>CRM Dashboard</h1>
         <Outlet />
       </div>
     </ErrorBoundary>
   );
 };
+
+export { MainLayout };

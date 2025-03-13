@@ -21,3 +21,13 @@ export interface LoginRequest {
   deviceId?: string;
   role?: 'admin' | 'manager';
 }
+
+export interface AuthState {
+  token: string | null;
+  role: 'admin' | 'manager' | null;
+  currentUserId: string | null;
+  name: string | null;
+  surname: string | null;
+  loading: boolean;
+  error: string | null;
+}

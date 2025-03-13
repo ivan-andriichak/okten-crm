@@ -7,7 +7,6 @@ import { MainLayout } from './layouts';
 import { ErrorPage } from './pages';
 import HomePage from './pages/HomePage';
 
-// Компонент для захищеного маршруту /orders
 const ProtectedOrdersRoute = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { token, role, currentUserId } = useSelector((state: RootState) => state.auth);

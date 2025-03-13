@@ -1,23 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { AuthResponse, LoginRequest } from '../../interfaces/auth';
+import { AuthResponse, AuthState, LoginRequest } from '../../interfaces/auth';
 import { api } from '../../services/api';
-
-export interface AuthState {
-  token: string | null;
-  role: 'admin' | 'manager' | null;
-  currentUserId: string | null;
-  name: string | null;
-  surname: string | null;
-  loading: boolean;
-  error: string | null;
-}
+import storage from '../utils/storage';
 
 const initialState: AuthState = {
-  token: localStorage.getItem('token') || null,
-  role: localStorage.getItem('role') as 'admin' | 'manager' | null,
-  currentUserId: localStorage.getItem('currentUserId') || null,
-  name:localStorage.getItem('name') || null,
-  surname:localStorage.getItem('surname') || null,
+  token: storage.get('token') || null,
+  role: storage.get('role') as 'admin' | 'manager' | null,
+  currentUserId: storage.get('currentUserId') || null,
+  name: storage.get('name') || null,
+  surname: storage.get('surname') || null,
   loading: false,
   error: null,
 };
@@ -26,64 +17,61 @@ export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password, deviceId }: LoginRequest, { rejectWithValue }) => {
     try {
-      const response = await api.post<AuthResponse>('/login', {
+      const { data } = await api.post<AuthResponse>('/login', {
         email,
         password,
         deviceId,
-        role: 'admin',
       });
-      console.log('Login response data:', response.data);
-      // console.log('Login response:', response);
 
       return {
-        token: response.data.tokens.accessToken,
-        role: response.data.user.role,
-        currentUserId: response.data.user.id,
-        name: response.data.user.name,
-        surname: response.data.user.surname,
+        token: data.tokens.accessToken,
+        role: data.user.role,
+        currentUserId: data.user.id,
+        name: data.user.name,
+        surname: data.user.surname,
       };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+      console.error('Login failed:', error);
+      const errorMessage = error.response?.data?.message || 'Помилка входу до системи. Перевірте дані та спробуйте ще раз.';
+      return rejectWithValue(errorMessage);
     }
-  },
+  }
 );
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    logout: state => {
-      state.token = null;
-      state.role = null;
-      state.currentUserId = null;
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
-      localStorage.removeItem('currentUserId');
+    logout: (state) => {
+      storage.clearAuth();
+      Object.assign(state, initialState);
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(login.pending, state => {
+      .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.token = action.payload.token;
-        state.role = action.payload.role;
-        state.currentUserId = action.payload.currentUserId;
-        state.name = action.payload.name;
-        state.surname = action.payload.surname;
-        localStorage.setItem('token', action.payload.token);
-        localStorage.setItem('role', action.payload.role);
-        localStorage.setItem('currentUserId', action.payload.currentUserId);
-        localStorage.setItem('name', action.payload.name || '');
-        localStorage.setItem('surname', action.payload.surname || '');
+        state.error = null;
+        state.token = payload.token;
+        state.role = payload.role;
+        state.currentUserId = payload.currentUserId;
+        state.name = payload.name;
+        state.surname = payload.surname;
+
+        // Зберігаємо в localStorage
+        storage.set('token', payload.token);
+        storage.set('role', payload.role);
+        storage.set('currentUserId', payload.currentUserId);
+        storage.set('name', payload.name);
+        storage.set('surname', payload.surname);
       })
-      .addCase(login.rejected, (state, action) => {
+      .addCase(login.rejected, (state, { payload }) => {
         state.loading = false;
-        console.error('Error response:', action.payload);
-        state.error = action.payload as string;
+        state.error = payload ? String(payload) : 'Login failed.';
       });
   },
 });
