@@ -32,6 +32,18 @@ export interface OrdersProps {
   currentUserId: string;
 }
 
+export interface OrderTableProps {
+  orders: Order[];
+  sort: string | null;
+  sortOrder: 'ASC' | 'DESC' | null;
+  expandedOrderId: string | null;
+  currentUserId: string | null;
+  commentText: string;
+  token: string | null;
+  onSortChange?: (sort: string, order: 'ASC' | 'DESC') => void;
+}
+
+
 export interface OrderState {
   orders: Order[];
   total: number;
@@ -45,4 +57,11 @@ export interface OrderState {
   editingOrder: Order | null;
   editForm: EditForm;
   commentText: string;
+}
+
+export interface Comment {
+  text: string;
+  utm?: string | null;
+  author?: string;
+  createdAt: string;
 }

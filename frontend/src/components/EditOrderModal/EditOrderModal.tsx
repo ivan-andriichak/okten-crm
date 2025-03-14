@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch, closeEditModal, updateEditForm, updateOrder } from '../../store';
 import { EditOrderModalProps } from '../../interfaces/editForm';
 import { Order } from '../../interfaces/order';
+import Button from '../Button/Button';
 
 const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -180,7 +181,7 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
               <option value="">Select Status</option>
               <option value="In work">In work</option>
               <option value="New">New</option>
-              <option value="Aggre">Aggre</option>
+              <option value="Aggre">Agree</option>
               <option value="Disaggre">Disaggre</option>
               <option value="Dubbing">Dubbing</option>
             </select>
@@ -216,14 +217,14 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             />
           </div>
           <div style={{ marginTop: '10px' }}>
-            <button type="submit">Submit</button>
-            <button
-              type="button"
+            <Button variant="primary" type="submit">Submit</Button>
+            <Button variant="primary"
+                    type="button"
               onClick={() => dispatch(closeEditModal())}
               style={modalStyles.button}
             >
               Close
-            </button>
+            </Button>
           </div>
         </form>
       </div>

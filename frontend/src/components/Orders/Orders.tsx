@@ -1,24 +1,20 @@
-import React, { FC, useEffect } from 'react';
+import { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  AppDispatch,
-  fetchOrders,
-  logout,
-  openEditModal,
-  RootState,
-  updateEditForm,
-} from '../../store';
-import { OrdersProps, Order } from '../../interfaces/order';
+import { AppDispatch, fetchOrders, logout, RootState, setSort } from '../../store';
+import { OrdersProps } from '../../interfaces/order';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import OrderTable from '../OrderTable/OrderTable';
 import Pagination from '../Pagination/Pagination';
 import EditOrderModal from '../EditOrderModal/EditOrderModal';
+import Button from '../Button/Button';
+import { useSearchParams } from 'react-router-dom';
 
 const Orders: FC<OrdersProps> = ({ role }) => {
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
   const {
     orders,
+    total,
     loading,
     error,
     sort,
@@ -28,39 +24,52 @@ const Orders: FC<OrdersProps> = ({ role }) => {
     editForm,
     commentText,
   } = useSelector((state: RootState) => state.orders);
-  const { currentUserId, token, name, surname } = useSelector(
-    (state: RootState) => state.auth,
-  );
+  const { currentUserId, token, name, surname } = useSelector((state: RootState) => state.auth);
+
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const urlSort = searchParams.get('sort') || 'id';
+  const urlOrder = (searchParams.get('order') as 'ASC' | 'DESC') || 'ASC';
 
   useEffect(() => {
     if (token) {
+      dispatch(setSort({ sort: urlSort, order: urlOrder }));
       dispatch(fetchOrders(currentPage));
     }
-  }, [dispatch, token, sort, sortOrder, currentPage]);
+  }, [dispatch, token, currentPage, urlSort, urlOrder]);
 
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    setSearchParams({
+      page: newPage.toString(),
+      sort: sort || 'id',
+      order: sortOrder || 'ASC',
+    });
   };
 
   const handleLogout = () => {
     dispatch(logout());
   };
 
-  const handleEditClick = (order: Order) => {
-    const canEdit = !order.manager || order.manager?.id === currentUserId;
-    if (!canEdit) {
-      dispatch(updateEditForm({ comments: [], course_format: '' }));
-      return;
-    }
-    dispatch(openEditModal(order));
-  };
-
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Orders Page</h2>
-      <p>Role: {role}</p>
-      <p>User: {name && surname ? `${name} ${surname}` : 'Not available'}</p>
-      <button onClick={handleLogout}>Logout</button>
+    <>
+      <div
+        style={{
+          margin: '0 auto',
+          padding: '20px',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: '10px',
+          maxWidth: '95%',
+        }}
+      >
+        <h2>LOGO</h2>
+        <p>{role}</p>
+        <p>{name && surname ? `${name} ${surname}` : 'Not available'}</p>
+        <Button style={{ margin: '10px' }} variant="primary" onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
+
       {loading && <LoadingSpinner />}
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {orders.length > 0 ? (
@@ -72,20 +81,32 @@ const Orders: FC<OrdersProps> = ({ role }) => {
           currentUserId={currentUserId}
           commentText={commentText}
           token={token}
-          onEditClick={handleEditClick}
+          onSortChange={(newSort, newOrder) =>
+            setSearchParams({ page: currentPage.toString(), sort: newSort, order: newOrder })
+          }
         />
       ) : (
-        <p>No orders found.</p>
+        !loading &&
+        orders.length === 0 && (
+          <p style={{ textAlign: 'center', fontSize: '2rem', color: 'tomato' }}>
+            No orders found.
+          </p>
+        )
       )}
-      <Pagination
-        currentPage={currentPage}
-        totalItems={orders.length}
-        onPageChange={handlePageChange}
-      />
+      {orders.length > 0 && (
+        <div style={{ margin: '0 auto', width: 'fit-content' }}>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={total}
+            itemsPerPage={25}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
       {editingOrder && (
         <EditOrderModal editingOrder={editingOrder} editForm={editForm} token={token} />
       )}
-    </div>
+    </>
   );
 };
 

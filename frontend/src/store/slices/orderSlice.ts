@@ -34,6 +34,7 @@ export const fetchOrders = createAsyncThunk(
       };
     };
     const { limit, sort, order } = state.orders;
+    // console.log('Fetching with:', { page, limit, sort, order });
     const { token, currentUserId, role } = state.auth;
 
     const params: any = {

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch, login, RootState } from '../../store';
 import { v4 as uuidv4 } from 'uuid';
+import Button from '../Button/Button';
 
 const Login: FC = () => {
   const [email, setEmail] = useState<string>('admin@gmail.com');
@@ -62,9 +63,9 @@ const Login: FC = () => {
           />
         </div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" disabled={loading}>
+        <Button variant="primary"  type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
-        </button>
+        </Button>
       </form>
     </div>
   );
