@@ -1,21 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Order } from '../../interfaces/order';
 import { api } from '../../services/api';
+import { EditForm } from '../../interfaces/editForm';
+import { Order, OrderState } from '../../interfaces/order';
 
-export interface OrderState {
-  orders: Order[];
-  total: number;
-  loading: boolean;
-  error: string | null;
-  page: number;
-  limit: number;
-  sort: string;
-  order: 'ASC' | 'DESC';
-  expandedOrderId: string | null;
-  editingOrder: Order | null;
-  editForm: Partial<Order>;
-  commentText: string;
-}
+
 
 const initialState: OrderState = {
   orders: [],
@@ -69,32 +57,16 @@ export const fetchOrders = createAsyncThunk(
 
 export const updateOrder = createAsyncThunk(
   'orders/updateOrder',
-  async (orderId: string, { getState }) => {
+  async (payload: { id: string; updates: Partial<Order> }, { getState }) => {
     const state = getState() as {
       orders: OrderState;
       auth: { token: string | null };
     };
-    const { editForm } = state.orders;
     const { token } = state.auth;
 
-    const allowedFields: Partial<Order> = {
-      name: editForm.name,
-      surname: editForm.surname,
-      email: editForm.email,
-      phone: editForm.phone,
-      age: editForm.age,
-      course: editForm.course,
-      course_format: editForm.course_format,
-      course_type: editForm.course_type,
-      status: editForm.status,
-      sum: editForm.sum,
-      alreadyPaid: editForm.alreadyPaid,
-      group: editForm.group,
-    };
-
     const response = await api.patch<Order>(
-      `/orders/${orderId}/edit`,
-      allowedFields,
+      `/orders/${payload.id}/edit`,
+      payload.updates,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -140,14 +112,28 @@ const orderSlice = createSlice({
     },
     openEditModal: (state, action: PayloadAction<Order>) => {
       state.editingOrder = action.payload;
-      state.editForm = { ...action.payload };
+      state.editForm = {
+        name: action.payload.name,
+        surname: action.payload.surname,
+        email: action.payload.email,
+        phone: action.payload.phone,
+        age: action.payload.age?.toString() ?? null,
+        course: action.payload.course,
+        course_format: action.payload.course_format,
+        course_type: action.payload.course_type,
+        status: action.payload.status,
+        sum: action.payload.sum?.toString() ?? null,
+        alreadyPaid: action.payload.alreadyPaid?.toString() ?? null,
+        group: action.payload.group,
+        comments: action.payload.comments ?? null,
+      };
     },
     closeEditModal: state => {
       state.editingOrder = null;
       state.editForm = {};
       state.error = null;
     },
-    updateEditForm: (state, action: PayloadAction<Partial<Order>>) => {
+    updateEditForm: (state, action: PayloadAction<Partial<EditForm>>) => {
       state.editForm = { ...state.editForm, ...action.payload };
     },
     setCommentText: (state, action: PayloadAction<string>) => {

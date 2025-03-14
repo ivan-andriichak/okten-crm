@@ -1,3 +1,5 @@
+import { EditForm } from './editForm';
+
 export interface Order {
   id: string;
   name: string | null;
@@ -28,4 +30,19 @@ export interface OrdersProps {
   role: 'admin' | 'manager';
   onLogout: () => void;
   currentUserId: string;
+}
+
+export interface OrderState {
+  orders: Order[];
+  total: number;
+  loading: boolean;
+  error: string | null;
+  page: number;
+  limit: number;
+  sort: string;
+  order: 'ASC' | 'DESC';
+  expandedOrderId: string | null;
+  editingOrder: Order | null;
+  editForm: EditForm;
+  commentText: string;
 }
