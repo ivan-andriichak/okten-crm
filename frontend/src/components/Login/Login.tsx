@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppDispatch, login, RootState } from '../../store';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../Button/Button';
+import css from './Login.module.css';
 
 const Login: FC = () => {
   const [email, setEmail] = useState<string>('admin@gmail.com');
@@ -39,7 +40,7 @@ const Login: FC = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
+    <div className={css.login}>
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <div>
@@ -63,9 +64,11 @@ const Login: FC = () => {
           />
         </div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
-        <Button variant="primary"  type="submit" disabled={loading}>
+        <div>
+          <Button variant="primary" type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </Button>
+        </div>
       </form>
     </div>
   );

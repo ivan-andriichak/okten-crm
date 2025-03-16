@@ -1,20 +1,20 @@
-import React, { FC, ButtonHTMLAttributes } from 'react';
+import React, { ButtonHTMLAttributes, CSSProperties } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode; // Текст або вміст кнопки
-  variant?: 'primary' | 'secondary' | 'outline'; // Різні стилі кнопки
-  onClick?: () => void; // Обробник кліку
-  style?: React.CSSProperties; // Додаткові стилі
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline';
+  onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
-const Button: FC<ButtonProps> = ({
-                                   children,
-                                   variant = 'primary',
-                                   onClick,
-                                   style,
-                                   ...rest
-                                 }) => {
-  const baseStyles: React.CSSProperties = {
+const Button = ({
+  children,
+  variant = 'primary',
+  onClick,
+  style,
+  ...rest
+}: ButtonProps) => {
+  const baseStyles: CSSProperties = {
     padding: '5px 10px',
     borderRadius: '4px',
     cursor: 'pointer',
@@ -24,7 +24,7 @@ const Button: FC<ButtonProps> = ({
     transition: 'background-color 0.2s, color 0.2s',
   };
 
-  const variantStyles: Record<string, React.CSSProperties> = {
+  const variantStyles: Record<string, CSSProperties> = {
     primary: {
       backgroundColor: '#e2ebfd',
       color: '#333',
@@ -45,7 +45,7 @@ const Button: FC<ButtonProps> = ({
   const combinedStyles = {
     ...baseStyles,
     ...variantStyles[variant],
-    ...style, // Перевизначення стилів через пропси
+    ...style,
   };
 
   return (

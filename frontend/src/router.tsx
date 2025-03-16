@@ -1,15 +1,16 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState, logout } from './store';
+import { AppDispatch, logout, RootState } from './store';
 import Login from './components/Login/Login';
-import Orders from './components/Orders/Orders';
 import { MainLayout } from './layouts';
-import { ErrorPage } from './pages';
-import HomePage from './pages/HomePage';
+import { ErrorPage, HomePage } from './pages';
+import { Orders } from './components/Orders';
 
 const ProtectedOrdersRoute = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { token, role, currentUserId } = useSelector((state: RootState) => state.auth);
+  const { token, role, currentUserId } = useSelector(
+    (state: RootState) => state.auth,
+  );
 
   const handleLogout = () => {
     dispatch(logout());
@@ -27,7 +28,7 @@ const ProtectedOrdersRoute = () => {
   );
 };
 
-export const router = createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />,
@@ -39,3 +40,5 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
+export { router };

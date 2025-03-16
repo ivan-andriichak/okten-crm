@@ -5,6 +5,7 @@ export  const tableStyles = {
     margin: '0 auto',
     backgroundColor: '#f7f8fa',
     tableLayout: 'fixed' as const,
+    color: '#605f5f',
   },
   th: {
     border: '1px solid #ddd',

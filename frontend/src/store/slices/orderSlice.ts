@@ -3,8 +3,6 @@ import { api } from '../../services/api';
 import { EditForm } from '../../interfaces/editForm';
 import { Order, OrderState } from '../../interfaces/order';
 
-
-
 const initialState: OrderState = {
   orders: [],
   total: 0,
@@ -20,7 +18,7 @@ const initialState: OrderState = {
   commentText: '',
 };
 
-export const fetchOrders = createAsyncThunk(
+const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
   async (page: number, { getState }) => {
     const state = getState() as {
@@ -56,7 +54,7 @@ export const fetchOrders = createAsyncThunk(
   },
 );
 
-export const updateOrder = createAsyncThunk(
+const updateOrder = createAsyncThunk(
   'orders/updateOrder',
   async (payload: { id: string; updates: Partial<Order> }, { getState }) => {
     const state = getState() as {
@@ -76,7 +74,7 @@ export const updateOrder = createAsyncThunk(
   },
 );
 
-export const addComment = createAsyncThunk(
+const addComment = createAsyncThunk(
   'orders/addComment',
   async (orderId: string, { getState, dispatch }) => {
     const state = getState() as {
@@ -154,7 +152,7 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = (action.payload as string) || 'Failed to fetch orders';
+        state.error = action.payload as string;
       })
       .addCase(updateOrder.fulfilled, (state, action) => {
         state.orders = state.orders.map(order =>
@@ -174,6 +172,8 @@ const orderSlice = createSlice({
       });
   },
 });
+
+export { fetchOrders, updateOrder, addComment };
 
 export const {
   setSort,

@@ -1,0 +1,15 @@
+.orders_container {
+    margin: 0 auto;
+    padding: 20px 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    max-width: 95%;
+    сolor: #000;
+}
+
+.orders_container h2 {
+    font-size: 24px;
+    color: #333;
+}

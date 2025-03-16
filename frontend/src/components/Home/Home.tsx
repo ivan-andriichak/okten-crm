@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
 import Login from '../Login/Login';
+import css from './Home.module.css';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -15,9 +16,11 @@ const Home = () => {
   }, [token, navigate]);
 
   return (
-    <div>
-      <p>Please log in to continue.</p>
-      <Login/>
+    <div className={css.login_container}>
+      <p style={{ textAlign: 'center'}}>Please log in to continue.</p>
+      <div>
+        <Login />
+      </div>
     </div>
   );
 };

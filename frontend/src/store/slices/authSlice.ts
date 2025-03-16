@@ -13,7 +13,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const login = createAsyncThunk(
+const login = createAsyncThunk(
   'auth/login',
   async ({ email, password, deviceId }: LoginRequest, { rejectWithValue }) => {
     try {
@@ -32,24 +32,26 @@ export const login = createAsyncThunk(
       };
     } catch (error: any) {
       console.error('Login failed:', error);
-      const errorMessage = error.response?.data?.message || 'Помилка входу до системи. Перевірте дані та спробуйте ще раз.';
+      const errorMessage =
+        error.response?.data?.message ||
+        'Помилка входу до системи. Перевірте дані та спробуйте ще раз.';
       return rejectWithValue(errorMessage);
     }
-  }
+  },
 );
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    logout: (state) => {
+    logout: state => {
       storage.clearAuth();
       Object.assign(state, initialState);
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(login.pending, (state) => {
+      .addCase(login.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -76,5 +78,6 @@ const authSlice = createSlice({
   },
 });
 
+export { login };
 export const { logout } = authSlice.actions;
 export const authReducer = authSlice.reducer;
