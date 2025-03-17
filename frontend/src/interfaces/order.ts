@@ -18,6 +18,7 @@ export interface Order {
   groupEntity: { id: string; name: string } | null;
   manager: { id: string; name: string; surname: string } | null;
   comments?: {
+    id: string
     text: string;
     utm?: string | null;
     author?: string;
@@ -60,6 +61,7 @@ export interface OrderState {
 }
 
 export interface Comment {
+  id: string
   text: string;
   utm?: string | null;
   author?: string;

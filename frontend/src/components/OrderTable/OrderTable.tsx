@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, toggleExpand } from '../../store';
-import OrderDetails from '../OrderDetails/OrderDetails';
 import { OrderTableProps } from '../../interfaces/order';
 import { columns, tableStyles } from './constants';
+import { OrderDetails } from '../OrderDetails/OrderDetails';
 
 const OrderTable = ({
   orders,
@@ -35,7 +35,7 @@ const OrderTable = ({
     if (key === 'manager' && value) {
       return `${value.name || ''} ${value.surname || ''}`.trim() || 'None';
     }
-    return value ?? 'No group';
+    return value ?? 'null';
   };
 
   return (

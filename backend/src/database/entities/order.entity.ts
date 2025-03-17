@@ -13,7 +13,6 @@ import {
   CourseEnum,
   CourseFormatEnum,
   CourseTypeEnum,
-  StatusEnum,
 } from '../../modules/orders/enums/order.enums';
 import { CommentEntity } from './comment.entity';
 import { TableNameEnum } from './enums/table-name.enum';
@@ -55,7 +54,7 @@ export class OrderEntity {
   @Column({ type: 'enum', enum: CourseTypeEnum, default: 'minimal' })
   course_type: string;
 
-  @Column({ type: 'enum', enum: StatusEnum, default: 'New' })
+  @Column({ type: 'varchar', length: 15, nullable: true })
   status: string;
 
   @Column('int', { nullable: true })

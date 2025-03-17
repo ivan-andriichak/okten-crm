@@ -12,6 +12,7 @@ import { UserEntity } from '../../../database/entities/user.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
 import { GroupService } from '../../groups/services/group.services';
 import { LoggerService } from '../../logger/logger.service';
+import { CommentRepository } from '../../repository/services/comment.repository';
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
@@ -28,6 +29,7 @@ export class OrderService {
     private readonly userRepository: UserRepository,
     private readonly groupService: GroupService,
     private readonly logger: LoggerService,
+    private readonly commentRepository: CommentRepository,
   ) {}
 
   public async getListOrders(
@@ -87,6 +89,33 @@ export class OrderService {
 
     await this.ordersRepository.save(order);
     return OrderMapper.toOrderListItemResDto(order);
+  }
+
+  async deleteComment(commentId: string, userData: IUserData): Promise<void> {
+    this.logger.log(
+      `deleteComment called for comment ${commentId} by user ${userData.userId}`,
+    );
+    const comment = await this.commentRepository.findOne({
+      where: { id: commentId },
+      relations: ['order', 'order.manager', 'user'],
+    });
+
+    if (!comment) {
+      throw new NotFoundException(`Comment with id ${commentId} not found`);
+    }
+
+    const order = comment.order;
+    if (
+      order.manager &&
+      order.manager.id !== userData.userId &&
+      comment.user.id !== userData.userId
+    ) {
+      throw new ForbiddenException(
+        'You can only delete comments on orders assigned to you or written by you',
+      );
+    }
+
+    await this.commentRepository.remove(comment);
   }
 
   async editOrder(

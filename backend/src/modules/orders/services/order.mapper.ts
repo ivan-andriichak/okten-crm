@@ -36,6 +36,7 @@ export class OrderMapper {
       group: entity.group,
       manager: entity.manager ? UserMapper.toResponseDTO(entity.manager) : null,
       comments: entity.comments?.map((comment) => ({
+        id: comment.id,
         text: comment.text,
         utm: comment.utm,
         author:

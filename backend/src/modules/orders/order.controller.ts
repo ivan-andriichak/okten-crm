@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -92,6 +93,16 @@ export class OrderController {
     @CurrentUser() userData: IUserData,
   ): Promise<OrderListItemResDto> {
     return await this.ordersService.addComment(id, commentDto, userData);
+  }
+
+  @Delete('comments/:commentId')
+  @ApiOkResponse({ description: 'Comment deleted successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async deleteComment(
+    @Param('commentId') commentId: string,
+    @CurrentUser() userData: IUserData,
+  ): Promise<void> {
+    await this.ordersService.deleteComment(commentId, userData);
   }
 
   @Patch(':id/edit')

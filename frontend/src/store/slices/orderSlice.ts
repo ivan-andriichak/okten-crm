@@ -32,7 +32,6 @@ const fetchOrders = createAsyncThunk(
       };
     };
     const { limit, sort, order } = state.orders;
-    // console.log('Fetching with:', { page, limit, sort, order });
     const { token, currentUserId, role } = state.auth;
 
     const params: any = {
@@ -76,21 +75,49 @@ const updateOrder = createAsyncThunk(
 
 const addComment = createAsyncThunk(
   'orders/addComment',
-  async (orderId: string, { getState, dispatch }) => {
+  async (
+    { orderId, commentText }: { orderId: string; commentText: string },
+    { getState, dispatch },
+  ) => {
     const state = getState() as {
       orders: OrderState;
-      auth: { token: string | null };
+      auth: {
+        token: string | null;
+        currentUserId: string | null;
+        role: 'admin' | 'manager' | null;
+        name: string | null;
+        surname: string | null;
+      };
     };
-    const { commentText } = state.orders;
     const { token } = state.auth;
 
-    const response = await api.post<{ comment: Order['comments'][] }>(
+    if (!token || !commentText) throw new Error('Token or comment text missing');
+
+    const response = await api.post<Order>(
       `/orders/${orderId}/comment`,
       { text: commentText },
       { headers: { Authorization: `Bearer ${token}` } },
     );
-    await dispatch(fetchOrders(1));
-    return response.data.comment;
+
+    await dispatch(fetchOrders(state.orders.page));
+    return response.data;
+  },
+);
+
+const deleteComment = createAsyncThunk(
+  'orders/deleteComment',
+  async (commentId: string, { getState, dispatch }) => {
+    const state = getState() as {
+      orders: OrderState;
+      auth: { token: string | null };
+    };
+    const { token } = state.auth;
+
+    await api.delete(`/orders/comments/${commentId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    await dispatch(fetchOrders(state.orders.page));
   },
 );
 
@@ -164,16 +191,38 @@ const orderSlice = createSlice({
       .addCase(updateOrder.rejected, (state, action) => {
         state.error = (action.payload as string) || 'Failed to update order';
       })
-      .addCase(addComment.fulfilled, state => {
+      .addCase(addComment.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addComment.fulfilled, (state, action) => {
+        state.loading = false;
         state.commentText = '';
+        const updatedOrder = action.payload;
+        const orderIndex = state.orders.findIndex(o => o.id === updatedOrder.id);
+        if (orderIndex !== -1) {
+          state.orders[orderIndex] = updatedOrder;
+        }
       })
       .addCase(addComment.rejected, (state, action) => {
-        state.error = (action.payload as string) || 'Failed to add comment';
+        state.error = action.error.message || 'Failed to add comment';
+        state.loading = false;
+      })
+      .addCase(deleteComment.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteComment.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(deleteComment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || 'Failed to delete comment';
       });
   },
 });
 
-export { fetchOrders, updateOrder, addComment };
+export { fetchOrders, updateOrder, addComment, deleteComment };
 
 export const {
   setSort,

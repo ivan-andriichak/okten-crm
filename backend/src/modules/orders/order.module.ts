@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { GroupModule } from '../groups/group.module';
 import { LoggerModule } from '../logger/logger.module';
+import { CommentRepository } from '../repository/services/comment.repository';
 import { OrdersRepository } from '../repository/services/orders.repository';
 import { OrderController } from './order.controller';
 import { OrderService } from './services/order.service';
@@ -14,7 +15,7 @@ import { OrderService } from './services/order.service';
     GroupModule,
   ],
   controllers: [OrderController],
-  providers: [OrderService, OrdersRepository],
+  providers: [OrderService, OrdersRepository, CommentRepository],
   exports: [OrderService],
 })
 export class OrderModule {}
