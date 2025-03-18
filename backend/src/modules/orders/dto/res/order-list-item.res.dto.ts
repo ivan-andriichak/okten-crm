@@ -19,4 +19,6 @@ export class OrderListItemResDto extends PickType(BaseOrderResDto, [
   'manager',
   'group',
   'comments',
+  'utm',
+  'msg',
 ]) {}

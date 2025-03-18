@@ -17,13 +17,9 @@ export interface Order {
   group: string | null;
   groupEntity: { id: string; name: string } | null;
   manager: { id: string; name: string; surname: string } | null;
-  comments?: {
-    id: string
-    text: string;
-    utm?: string | null;
-    author?: string;
-    createdAt: string;
-  }[];
+  comments?: Comment[];
+  utm?: string | null;
+  msg?: string | null;
 }
 
 export interface OrdersProps {
@@ -63,7 +59,6 @@ export interface OrderState {
 export interface Comment {
   id: string
   text: string;
-  utm?: string | null;
   author?: string;
   createdAt: string;
 }

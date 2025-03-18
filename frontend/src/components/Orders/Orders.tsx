@@ -10,11 +10,11 @@ import {
 import { OrdersProps } from '../../interfaces/order';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import EditOrderModal from '../EditOrderModal/EditOrderModal';
-import Button from '../Button/Button';
 import { useSearchParams } from 'react-router-dom';
 import { Pagination } from '../Pagination/Pagination';
 import { OrderTable } from '../OrderTable/OrderTable';
 import css from './Orders.module.css';
+import Button from '../Button/Button';
 
 const Orders = ({ role }: OrdersProps) => {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -1,55 +1,23 @@
-import React, { ButtonHTMLAttributes, CSSProperties } from 'react';
+import React, { ButtonHTMLAttributes } from 'react';
+import styles from './Button.module.css';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline';
-  onClick?: () => void;
-  style?: React.CSSProperties;
+  variant?: 'primary' | 'secondary' | 'outline'| 'delete';
+  className?: string;
 }
 
 const Button = ({
-  children,
-  variant = 'primary',
-  onClick,
-  style,
-  ...rest
-}: ButtonProps) => {
-  const baseStyles: CSSProperties = {
-    padding: '5px 10px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '500',
-    border: '1px solid #ddd',
-    transition: 'background-color 0.2s, color 0.2s',
-  };
-
-  const variantStyles: Record<string, CSSProperties> = {
-    primary: {
-      backgroundColor: '#e2ebfd',
-      color: '#333',
-      border: '1px solid #b0c4de',
-    },
-    secondary: {
-      backgroundColor: '#f7f8fa',
-      color: '#555',
-      border: '1px solid #ccc',
-    },
-    outline: {
-      backgroundColor: 'transparent',
-      color: '#333',
-      border: '1px solid #ddd',
-    },
-  };
-
-  const combinedStyles = {
-    ...baseStyles,
-    ...variantStyles[variant],
-    ...style,
-  };
+                  children,
+                  variant = 'primary',
+                  onClick,
+                  className,
+                  ...rest
+                }: ButtonProps) => {
+  const buttonClasses = `${styles.button} ${styles[variant]} ${className || ''}`;
 
   return (
-    <button style={combinedStyles} onClick={onClick} {...rest}>
+    <button className={buttonClasses} onClick={onClick} {...rest}>
       {children}
     </button>
   );

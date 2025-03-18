@@ -1,12 +1,14 @@
 import { useDispatch } from 'react-redux';
-import { Comment } from '../../interfaces/order';
+import { Comment, Order } from '../../interfaces/order';
 import { AppDispatch, deleteComment } from '../../store';
+import Button from '../Button/Button';
 
 interface CommentListProps {
   comments: Comment[];
+  order: Order; // Додаємо order для доступу до msg і utm
 }
 
-const CommentList = ({ comments }: CommentListProps) => {
+const CommentList = ({ comments, order }: CommentListProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleDelete = (commentId: string) => {
@@ -15,76 +17,71 @@ const CommentList = ({ comments }: CommentListProps) => {
   };
 
   return (
-    <div style={{ marginTop: '20px' }}>
-      <h3>Comments</h3>
+    <div style={{ margin: '20px 0 0' }}>
       {comments && comments.length > 0 ? (
-        comments.map(comment =>
-          comment ? (
-            <div
-              key={comment.id}
-              style={{
-                border: '1px solid #ccc',
-                padding: '10px',
-                marginBottom: '10px',
-                width: '50%',
-              }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: '20px',
-                }}>
-                {/* Ліва частина: Message і UTM */}
+        <div
+          style={{
+            border: '1px solid #ccc',
+            borderRadius: '5px',
+            padding: '10px',
+          }}
+        >
+          {/* Блок із Message і UTM (один раз, із order) */}
+          <div
+            style={{
+              border: '1px solid red',
+              display: 'flex',
+              width: '20%',
+              flexDirection: 'column',
+              marginBottom: '10px',
+            }}
+          >
+            <span>Message: {order.msg || 'null'}</span>
+            <span>UTM: {order.utm || 'N/A'}</span>
+          </div>
+
+          {/* Список коментарів */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {comments.map((comment) =>
+              comment ? (
                 <div
+                  key={comment.id}
                   style={{
                     display: 'flex',
-                    border: '1px solid #ccc',
-                    flexDirection: 'column',
-                    gap: '5px',
-                  }}>
-                  <span>Message: {comment.text || 'N/A'}</span>
-                  <span>UTM: {comment.utm || 'N/A'}</span>
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    width: '45%',
+                    border: '1px solid red',
+                    backgroundColor: 'white',
+                    padding: '5px',
+                    borderRadius: '5px',
+                  }}
+                >
+                  <span>Comment: {comment.text || 'N/A'}</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <span>Author: {comment.author || 'Unknown'}</span>
+                    <br />
+                    <span>
+                      Date:{' '}
+                      {new Date(comment.createdAt).toLocaleString('uk-UA', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                    <Button
+                      style={{ marginTop: '5px', display: 'block' }}
+                      variant="delete"
+                      onClick={() => handleDelete(comment.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-
-                {/* Права частина: Author і Date */}
-                <div
-                  style={{
-                    display: 'flex',
-                    border: '1px solid #ccc',
-                    flexDirection: 'column',
-                    gap: '5px',
-                  }}>
-                  <span>Author: {comment.author || 'Unknown'}</span>
-                  <span>
-                    Date:{' '}
-                    {new Date(comment.createdAt).toLocaleString('uk-UA', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </span>
-                  {/* Кнопка Delete */}
-                  <button
-                    onClick={() => handleDelete(comment.id)}
-                    style={{
-                      backgroundColor: '#f86b6b',
-                      color: 'white',
-                      border: 'none',
-                      padding: '5px 10px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      marginTop: '10px',
-                      alignSelf: 'flex-start',
-                    }}>
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-
-            </div>
-          ) : null,
-        )
+              ) : null,
+            )}
+          </div>
+        </div>
       ) : (
         <p>No comments yet.</p>
       )}

@@ -17,7 +17,6 @@ const OrderDetails = ({
                       }: OrderDetailsProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // Перевірка, чи можна додавати коментар або редагувати
   const canEditOrComment =
     !order.manager || (order.manager && order.manager.id === currentUserId);
 
@@ -25,7 +24,7 @@ const OrderDetails = ({
     if (!commentText || !token || !canEditOrComment) return;
 
     await dispatch(
-      addComment({ orderId: order.id, commentText }), // Передаємо об'єкт із orderId і commentText
+      addComment({ orderId: order.id, commentText }),
     );
   };
 
@@ -34,38 +33,28 @@ const OrderDetails = ({
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      {/* Деталі заявки */}
-      <div style={{ marginBottom: '20px' }}>
-        <h2>Order Details</h2>
-        <p><strong>ID:</strong> {order.id}</p>
-        <p><strong>Name:</strong> {order.name || 'N/A'}</p>
-        <p><strong>Surname:</strong> {order.surname || 'N/A'}</p>
-        <p><strong>Email:</strong> {order.email || 'N/A'}</p>
-        <p><strong>Phone:</strong> {order.phone || 'N/A'}</p>
-        <p><strong>Age:</strong> {order.age || 'N/A'}</p>
-        <p><strong>Course:</strong> {order.course || 'N/A'}</p>
-        <p><strong>Course Format:</strong> {order.course_format}</p>
-        <p><strong>Course Type:</strong> {order.course_type}</p>
-        <p><strong>Status:</strong> {order.status || 'N/A'}</p>
-        <p><strong>Sum:</strong> {order.sum || 'N/A'}</p>
-        <p><strong>Already Paid:</strong> {order.alreadyPaid || 'N/A'}</p>
-        <p><strong>Created At:</strong> {new Date(order.created_at).toLocaleString('uk-UA')}</p>
-        <p><strong>Manager:</strong> {order.manager ? `${order.manager.name} ${order.manager.surname}`: 'None'}</p>
-      </div>
-
-      {/* Список коментарів */}
-      <CommentList comments={order.comments || []} />
-
-      {/* Форма для додавання коментаря */}
+    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column' }}>
+      <CommentList comments={order.comments || []} order={order} />
       {canEditOrComment && (
-        <div style={{ marginTop: '10px' }}>
+        <div
+          style={{
+            marginTop: '10px',
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+          }}
+        >
           <input
             type="text"
             value={commentText}
-            onChange={e => dispatch(setCommentText(e.target.value))}
+            onChange={(e) => dispatch(setCommentText(e.target.value))}
             placeholder="Add a comment"
-            style={{ width: '30%', padding: '5px', marginRight: '10px' }}
+            style={{
+              width: '30%',
+              padding: '5px',
+              marginRight: '10px',
+              borderRadius: '5px',
+            }}
           />
           <Button variant="primary" onClick={handleCommentSubmit}>
             Submit Comment
@@ -75,7 +64,7 @@ const OrderDetails = ({
             onClick={handleEditClick}
             style={{ marginLeft: '10px' }}
           >
-            Edit
+            Edit Order
           </Button>
         </div>
       )}

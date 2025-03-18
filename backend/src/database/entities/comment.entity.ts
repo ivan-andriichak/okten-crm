@@ -10,9 +10,6 @@ export class CommentEntity extends CreateUpdateModel {
   @Column('text', { nullable: true })
   text: string;
 
-  @Column('text', { nullable: true })
-  utm: string;
-
   @ManyToOne(() => OrderEntity, (order) => order.comments)
   @JoinColumn({ name: 'order_id' })
   order?: OrderEntity;

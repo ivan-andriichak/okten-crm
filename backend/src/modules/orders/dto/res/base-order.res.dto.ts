@@ -10,13 +10,6 @@ export class CommentResDto {
   text: string;
 
   @ApiProperty({
-    example: 'utm_source=google',
-    description: 'UTM parameters for the comment.',
-    required: false,
-  })
-  utm: string | null;
-
-  @ApiProperty({
     example: 'Default',
     description: 'Surname of the comment author.',
   })
@@ -128,4 +121,18 @@ export class BaseOrderResDto {
     required: false,
   })
   comments?: CommentResDto[];
+
+  @ApiProperty({
+    example: 'utm_source=google',
+    description: 'UTM parameters for the comment.',
+    required: false,
+  })
+  utm: string | null;
+
+  @ApiProperty({
+    example: 'Hello',
+    description: 'Message for the comment.',
+    required: false,
+  })
+  msg: string | null;
 }

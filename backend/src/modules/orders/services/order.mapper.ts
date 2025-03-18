@@ -38,11 +38,12 @@ export class OrderMapper {
       comments: entity.comments?.map((comment) => ({
         id: comment.id,
         text: comment.text,
-        utm: comment.utm,
         author:
           `${comment.user?.name || 'Unknown'} ${comment.user?.surname || ''}`.trim(),
         createdAt: comment.created_at,
       })),
+      utm: entity.utm,
+      msg: entity.msg,
     };
   }
 }

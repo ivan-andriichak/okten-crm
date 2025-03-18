@@ -66,6 +66,12 @@ export class OrderEntity {
   @Column({ type: 'varchar', length: 50, nullable: true })
   group: string;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  utm: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  msg: string;
+
   @ManyToOne(() => UserEntity, { nullable: true })
   @JoinColumn({ name: 'manager_id' })
   manager: UserEntity;
