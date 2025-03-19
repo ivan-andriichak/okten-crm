@@ -16,10 +16,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
+import { Public } from '../../common/decorators/public.decorator';
 import { OrderEntity } from '../../database/entities/order.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { IUserData } from '../auth/interfaces/user-data.interface';
 import { CommentDto } from './dto/req/comment.req.dto';
+import { CreateOrderReqDto } from './dto/req/create-order.req.dto';
 import { EditOrderDto } from './dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from './dto/req/excel-guery.req.dto';
 import { OrderListQueryDto } from './dto/req/order-list.query.dto';
@@ -112,6 +114,15 @@ export class OrderController {
     @Body() editOrderDto: EditOrderDto,
   ): Promise<OrderEntity> {
     return await this.ordersService.editOrder(id, editOrderDto);
+  }
+
+  @Post('public')
+  @Public()
+  @ApiOkResponse({ description: 'Public order created', type: OrderEntity })
+  async createPublicOrder(
+    @Body() createOrderDto: CreateOrderReqDto,
+  ): Promise<OrderEntity> {
+    return await this.ordersService.createPublicOrder(createOrderDto);
   }
 
   @Post('excel')

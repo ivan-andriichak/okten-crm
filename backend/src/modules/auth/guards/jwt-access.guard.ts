@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
+import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator';
 import { UserRepository } from '../../repository/services/user.repository';
 import { UserMapper } from '../../users/user.maper';
 import { TokenType } from '../enums/token-type.enum';
@@ -22,16 +23,31 @@ export class JwtAccessGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Перевіряємо, чи маршрут позначений як публічний через @Public()
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true; // Пропускаємо перевірку для публічних маршрутів
+    }
+
+    // Перевіряємо SKIP_AUTH (залишаємо для сумісності з іншими частинами коду)
     const skipAuth = this.reflector.getAllAndOverride<boolean>('SKIP_AUTH', [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (skipAuth) return true;
+    if (skipAuth) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     const accessToken = request.get('Authorization')?.split('Bearer ')[1];
     if (!accessToken) {
       throw new UnauthorizedException();
     }
+
     const payload = await this.tokenService.verifyToken(
       accessToken,
       TokenType.ACCESS,
@@ -55,6 +71,7 @@ export class JwtAccessGuard implements CanActivate {
     if (!user) {
       throw new UnauthorizedException();
     }
+
     request.user = UserMapper.toIUserData(user, payload);
     return true;
   }

@@ -16,6 +16,7 @@ import { CommentRepository } from '../../repository/services/comment.repository'
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
+import { CreateOrderReqDto } from '../dto/req/create-order.req.dto';
 import { EditOrderDto } from '../dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from '../dto/req/excel-guery.req.dto';
 import { OrderListQueryDto } from '../dto/req/order-list.query.dto';
@@ -131,10 +132,8 @@ export class OrderService {
       throw new NotFoundException(`Order with ID ${orderId} not found`);
     }
 
-    // Оновлюємо поля
     Object.assign(order, editOrderDto);
 
-    // Якщо передано manager_id, перевіряємо існування менеджера
     if (editOrderDto.manager_id) {
       const manager = await this.userRepository.findOne({
         where: { id: editOrderDto.manager_id },
@@ -147,6 +146,20 @@ export class OrderService {
       order.manager = manager;
     }
 
+    return await this.ordersRepository.save(order);
+  }
+
+  async createPublicOrder(
+    createOrderDto: CreateOrderReqDto,
+  ): Promise<OrderEntity> {
+    const order = this.ordersRepository.create({
+      ...createOrderDto,
+      utm: createOrderDto.utm || null,
+      msg: createOrderDto.utm ? 'Заявка з реклами' : null,
+      status: createOrderDto.status || 'New',
+      manager: null,
+      created_at: new Date(),
+    });
     return await this.ordersRepository.save(order);
   }
 

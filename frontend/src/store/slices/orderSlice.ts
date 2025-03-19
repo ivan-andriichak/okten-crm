@@ -18,6 +18,7 @@ const initialState: OrderState = {
   commentText: '',
 };
 
+// Завантаження списку замовлень
 const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
   async (page: number, { getState }) => {
@@ -50,12 +51,29 @@ const fetchOrders = createAsyncThunk(
       },
     );
 
-console.log('Fetched orders:', response.data);
+    console.log('Fetched orders:', response.data);
     return { orders: response.data.orders, total: response.data.total };
   },
 );
 
+// Створення нового замовлення
+const createOrder = createAsyncThunk(
+  'orders/createOrder',
+  async (orderData: Partial<Order>, { getState }) => {
+    const state = getState() as {
+      auth: { token: string | null };
+    };
+    const { token } = state.auth;
 
+    const response = await api.post<Order>('/orders/public', orderData, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+
+    return response.data;
+  },
+);
+
+// Оновлення замовлення
 const updateOrder = createAsyncThunk(
   'orders/updateOrder',
   async (payload: { id: string; updates: Partial<Order> }, { getState }) => {
@@ -76,6 +94,7 @@ const updateOrder = createAsyncThunk(
   },
 );
 
+// Додавання коментаря
 const addComment = createAsyncThunk(
   'orders/addComment',
   async (
@@ -107,6 +126,7 @@ const addComment = createAsyncThunk(
   },
 );
 
+// Видалення коментаря
 const deleteComment = createAsyncThunk(
   'orders/deleteComment',
   async (commentId: string, { getState, dispatch }) => {
@@ -157,7 +177,7 @@ const orderSlice = createSlice({
         comments: action.payload.comments ?? null,
       };
     },
-    closeEditModal: state => {
+    closeEditModal: (state) => {
       state.editingOrder = null;
       state.editForm = {};
       state.error = null;
@@ -169,9 +189,9 @@ const orderSlice = createSlice({
       state.commentText = action.payload;
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchOrders.pending, state => {
+      .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
@@ -184,8 +204,21 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      .addCase(createOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders.push(action.payload); // Додаємо нове замовлення до стану
+        state.total += 1; // Оновлюємо загальну кількість
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to create order';
+      })
       .addCase(updateOrder.fulfilled, (state, action) => {
-        state.orders = state.orders.map(order =>
+        state.orders = state.orders.map((order) =>
           order.id === action.payload.id ? action.payload : order,
         );
         state.editingOrder = null;
@@ -194,7 +227,7 @@ const orderSlice = createSlice({
       .addCase(updateOrder.rejected, (state, action) => {
         state.error = (action.payload as string) || 'Failed to update order';
       })
-      .addCase(addComment.pending, state => {
+      .addCase(addComment.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
@@ -202,7 +235,7 @@ const orderSlice = createSlice({
         state.loading = false;
         state.commentText = '';
         const updatedOrder = action.payload;
-        const orderIndex = state.orders.findIndex(o => o.id === updatedOrder.id);
+        const orderIndex = state.orders.findIndex((o) => o.id === updatedOrder.id);
         if (orderIndex !== -1) {
           state.orders[orderIndex] = updatedOrder;
         }
@@ -211,11 +244,11 @@ const orderSlice = createSlice({
         state.error = action.error.message || 'Failed to add comment';
         state.loading = false;
       })
-      .addCase(deleteComment.pending, state => {
+      .addCase(deleteComment.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteComment.fulfilled, state => {
+      .addCase(deleteComment.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(deleteComment.rejected, (state, action) => {
@@ -225,7 +258,7 @@ const orderSlice = createSlice({
   },
 });
 
-export { fetchOrders, updateOrder, addComment, deleteComment };
+export { fetchOrders, createOrder, updateOrder, addComment, deleteComment };
 
 export const {
   setSort,

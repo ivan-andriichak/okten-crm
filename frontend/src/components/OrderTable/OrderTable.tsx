@@ -68,7 +68,7 @@ const OrderTable = ({
               <tr>
                 <td colSpan={columns.length} style={tableStyles.expandedTd}>
                   <OrderDetails
-                    order={order}
+                    orderId={parseInt(order.id)}
                     commentText={commentText}
                     currentUserId={currentUserId}
                     token={token}

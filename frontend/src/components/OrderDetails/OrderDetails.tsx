@@ -1,21 +1,29 @@
-import { useDispatch } from 'react-redux';
+// OrderDetails.tsx
+import { useDispatch, useSelector } from 'react-redux';
 import {
   addComment,
   AppDispatch,
   openEditModal,
+  RootState,
   setCommentText,
 } from '../../store';
 import Button from '../Button/Button';
-import { OrderDetailsProps } from './const';
 import { CommentList } from '../CommentsList/CommentsList';
 
-const OrderDetails = ({
-                        order,
-                        commentText,
-                        currentUserId,
-                        token,
-                      }: OrderDetailsProps) => {
+interface OrderDetailsProps {
+  orderId: number;
+  commentText: string;
+  currentUserId: string | null;
+  token: string | null;
+}
+
+const OrderDetails = ({ orderId, commentText, currentUserId, token }: OrderDetailsProps) => {
   const dispatch = useDispatch<AppDispatch>();
+  const order = useSelector((state: RootState) =>
+   state.orders.orders.find((o) => Number(o.id) === orderId),
+  );
+
+  if (!order) return <p>Loading order...</p>;
 
   const canEditOrComment =
     !order.manager || (order.manager && order.manager.id === currentUserId);
@@ -23,9 +31,7 @@ const OrderDetails = ({
   const handleCommentSubmit = async () => {
     if (!commentText || !token || !canEditOrComment) return;
 
-    await dispatch(
-      addComment({ orderId: order.id, commentText }),
-    );
+    await dispatch(addComment({ orderId: order.id, commentText }));
   };
 
   const handleEditClick = () => {
@@ -33,17 +39,15 @@ const OrderDetails = ({
   };
 
   return (
-    <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ padding: '10px', display: 'flex', flexDirection: 'column' }}>
       <CommentList comments={order.comments || []} order={order} />
       {canEditOrComment && (
         <div
           style={{
-            marginTop: '10px',
             display: 'flex',
-            flexDirection: 'row',
             justifyContent: 'flex-end',
           }}
-        >
+          >
           <input
             type="text"
             value={commentText}

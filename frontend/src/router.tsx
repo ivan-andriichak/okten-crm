@@ -5,6 +5,7 @@ import Login from './components/Login/Login';
 import { MainLayout } from './layouts';
 import { ErrorPage, HomePage } from './pages';
 import { Orders } from './components/Orders';
+import PublicOrderForm from './components/PublicOrderForm/PublicOrderForm';
 
 const ProtectedOrdersRoute = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,6 +39,11 @@ const router = createBrowserRouter([
       { path: '/login', element: <Login /> },
       { path: '/orders', element: <ProtectedOrdersRoute /> },
     ],
+  },
+  {
+    path: '/register',
+    element: <PublicOrderForm />, // Окремий маршрут поза MainLayout
+    errorElement: <ErrorPage />,
   },
 ]);
 

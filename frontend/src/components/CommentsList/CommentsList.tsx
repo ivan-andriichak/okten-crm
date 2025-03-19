@@ -5,7 +5,7 @@ import Button from '../Button/Button';
 
 interface CommentListProps {
   comments: Comment[];
-  order: Order; // Додаємо order для доступу до msg і utm
+  order: Order;
 }
 
 const CommentList = ({ comments, order }: CommentListProps) => {
@@ -17,49 +17,52 @@ const CommentList = ({ comments, order }: CommentListProps) => {
   };
 
   return (
-    <div style={{ margin: '20px 0 0' }}>
+    <div>
       {comments && comments.length > 0 ? (
         <div
           style={{
-            border: '1px solid #ccc',
+            display: 'flex',
+            justifyContent: 'space-between',
             borderRadius: '5px',
-            padding: '10px',
-          }}
-        >
-          {/* Блок із Message і UTM (один раз, із order) */}
+            padding: '10px 0',
+          }}>
           <div
             style={{
-              border: '1px solid red',
               display: 'flex',
-              width: '20%',
+              flexWrap: 'wrap',
+              maxWidth: '25%',
               flexDirection: 'column',
               marginBottom: '10px',
-            }}
-          >
-            <span>Message: {order.msg || 'null'}</span>
-            <span>UTM: {order.utm || 'N/A'}</span>
+            }}>
+            <div><span><strong>Message:</strong> {order.msg || 'null'}</span></div>
+            <div><span><strong>UTM:</strong> {order.utm || 'N/A'}</span></div>
           </div>
 
-          {/* Список коментарів */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {comments.map((comment) =>
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {comments.map(comment =>
               comment ? (
                 <div
                   key={comment.id}
                   style={{
                     display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    width: '45%',
-                    border: '1px solid red',
+                    flexDirection: 'column',
                     backgroundColor: 'white',
-                    padding: '5px',
                     borderRadius: '5px',
-                  }}
-                >
-                  <span>Comment: {comment.text || 'N/A'}</span>
-                  <div style={{ textAlign: 'right' }}>
-                    <span>Author: {comment.author || 'Unknown'}</span>
+                    padding: '5px',
+                  }}>
+                  <div>
+                    <span><strong>Comment:</strong> {comment.text || 'N/A'}</span>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '10px',
+                      justifyContent: 'space-around',
+                      alignItems: 'center',
+                      borderRadius: '5px',
+                    }}>
+                    <span><strong>Author:</strong> {comment.author || 'Unknown'}</span>
                     <br />
                     <span>
                       Date:{' '}
@@ -69,13 +72,13 @@ const CommentList = ({ comments, order }: CommentListProps) => {
                         year: 'numeric',
                       })}
                     </span>
-                    <Button
-                      style={{ marginTop: '5px', display: 'block' }}
-                      variant="delete"
-                      onClick={() => handleDelete(comment.id)}
-                    >
-                      Delete
-                    </Button>
+                    <div>
+                      <Button
+                        variant="delete"
+                        onClick={() => handleDelete(comment.id)}>
+                        Delete Comment
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ) : null,

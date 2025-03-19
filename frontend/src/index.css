@@ -13,8 +13,8 @@
 /* Стилізація тіла документу */
 body {
     font-family: Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.1;
+    font-size: 13px;
+    line-height: 1.2;
     margin: 0;
     box-sizing: border-box;
     min-height: 100%;
