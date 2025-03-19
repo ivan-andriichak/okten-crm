@@ -59,6 +59,7 @@ export interface OrderState {
 export interface Comment {
   id: string
   text: string;
+  utm?: string | null;
   author?: string;
   createdAt: string;
 }

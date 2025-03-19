@@ -49,9 +49,12 @@ const fetchOrders = createAsyncThunk(
         params,
       },
     );
+
+console.log('Fetched orders:', response.data);
     return { orders: response.data.orders, total: response.data.total };
   },
 );
+
 
 const updateOrder = createAsyncThunk(
   'orders/updateOrder',
