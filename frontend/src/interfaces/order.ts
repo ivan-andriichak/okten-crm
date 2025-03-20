@@ -52,8 +52,9 @@ export interface OrderState {
   order: 'ASC' | 'DESC';
   expandedOrderId: string | null;
   editingOrder: Order | null;
-  editForm: EditForm;
+  editForm: Partial<EditForm>;
   commentText: string;
+  groups: string[];
 }
 
 export interface Comment {
@@ -62,4 +63,11 @@ export interface Comment {
   utm?: string | null;
   author?: string;
   createdAt: string;
+}
+
+export interface GroupEntity {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FC } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch, login, RootState } from '../../store';
@@ -6,10 +6,11 @@ import { v4 as uuidv4 } from 'uuid';
 import Button from '../Button/Button';
 import css from './Login.module.css';
 
-const Login: FC = () => {
+const Login = () => {
   const [email, setEmail] = useState<string>('admin@gmail.com');
   const [password, setPassword] = useState<string>('admin');
   const [deviceId, setDeviceId] = useState<string>('');
+
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
@@ -66,12 +67,12 @@ const Login: FC = () => {
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <div>
           <Button variant="primary" type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </Button>
+            {loading ? 'Logging in...' : 'Login'}
+          </Button>
         </div>
       </form>
     </div>
   );
 };
 
-export default Login ;
+export { Login };

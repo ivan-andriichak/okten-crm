@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { api } from '../../services/api';
 import { EditForm } from '../../interfaces/editForm';
-import { Order, OrderState } from '../../interfaces/order';
+import { GroupEntity, Order, OrderState } from '../../interfaces/order';
 
 const initialState: OrderState = {
   orders: [],
@@ -16,6 +16,7 @@ const initialState: OrderState = {
   editingOrder: null,
   editForm: {},
   commentText: '',
+  groups: [],
 };
 
 // Завантаження списку замовлень
@@ -56,13 +57,43 @@ const fetchOrders = createAsyncThunk(
   },
 );
 
+// Завантаження списку груп
+const fetchGroups = createAsyncThunk(
+  'orders/fetchGroups',
+  async (_, { getState }) => {
+    const state = getState() as { auth: { token: string | null } };
+    const { token } = state.auth;
+
+    const response = await api.get<GroupEntity[]>('/groups', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.map(group => group.name); // Повертаємо лише назви груп
+  },
+);
+
+// Додавання нової групи
+const addGroup = createAsyncThunk(
+  'orders/addGroup',
+  async (groupName: string, { getState }) => {
+    const state = getState() as { auth: { token: string | null } };
+    const { token } = state.auth;
+
+    const response = await api.post<GroupEntity>(
+      '/groups',
+      { name: groupName },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+    return response.data.name; // Повертаємо назву нової групи
+  },
+);
+
 // Створення нового замовлення
 const createOrder = createAsyncThunk(
   'orders/createOrder',
   async (orderData: Partial<Order>, { getState }) => {
-    const state = getState() as {
-      auth: { token: string | null };
-    };
+    const state = getState() as { auth: { token: string | null } };
     const { token } = state.auth;
 
     const response = await api.post<Order>('/orders/public', orderData, {
@@ -98,7 +129,7 @@ const addComment = createAsyncThunk(
   'orders/addComment',
   async (
     { orderId, commentText }: { orderId: string; commentText: string },
-    { getState},
+    { getState },
   ) => {
     const state = getState() as {
       orders: OrderState;
@@ -112,7 +143,8 @@ const addComment = createAsyncThunk(
     };
     const { token } = state.auth;
 
-    if (!token || !commentText) throw new Error('Token or comment text missing');
+    if (!token || !commentText)
+      throw new Error('Token or comment text missing');
 
     const response = await api.post<Order>(
       `/orders/${orderId}/comment`,
@@ -126,7 +158,7 @@ const addComment = createAsyncThunk(
 
 const deleteComment = createAsyncThunk(
   'orders/deleteComment',
-  async (commentId: string, { getState}) => {
+  async (commentId: string, { getState }) => {
     const state = getState() as {
       orders: OrderState;
       auth: { token: string | null };
@@ -173,7 +205,7 @@ const orderSlice = createSlice({
         comments: action.payload.comments ?? null,
       };
     },
-    closeEditModal: (state) => {
+    closeEditModal: state => {
       state.editingOrder = null;
       state.editForm = {};
       state.error = null;
@@ -185,9 +217,9 @@ const orderSlice = createSlice({
       state.commentText = action.payload;
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(fetchOrders.pending, (state) => {
+      .addCase(fetchOrders.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -200,7 +232,31 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(createOrder.pending, (state) => {
+      .addCase(fetchGroups.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGroups.fulfilled, (state, action) => {
+        state.loading = false;
+        state.groups = action.payload;
+      })
+      .addCase(fetchGroups.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch groups';
+      })
+      .addCase(addGroup.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addGroup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.groups.push(action.payload);
+      })
+      .addCase(addGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to add group';
+      })
+      .addCase(createOrder.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -214,7 +270,7 @@ const orderSlice = createSlice({
         state.error = action.error.message || 'Failed to create order';
       })
       .addCase(updateOrder.fulfilled, (state, action) => {
-        state.orders = state.orders.map((order) =>
+        state.orders = state.orders.map(order =>
           order.id === action.payload.id ? action.payload : order,
         );
         state.editingOrder = null;
@@ -223,7 +279,7 @@ const orderSlice = createSlice({
       .addCase(updateOrder.rejected, (state, action) => {
         state.error = (action.payload as string) || 'Failed to update order';
       })
-      .addCase(addComment.pending, (state) => {
+      .addCase(addComment.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -231,7 +287,9 @@ const orderSlice = createSlice({
         state.loading = false;
         state.commentText = '';
         const updatedOrder = action.payload;
-        const orderIndex = state.orders.findIndex((o) => o.id === updatedOrder.id);
+        const orderIndex = state.orders.findIndex(
+          o => o.id === updatedOrder.id,
+        );
         if (orderIndex !== -1) {
           state.orders[orderIndex] = updatedOrder;
         }
@@ -240,7 +298,7 @@ const orderSlice = createSlice({
         state.error = action.error.message || 'Failed to add comment';
         state.loading = false;
       })
-      .addCase(deleteComment.pending, (state) => {
+      .addCase(deleteComment.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -249,7 +307,8 @@ const orderSlice = createSlice({
         const commentId = action.payload;
         state.orders = state.orders.map(order => ({
           ...order,
-          comments: order.comments?.filter(comment => comment.id !== commentId) || [],
+          comments:
+            order.comments?.filter(comment => comment.id !== commentId) || [],
         }));
       })
       .addCase(deleteComment.rejected, (state, action) => {
@@ -259,7 +318,15 @@ const orderSlice = createSlice({
   },
 });
 
-export { fetchOrders, createOrder, updateOrder, addComment, deleteComment };
+export {
+  fetchOrders,
+  fetchGroups,
+  addGroup,
+  createOrder,
+  updateOrder,
+  addComment,
+  deleteComment,
+};
 
 export const {
   setSort,

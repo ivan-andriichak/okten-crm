@@ -1,4 +1,3 @@
-// src/modules/groups/group.service.ts
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,7 +12,6 @@ export class GroupService {
   ) {}
 
   async createGroup(name: string): Promise<GroupEntity> {
-    // Перевірка унікальності назви групи
     const existingGroup = await this.groupRepository.findOne({
       where: { name },
     });

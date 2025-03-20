@@ -1,11 +1,11 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, logout, RootState } from './store';
-import Login from './components/Login/Login';
 import { MainLayout } from './layouts';
 import { ErrorPage, HomePage } from './pages';
 import { Orders } from './components/Orders';
 import { PublicOrderForm } from './components/PublicOrderForm';
+import { Login } from './components/Login';
 
 const ProtectedOrdersRoute = () => {
   const dispatch = useDispatch<AppDispatch>();

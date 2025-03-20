@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
-import Login from '../Login/Login';
 import css from './Home.module.css';
+import { Login } from '../Login';
 
 const Home = () => {
   const navigate = useNavigate();
