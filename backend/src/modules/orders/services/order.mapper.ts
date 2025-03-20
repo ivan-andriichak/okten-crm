@@ -35,13 +35,17 @@ export class OrderMapper {
       created_at: entity.created_at,
       group: entity.group,
       manager: entity.manager ? UserMapper.toResponseDTO(entity.manager) : null,
-      comments: entity.comments?.map((comment) => ({
-        id: comment.id,
-        text: comment.text,
-        author:
-          `${comment.user?.name || 'Unknown'} ${comment.user?.surname || ''}`.trim(),
-        createdAt: comment.created_at,
-      })),
+      comments:
+        entity.comments?.map((comment) => {
+          console.log('Mapping comment:', comment);
+          return {
+            id: comment.id,
+            text: comment.text,
+            author:
+              `${comment.user?.name || 'Unknown'} ${comment.user?.surname || ''}`.trim(),
+            createdAt: comment.created_at,
+          };
+        }) || [],
       utm: entity.utm,
       msg: entity.msg,
     };

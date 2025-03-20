@@ -88,7 +88,10 @@ export class OrderController {
   }
 
   @Post(':orderId/comment')
-  @ApiOkResponse({ description: 'Order with added comment', type: OrderEntity })
+  @ApiOkResponse({
+    description: 'Order with added comment',
+    type: OrderListItemResDto,
+  })
   async addComment(
     @Param('orderId') id: number,
     @Body() commentDto: CommentDto,

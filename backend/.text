@@ -33,3 +33,7 @@ ________________________________________________________________________________
 // очищення хоста
 netstat -ano | findstr :3001
 taskkill /PID 1234 /F
+
+___________________________________________________________________________________________
+http://localhost:3000/register?utm_source=google&utm_medium=cpc&utm_campaign=spring_sale// створення заявки
+https://ga-dev-tools.google/campaign-url-builder/

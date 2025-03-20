@@ -94,12 +94,11 @@ const updateOrder = createAsyncThunk(
   },
 );
 
-// Додавання коментаря
 const addComment = createAsyncThunk(
   'orders/addComment',
   async (
     { orderId, commentText }: { orderId: string; commentText: string },
-    { getState, dispatch },
+    { getState},
   ) => {
     const state = getState() as {
       orders: OrderState;
@@ -120,16 +119,14 @@ const addComment = createAsyncThunk(
       { text: commentText },
       { headers: { Authorization: `Bearer ${token}` } },
     );
-
-    await dispatch(fetchOrders(state.orders.page));
+    console.log('addComment response:', response.data);
     return response.data;
   },
 );
 
-// Видалення коментаря
 const deleteComment = createAsyncThunk(
   'orders/deleteComment',
-  async (commentId: string, { getState, dispatch }) => {
+  async (commentId: string, { getState}) => {
     const state = getState() as {
       orders: OrderState;
       auth: { token: string | null };
@@ -139,8 +136,7 @@ const deleteComment = createAsyncThunk(
     await api.delete(`/orders/comments/${commentId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
-    await dispatch(fetchOrders(state.orders.page));
+    return commentId;
   },
 );
 
@@ -210,8 +206,8 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders.push(action.payload); // Додаємо нове замовлення до стану
-        state.total += 1; // Оновлюємо загальну кількість
+        state.orders.push(action.payload);
+        state.total += 1;
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
@@ -248,8 +244,13 @@ const orderSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteComment.fulfilled, (state) => {
+      .addCase(deleteComment.fulfilled, (state, action) => {
         state.loading = false;
+        const commentId = action.payload;
+        state.orders = state.orders.map(order => ({
+          ...order,
+          comments: order.comments?.filter(comment => comment.id !== commentId) || [],
+        }));
       })
       .addCase(deleteComment.rejected, (state, action) => {
         state.loading = false;

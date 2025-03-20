@@ -9,6 +9,7 @@ import {
 } from '../../store';
 import Button from '../Button/Button';
 import { CommentList } from '../CommentsList/CommentsList';
+import React from 'react';
 
 interface OrderDetailsProps {
   orderId: number;
@@ -28,10 +29,11 @@ const OrderDetails = ({ orderId, commentText, currentUserId, token }: OrderDetai
   const canEditOrComment =
     !order.manager || (order.manager && order.manager.id === currentUserId);
 
-  const handleCommentSubmit = async () => {
+  const handleCommentSubmit = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     if (!commentText || !token || !canEditOrComment) return;
-
     await dispatch(addComment({ orderId: order.id, commentText }));
+    dispatch(setCommentText(''));
   };
 
   const handleEditClick = () => {

@@ -6,9 +6,7 @@ import {
 import * as ExcelJS from 'exceljs';
 
 import { Role } from '../../../common/enums/role.enum';
-import { CommentEntity } from '../../../database/entities/comment.entity';
 import { OrderEntity } from '../../../database/entities/order.entity';
-import { UserEntity } from '../../../database/entities/user.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
 import { GroupService } from '../../groups/services/group.services';
 import { LoggerService } from '../../logger/logger.service';
@@ -63,33 +61,46 @@ export class OrderService {
       relations: ['manager', 'comments', 'comments.user'],
     });
 
-    // Перевірка: менеджер відсутній або це поточний користувач
+    if (!order) {
+      throw new NotFoundException(`Order with id ${orderId} not found`);
+    }
+
     if (order.manager && order.manager.id !== userData.userId) {
       throw new ForbiddenException(
         'You can only comment on orders without a manager or assigned to you',
       );
     }
 
-    if (!order) {
-      throw new NotFoundException(`Order with id ${orderId} not found`);
+    const user = await this.userRepository.findOne({
+      where: { id: userData.userId },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with id ${userData.userId} not found`);
     }
 
-    const newComment = new CommentEntity();
-    newComment.text = commentDto.text;
-    newComment.user = { id: userData.userId } as UserEntity;
-    newComment.order = order;
-
-    order.comments = order.comments
-      ? [...order.comments, newComment]
-      : [newComment];
+    const newComment = this.commentRepository.create({
+      text: commentDto.text,
+      user: user,
+      order: order,
+    });
+    await this.commentRepository.save(newComment);
 
     if (!order.status || order.status === 'New') {
       order.status = 'In Work';
-      order.manager = { id: userData.userId } as UserEntity;
+      order.manager = user;
+      await this.ordersRepository.save(order);
     }
 
-    await this.ordersRepository.save(order);
-    return OrderMapper.toOrderListItemResDto(order);
+    const updatedOrder = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['manager', 'comments', 'comments.user'],
+    });
+
+    if (!updatedOrder) {
+      throw new NotFoundException(`Updated order with id ${orderId} not found`);
+    }
+
+    return OrderMapper.toOrderListItemResDto(updatedOrder);
   }
 
   async deleteComment(commentId: string, userData: IUserData): Promise<void> {
@@ -165,9 +176,7 @@ export class OrderService {
 
   async generateExcel(query: ExcelQueryDto): Promise<Buffer> {
     const orders = await this.ordersRepository.find({
-      where: {
-        ...query,
-      },
+      where: { ...query },
     });
 
     const workbook = new ExcelJS.Workbook();

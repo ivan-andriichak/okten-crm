@@ -9,12 +9,12 @@ import {
 } from '../../store';
 import { OrdersProps } from '../../interfaces/order';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
-import EditOrderModal from '../EditOrderModal/EditOrderModal';
 import { useSearchParams } from 'react-router-dom';
 import { Pagination } from '../Pagination/Pagination';
 import { OrderTable } from '../OrderTable/OrderTable';
 import css from './Orders.module.css';
 import Button from '../Button/Button';
+import { EditOrderModal } from '../EditOrderModal/EditOrderModal';
 
 const Orders = ({ role }: OrdersProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -61,7 +61,7 @@ const Orders = ({ role }: OrdersProps) => {
   return (
     <>
       <div className={css.orders_container}>
-        <h2>LOGO</h2>
+        <h3>LOGO</h3>
         <p>{role}</p>
         <p>{name && surname ? `${name} ${surname}` : 'Not available'}</p>
         <Button

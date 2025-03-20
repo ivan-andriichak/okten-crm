@@ -1,14 +1,25 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
-import { AppDispatch, closeEditModal, updateEditForm, updateOrder } from '../../store';
+import {
+  AppDispatch,
+  closeEditModal,
+  updateEditForm,
+  updateOrder,
+} from '../../store';
 import { EditOrderModalProps } from '../../interfaces/editForm';
 import { Order } from '../../interfaces/order';
 import Button from '../Button/Button';
 
-const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token }) => {
+const EditOrderModal = ({
+  editingOrder,
+  editForm,
+  token,
+}: EditOrderModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleEditChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     const parsedValue = value === '' ? null : value;
     dispatch(updateEditForm({ [name]: parsedValue }));
@@ -23,12 +34,22 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
       surname: editForm.surname,
       email: editForm.email,
       phone: editForm.phone,
-      age: editForm.age === null ? null : editForm.age ? parseInt(editForm.age, 10) : null,
+      age:
+        editForm.age === null
+          ? null
+          : editForm.age
+            ? parseInt(editForm.age, 10)
+            : null,
       course: editForm.course,
-      course_format: editForm.course_format ?? editingOrder.course_format, // Запобігаємо undefined
-      course_type: editForm.course_type ?? editingOrder.course_type, // Запобігаємо undefined
-      status: editForm.status ?? editingOrder.status, // Запобігаємо undefined
-      sum: editForm.sum === null ? null : editForm.sum ? parseFloat(editForm.sum) : null,
+      course_format: editForm.course_format ?? editingOrder.course_format,
+      course_type: editForm.course_type ?? editingOrder.course_type,
+      status: editForm.status ?? editingOrder.status,
+      sum:
+        editForm.sum === null
+          ? null
+          : editForm.sum
+            ? parseFloat(editForm.sum)
+            : null,
       alreadyPaid:
         editForm.alreadyPaid === null
           ? null
@@ -79,7 +100,7 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <input
               type="text"
               name="name"
-              value={editForm.name ?? ''} // null -> ''
+              value={editForm.name ?? ''}
               onChange={handleEditChange}
               style={modalStyles.input}
             />
@@ -89,7 +110,7 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <input
               type="text"
               name="surname"
-              value={editForm.surname ?? ''} // null -> ''
+              value={editForm.surname ?? ''}
               onChange={handleEditChange}
               style={modalStyles.input}
             />
@@ -99,7 +120,7 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <input
               type="email"
               name="email"
-              value={editForm.email ?? ''} // null -> ''
+              value={editForm.email ?? ''}
               onChange={handleEditChange}
               style={modalStyles.input}
             />
@@ -109,7 +130,7 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <input
               type="text"
               name="phone"
-              value={editForm.phone ?? ''} // null -> ''
+              value={editForm.phone ?? ''}
               onChange={handleEditChange}
               style={modalStyles.input}
             />
@@ -119,7 +140,7 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <input
               type="number"
               name="age"
-              value={editForm.age ?? ''} // null -> ''
+              value={editForm.age ?? ''}
               onChange={handleEditChange}
               style={modalStyles.input}
             />
@@ -128,10 +149,9 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <label>Course:</label>
             <select
               name="course"
-              value={editForm.course ?? ''} // null -> ''
+              value={editForm.course ?? ''}
               onChange={handleEditChange}
-              style={modalStyles.input}
-            >
+              style={modalStyles.input}>
               <option value="">Select Course</option>
               <option value="FS">FS</option>
               <option value="QACX">QACX</option>
@@ -145,10 +165,9 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <label>Course Format:</label>
             <select
               name="course_format"
-              value={editForm.course_format ?? ''} // null -> ''
+              value={editForm.course_format ?? ''}
               onChange={handleEditChange}
-              style={modalStyles.input}
-            >
+              style={modalStyles.input}>
               <option value="">Select Format</option>
               <option value="static">Static</option>
               <option value="online">Online</option>
@@ -158,10 +177,9 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <label>Course Type:</label>
             <select
               name="course_type"
-              value={editForm.course_type ?? ''} // null -> ''
+              value={editForm.course_type ?? ''}
               onChange={handleEditChange}
-              style={modalStyles.input}
-            >
+              style={modalStyles.input}>
               <option value="">Select Type</option>
               <option value="pro">Pro</option>
               <option value="minimal">Minimal</option>
@@ -174,10 +192,9 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <label>Status:</label>
             <select
               name="status"
-              value={editForm.status ?? ''} // null -> ''
+              value={editForm.status ?? ''}
               onChange={handleEditChange}
-              style={modalStyles.input}
-            >
+              style={modalStyles.input}>
               <option value="">Select Status</option>
               <option value="In work">In work</option>
               <option value="New">New</option>
@@ -191,7 +208,7 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <input
               type="number"
               name="sum"
-              value={editForm.sum ?? ''} // null -> ''
+              value={editForm.sum ?? ''}
               onChange={handleEditChange}
               style={modalStyles.input}
             />
@@ -201,7 +218,7 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <input
               type="number"
               name="alreadyPaid"
-              value={editForm.alreadyPaid ?? ''} // null -> ''
+              value={editForm.alreadyPaid ?? ''}
               onChange={handleEditChange}
               style={modalStyles.input}
             />
@@ -211,18 +228,20 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
             <input
               type="text"
               name="group"
-              value={editForm.group ?? ''} // null -> ''
+              value={editForm.group ?? ''}
               onChange={handleEditChange}
               style={modalStyles.input}
             />
           </div>
           <div style={{ marginTop: '10px' }}>
-            <Button variant="primary" type="submit">Submit</Button>
-            <Button variant="primary"
-                    type="button"
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+            <Button
+              variant="primary"
+              type="button"
               onClick={() => dispatch(closeEditModal())}
-              style={modalStyles.button}
-            >
+              style={modalStyles.button}>
               Close
             </Button>
           </div>
@@ -232,4 +251,4 @@ const EditOrderModal: FC<EditOrderModalProps> = ({ editingOrder, editForm, token
   );
 };
 
-export default EditOrderModal;
+export { EditOrderModal };
