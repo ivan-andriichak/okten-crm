@@ -1,15 +1,42 @@
 .orders_container {
-    margin: 0 auto;
-    padding: 20px 20px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 10px;
+ margin: 1rem auto;
     max-width: 95%;
-    сolor: #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    сolor: #333;
 }
 
-.orders_container h2 {
-    font-size: 24px;
+.orders_container h3 {
+    font-size: 16px;
     color: #333;
+}
+
+.orders_container p {
+    сolor: #333;
+
+}
+
+.user_info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.role, .name {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.role {
+    font-weight: bold;
+    color: #666;
+}
+
+.name {
+    color: #86b6f1;
+}
+
+.logo h3 {
+    margin: 0;
 }

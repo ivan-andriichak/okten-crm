@@ -9,16 +9,17 @@ import {
 } from '../../store';
 import { OrdersProps } from '../../interfaces/order';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom'; // Додано useNavigate
 import { Pagination } from '../Pagination/Pagination';
 import { OrderTable } from '../OrderTable/OrderTable';
 import css from './Orders.module.css';
 import Button from '../Button/Button';
-import { EditOrderModal } from '../EditOrderModal/EditOrderModal';
+import { EditOrderModal } from '../EditOrderModal';
 
 const Orders = ({ role }: OrdersProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate(); // Додано
   const {
     orders,
     total,
@@ -56,20 +57,25 @@ const Orders = ({ role }: OrdersProps) => {
 
   const handleLogout = () => {
     dispatch(logout());
+    navigate('/login');
   };
 
   return (
     <>
       <div className={css.orders_container}>
-        <h3>LOGO</h3>
-        <p>{role}</p>
-        <p>{name && surname ? `${name} ${surname}` : 'Not available'}</p>
-        <Button
-          style={{ margin: '10px' }}
-          variant="primary"
-          onClick={handleLogout}>
-          Logout
-        </Button>
+        <div className={css.logo}>
+          <h3>LOGO</h3>
+        </div>
+        <div className={css.user_info}>
+          <p className={css.role}>{role}</p>
+          <p className={css.name}>{name && surname ? `${name} ${surname}` : 'Not available'}</p>
+          <Button
+            style={{ margin: '10px' }}
+            variant="primary"
+            onClick={handleLogout}>
+            Logout
+          </Button>
+        </div>
       </div>
 
       {loading && <LoadingSpinner />}

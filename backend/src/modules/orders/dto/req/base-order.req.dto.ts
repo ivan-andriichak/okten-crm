@@ -81,9 +81,8 @@ export class BaseOrderReqDto {
   @ApiProperty({
     example: 'New',
     description: 'Status of the order.',
-    enum: ['New', 'In Work', 'Aggre', 'Disaggre', 'Dubbing'],
   })
-  @IsEnum(['New', 'In Work', 'Aggre', 'Disaggre', 'Dubbing'])
+  @IsEnum(['New', 'In work', 'Aggre', 'Disaggre', 'Dubbing'])
   @IsOptional()
   status?: string;
 

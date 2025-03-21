@@ -11,27 +11,28 @@ import {
 import { EditOrderModalProps } from '../../interfaces/editForm';
 import { Order, OrderState } from '../../interfaces/order';
 import Button from '../Button/Button';
+import css from './EditOrderModal.module.css';
 
-// Тип для стану Redux
 interface RootState {
   orders: OrderState;
   auth: { token: string | null };
 }
 
 const EditOrderModal = ({
-  editingOrder,
-  editForm,
-  token,
-}: EditOrderModalProps) => {
+                          editingOrder,
+                          editForm,
+                          token,
+                        }: EditOrderModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const groups = useSelector((state: RootState) => state.orders.groups) || [];
   const loading = useSelector((state: RootState) => state.orders.loading);
   const error = useSelector((state: RootState) => state.orders.error);
   const [newGroupName, setNewGroupName] = useState('');
+  const [isAddingGroup, setIsAddingGroup] = useState(false);
 
   useEffect(() => {
     if (token && groups.length === 0) {
-      dispatch(fetchGroups()); // Завантажуємо групи при відкритті модального вікна
+      dispatch(fetchGroups());
     }
   }, [dispatch, token, groups.length]);
 
@@ -55,6 +56,7 @@ const EditOrderModal = ({
     dispatch(addGroup(newGroupName)).then(() => {
       dispatch(updateEditForm({ group: newGroupName }));
       setNewGroupName('');
+      setIsAddingGroup(false);
     });
   };
 
@@ -100,233 +102,230 @@ const EditOrderModal = ({
     await dispatch(updateOrder({ id: editingOrder.id, updates }));
   };
 
-  const modalStyles = {
-    overlay: {
-      position: 'fixed' as const,
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    content: {
-      backgroundColor: 'white',
-      padding: '20px',
-      borderRadius: '5px',
-      width: '600px',
-      display: 'flex',
-      flexDirection: 'row' as const,
-      gap: '20px',
-    },
-    column: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '10px',
-    },
-    input: {
-      width: '100%',
-      padding: '5px',
-      marginBottom: '5px',
-    },
-    button: {
-      marginLeft: '10px',
-    },
-    groupContainer: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '5px',
-    },
-  };
-
   return (
-    <div style={modalStyles.overlay}>
-      <div style={modalStyles.content}>
-        <div style={modalStyles.column}>
-          <h3>Edit Order</h3>
-          <div style={modalStyles.groupContainer}>
-            <label>Group:</label>
-            <select
-              name="group"
-              value={editForm.group ?? ''}
-              onChange={handleSelectGroup}
-              style={modalStyles.input}
-              disabled={loading}>
-              <option value="">Select Group</option>
-              {groups.map(group => (
-                <option key={group} value={group}>
-                  {group}
-                </option>
-              ))}
-            </select>
-            <div style={{ display: 'flex', gap: '5px' }}>
+    <div className={css.overlay}>
+      <div className={css.container}>
+        <h3>Edit Order</h3>
+        <div className={css.content}>
+          <div className={css.column}>
+            <div className={css.groupContainer}>
+              <label>Group:</label>
+              {isAddingGroup ? (
+                <div className={css.groupInputContainer}>
+                  <input
+                    type="text"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    placeholder="New group name"
+                    className={css.input}
+                    disabled={loading}
+                  />
+                  <div className={css.buttonGroup}>
+                    <Button
+                      variant="primary"
+                      onClick={handleAddGroup}
+                      disabled={loading}
+                    >
+                      Add
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setIsAddingGroup(false)}
+                      disabled={loading}
+                    >
+                      Select
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className={css.groupInputContainer}>
+                  <select
+                    name="group"
+                    value={editForm.group ?? ''}
+                    onChange={handleSelectGroup}
+                    className={css.input}
+                    disabled={loading}
+                  >
+                    <option value="">Select Group</option>
+                    {groups.map((group) => (
+                      <option key={group} value={group}>
+                        {group}
+                      </option>
+                    ))}
+                  </select>
+                  <div className={css.buttonGroup}>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setIsAddingGroup(true)}
+                      disabled={loading}
+                    >
+                      Add
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => setIsAddingGroup(false)}
+                      disabled={loading}
+                    >
+                      Select
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {error && <span className={css.error}>{error}</span>}
+            </div>
+            <div>
+              <label>Name:</label>
               <input
                 type="text"
-                value={newGroupName}
-                onChange={e => setNewGroupName(e.target.value)}
-                placeholder="New group name"
-                style={modalStyles.input}
-                disabled={loading}
+                name="name"
+                value={editForm.name ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
               />
-              <Button
-                variant="primary"
-                onClick={handleAddGroup}
-                disabled={loading}>
-                ADD
-              </Button>
             </div>
-            {error && <span style={{ color: 'red' }}>{error}</span>}
+            <div>
+              <label>Surname:</label>
+              <input
+                type="text"
+                name="surname"
+                value={editForm.surname ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              />
+            </div>
+            <div>
+              <label>Email:</label>
+              <input
+                type="email"
+                name="email"
+                value={editForm.email ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              />
+            </div>
+            <div>
+              <label>Phone:</label>
+              <input
+                type="text"
+                name="phone"
+                value={editForm.phone ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              />
+            </div>
+            <div>
+              <label>Age:</label>
+              <input
+                type="number"
+                name="age"
+                value={editForm.age ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              />
+            </div>
           </div>
-          <div>
-            <label>Name:</label>
-            <input
-              type="text"
-              name="name"
-              value={editForm.name ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}
-            />
-          </div>
-          <div>
-            <label>Surname:</label>
-            <input
-              type="text"
-              name="surname"
-              value={editForm.surname ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}
-            />
-          </div>
-          <div>
-            <label>Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={editForm.email ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}
-            />
-          </div>
-          <div>
-            <label>Phone:</label>
-            <input
-              type="text"
-              name="phone"
-              value={editForm.phone ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}
-            />
-          </div>
-          <div>
-            <label>Age:</label>
-            <input
-              type="number"
-              name="age"
-              value={editForm.age ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}
-            />
+          <div className={css.column}>
+            <div style={{marginBottom:'25px'}}>
+              <label>Status:</label>
+              <select
+                name="status"
+                value={editForm.status ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              >
+                <option value="">Select Status</option>
+                <option value="In work">In work</option>
+                <option value="New">New</option>
+                <option value="Aggre"> Agree</option>
+                <option value="Disaggre">Disaggre</option>
+                <option value="Dubbing">Dubbing</option>
+              </select>
+            </div>
+            <div>
+              <label>Sum:</label>
+              <input
+                type="number"
+                name="sum"
+                value={editForm.sum ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              />
+            </div>
+            <div>
+              <label>Already Paid:</label>
+              <input
+                type="number"
+                name="alreadyPaid"
+                value={editForm.alreadyPaid ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              />
+            </div>
+            <div>
+              <label>Course:</label>
+              <select
+                name="course"
+                value={editForm.course ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              >
+                <option value="">Select Course</option>
+                <option value="FS">FS</option>
+                <option value="QACX">QACX</option>
+                <option value="JCX">JCX</option>
+                <option value="JSCX">JSCX</option>
+                <option value="FE">FE</option>
+                <option value="PCX">PCX</option>
+              </select>
+            </div>
+            <div>
+              <label>Course Format:</label>
+              <select
+                name="course_format"
+                value={editForm.course_format ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              >
+                <option value="">Select Format</option>
+                <option value="static">Static</option>
+                <option value="online">Online</option>
+              </select>
+            </div>
+            <div>
+              <label>Course Type:</label>
+              <select
+                name="course_type"
+                value={editForm.course_type ?? ''}
+                onChange={handleEditChange}
+                className={css.input}
+              >
+                <option value="">Select Type</option>
+                <option value="pro">Pro</option>
+                <option value="minimal">Minimal</option>
+                <option value="premium">Premium</option>
+                <option value="incubator">Incubator</option>
+                <option value="vip">VIP</option>
+              </select>
+            </div>
           </div>
         </div>
-        <div style={modalStyles.column}>
-          <div>
-            <label>Status:</label>
-            <select
-              name="status"
-              value={editForm.status ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}>
-              <option value="">Select Status</option>
-              <option value="In work">In work</option>
-              <option value="New">New</option>
-              <option value="Aggre">Agree</option>
-              <option value="Disaggre">Disaggre</option>
-              <option value="Dubbing">Dubbing</option>
-            </select>
-          </div>
-          <div>
-            <label>Sum:</label>
-            <input
-              type="number"
-              name="sum"
-              value={editForm.sum ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}
-            />
-          </div>
-          <div>
-            <label>Already Paid:</label>
-            <input
-              type="number"
-              name="alreadyPaid"
-              value={editForm.alreadyPaid ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}
-            />
-          </div>
-          <div>
-            <label>Course:</label>
-            <select
-              name="course"
-              value={editForm.course ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}>
-              <option value="">Select Course</option>
-              <option value="FS">FS</option>
-              <option value="QACX">QACX</option>
-              <option value="JCX">JCX</option>
-              <option value="JSCX">JSCX</option>
-              <option value="FE">FE</option>
-              <option value="PCX">PCX</option>
-            </select>
-          </div>
-          <div>
-            <label>Course Format:</label>
-            <select
-              name="course_format"
-              value={editForm.course_format ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}>
-              <option value="">Select Format</option>
-              <option value="static">Static</option>
-              <option value="online">Online</option>
-            </select>
-          </div>
-          <div>
-            <label>Course Type:</label>
-            <select
-              name="course_type"
-              value={editForm.course_type ?? ''}
-              onChange={handleEditChange}
-              style={modalStyles.input}>
-              <option value="">Select Type</option>
-              <option value="pro">Pro</option>
-              <option value="minimal">Minimal</option>
-              <option value="premium">Premium</option>
-              <option value="incubator">Incubator</option>
-              <option value="vip">VIP</option>
-            </select>
-          </div>
-          <div style={{ marginTop: '10px' }}>
-            <Button
-              variant="primary"
-              type="submit"
-              onClick={handleEditSubmit}
-              disabled={loading}>
-              Submit
-            </Button>
-            <Button
-              variant="primary"
-              type="button"
-              onClick={() => dispatch(closeEditModal())}
-              style={modalStyles.button}
-              disabled={loading}>
-              Close
-            </Button>
-          </div>
+        <div className={css.buttonGroup}>
+          <Button
+            variant="primary"
+            type="submit"
+            onClick={handleEditSubmit}
+            disabled={loading}
+          >
+            Submit
+          </Button>
+          <Button
+            variant="primary"
+            type="button"
+            onClick={() => dispatch(closeEditModal())}
+            disabled={loading}
+          >
+            Close
+          </Button>
         </div>
       </div>
     </div>

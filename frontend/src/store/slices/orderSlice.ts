@@ -19,7 +19,6 @@ const initialState: OrderState = {
   groups: [],
 };
 
-// Завантаження списку замовлень
 const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
   async (page: number, { getState }) => {
@@ -57,7 +56,6 @@ const fetchOrders = createAsyncThunk(
   },
 );
 
-// Завантаження списку груп
 const fetchGroups = createAsyncThunk(
   'orders/fetchGroups',
   async (_, { getState }) => {
@@ -71,7 +69,6 @@ const fetchGroups = createAsyncThunk(
   },
 );
 
-// Додавання нової групи
 const addGroup = createAsyncThunk(
   'orders/addGroup',
   async (groupName: string, { getState }) => {
@@ -89,7 +86,6 @@ const addGroup = createAsyncThunk(
   },
 );
 
-// Створення нового замовлення
 const createOrder = createAsyncThunk(
   'orders/createOrder',
   async (orderData: Partial<Order>, { getState }) => {
@@ -104,7 +100,6 @@ const createOrder = createAsyncThunk(
   },
 );
 
-// Оновлення замовлення
 const updateOrder = createAsyncThunk(
   'orders/updateOrder',
   async (payload: { id: string; updates: Partial<Order> }, { getState }) => {

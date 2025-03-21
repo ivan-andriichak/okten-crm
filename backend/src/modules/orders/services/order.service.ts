@@ -88,8 +88,13 @@ export class OrderService {
     if (!order.status || order.status === 'New') {
       order.status = 'In Work';
       order.manager = user;
-      await this.ordersRepository.save(order);
     }
+
+    if (!order.comments) order.comments = [];
+    order.comments.push(newComment);
+
+    // Зберігаємо оновлений порядок
+    await this.ordersRepository.save(order);
 
     const updatedOrder = await this.ordersRepository.findOne({
       where: { id: orderId },
