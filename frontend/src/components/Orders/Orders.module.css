@@ -37,6 +37,16 @@
     color: #86b6f1;
 }
 
-.logo h3 {
-    margin: 0;
+.logoImage {
+    width: 40px;
+    border-radius: 50%;
+    height: auto;
+    object-fit: contain;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.logo {
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*justify-content: center;*/
 }

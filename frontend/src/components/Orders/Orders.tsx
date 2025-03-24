@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import oktenLogo from '../../images/okten.jpg';
+
 import {
   AppDispatch,
   fetchOrders,
@@ -63,9 +65,9 @@ const Orders = ({ role }: OrdersProps) => {
   return (
     <>
       <div className={css.orders_container}>
-        <div className={css.logo}>
-          <h3>LOGO</h3>
-        </div>
+       <div className={css.logo}>
+            <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
+          </div>
         <div className={css.user_info}>
           <p className={css.role}>{role}</p>
           <p className={css.name}>{name && surname ? `${name} ${surname}` : 'Not available'}</p>
