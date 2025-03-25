@@ -20,35 +20,33 @@ const initialState: OrderState = {
   groups: [],
 };
 
-// Типізація для конфігурації ThunkAPI
 interface ThunkConfig {
   state: RootState;
   dispatch: AppDispatch;
-  extra?: Record<string, string>; // Додаткові параметри (фільтри)
+  extra?: Record<string, string>;
 }
 
 // Тип для параметрів fetchOrders
 interface FetchOrdersParams {
   page: number;
-  filters: Record<string, string>;
+  filters: Record<string, string | undefined>;
 }
 
-// Створення fetchOrders з правильною типізацією
 const fetchOrders = createAsyncThunk<
-  { orders: Order[]; total: number }, // Тип повернення
-  FetchOrdersParams, // Тип аргументу
-  ThunkConfig // Тип конфігурації
+  { orders: Order[]; total: number },
+  FetchOrdersParams,
+  ThunkConfig
 >('orders/fetchOrders', async ({ page, filters }, { getState }) => {
   const state = getState();
   const { limit, sort, order } = state.orders;
-  const { token, currentUserId, role } = state.auth;
+  const { token} = state.auth;
 
   const params: any = {
     page,
     limit,
     sort,
     order,
-    manager_id: role === 'manager' || filters?.myOrders === 'true' ? currentUserId : undefined,
+    ...(filters?.myOrders && { myOrders: filters.myOrders }),
     ...(filters?.name && { name: filters.name }),
     ...(filters?.surname && { surname: filters.surname }),
     ...(filters?.email && { email: filters.email }),
@@ -74,7 +72,6 @@ const fetchOrders = createAsyncThunk<
   return { orders: response.data.orders, total: response.data.total };
 });
 
-// Решта thunk-ів без змін
 const fetchGroups = createAsyncThunk<string[], void, ThunkConfig>(
   'orders/fetchGroups',
   async (_, { getState }) => {

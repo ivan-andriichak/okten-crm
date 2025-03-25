@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 
 import { Role } from '../../../common/enums/role.enum';
@@ -31,31 +27,24 @@ export class OrderService {
     private readonly commentRepository: CommentRepository,
   ) {}
 
-  public async getListOrders(
-    userData: IUserData,
-    query: OrderListQueryDto,
-  ): Promise<[OrderEntity[], number]> {
+  public async getListOrders(userData: IUserData, query: OrderListQueryDto): Promise<[OrderEntity[], number]> {
     this.logger.log(`getListOrders called for user ${userData.userId}`);
-    const userId = userData.role === Role.MANAGER ? userData.userId : undefined;
+    const userId = userData.role === Role.MANAGER || userData.role === Role.ADMIN ? userData.userId : undefined;
+    console.log('Service - UserId:', userId); // Логування userId
+    console.log('Service - Query:', query); // Логування query
     return await this.ordersRepository.getListOrders(userId, query);
   }
 
-  async getOrderById(id: number): Promise<OrderEntity> {
-    const order = await this.ordersRepository.findOne({ where: { id: id } });
+  async getOrderById(orderId: number): Promise<OrderEntity> {
+    const order = await this.ordersRepository.findOne({ where: { id: orderId } });
     if (!order) {
       throw new Error('Order not found');
     }
     return order;
   }
 
-  async addComment(
-    orderId: number,
-    commentDto: CommentDto,
-    userData: IUserData,
-  ): Promise<OrderListItemResDto> {
-    this.logger.log(
-      `addComment called for order ${orderId} by user ${userData.userId}`,
-    );
+  async addComment(orderId: number, commentDto: CommentDto, userData: IUserData): Promise<OrderListItemResDto> {
+    this.logger.log(`addComment called for order ${orderId} by user ${userData.userId}`);
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
       relations: ['manager', 'comments', 'comments.user'],
@@ -66,9 +55,7 @@ export class OrderService {
     }
 
     if (order.manager && order.manager.id !== userData.userId) {
-      throw new ForbiddenException(
-        'You can only comment on orders without a manager or assigned to you',
-      );
+      throw new ForbiddenException('You can only comment on orders without a manager or assigned to you');
     }
 
     const user = await this.userRepository.findOne({
@@ -109,9 +96,7 @@ export class OrderService {
   }
 
   async deleteComment(commentId: string, userData: IUserData): Promise<void> {
-    this.logger.log(
-      `deleteComment called for comment ${commentId} by user ${userData.userId}`,
-    );
+    this.logger.log(`deleteComment called for comment ${commentId} by user ${userData.userId}`);
     const comment = await this.commentRepository.findOne({
       where: { id: commentId },
       relations: ['order', 'order.manager', 'user'],
@@ -122,23 +107,14 @@ export class OrderService {
     }
 
     const order = comment.order;
-    if (
-      order.manager &&
-      order.manager.id !== userData.userId &&
-      comment.user.id !== userData.userId
-    ) {
-      throw new ForbiddenException(
-        'You can only delete comments on orders assigned to you or written by you',
-      );
+    if (order.manager && order.manager.id !== userData.userId && comment.user.id !== userData.userId) {
+      throw new ForbiddenException('You can only delete comments on orders assigned to you or written by you');
     }
 
     await this.commentRepository.remove(comment);
   }
 
-  async editOrder(
-    orderId: number,
-    editOrderDto: EditOrderDto,
-  ): Promise<OrderEntity> {
+  async editOrder(orderId: number, editOrderDto: EditOrderDto): Promise<OrderEntity> {
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
       relations: ['manager', 'groupEntity'],
@@ -155,9 +131,7 @@ export class OrderService {
         where: { id: editOrderDto.manager_id },
       });
       if (!manager) {
-        throw new NotFoundException(
-          `Manager with ID ${editOrderDto.manager_id} not found`,
-        );
+        throw new NotFoundException(`Manager with ID ${editOrderDto.manager_id} not found`);
       }
       order.manager = manager;
     }
@@ -165,9 +139,7 @@ export class OrderService {
     return await this.ordersRepository.save(order);
   }
 
-  async createPublicOrder(
-    createOrderDto: CreateOrderReqDto,
-  ): Promise<OrderEntity> {
+  async createPublicOrder(createOrderDto: CreateOrderReqDto): Promise<OrderEntity> {
     const order = this.ordersRepository.create({
       ...createOrderDto,
       utm: createOrderDto.utm || null,

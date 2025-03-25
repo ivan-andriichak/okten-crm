@@ -12,33 +12,12 @@ export class OrdersRepository extends Repository<OrderEntity> {
     console.log('DataSource initialized:', dataSource.isInitialized);
   }
 
-  public async getListOrders(
-    userId: string | undefined,
-    query: OrderListQueryDto & {
-      name?: string;
-      surname?: string;
-      email?: string;
-      phone?: string;
-      age?: string;
-      course?: string;
-      course_format?: string;
-      course_type?: string;
-      status?: string;
-      sum?: string;
-      alreadyPaid?: string;
-      group?: string;
-      created_at?: string;
-      manager?: string;
-      myOrders?: string;
-      search?: string;
-    },
-  ): Promise<[OrderEntity[], number]> {
+  public async getListOrders(userId: string, query: OrderListQueryDto): Promise<[OrderEntity[], number]> {
     const {
       page = 1,
       limit = 25,
       sort = 'id',
       order = 'ASC',
-      search,
       name,
       surname,
       email,
@@ -53,7 +32,13 @@ export class OrdersRepository extends Repository<OrderEntity> {
       group,
       created_at,
       manager,
+      manager_id,
+      myOrders,
     } = query;
+
+    console.log('Query received:', query);
+    console.log('UserId received:', userId);
+    console.log('myOrders value:', myOrders, 'typeof myOrders:', typeof myOrders);
 
     const qb = this.createQueryBuilder('order')
       .leftJoinAndSelect('order.manager', 'manager')
@@ -61,50 +46,36 @@ export class OrdersRepository extends Repository<OrderEntity> {
       .leftJoinAndSelect('order.comments', 'comments')
       .leftJoinAndSelect('comments.user', 'commentUser');
 
-    // Фільтр за userId (якщо передано або myOrders=true)
-    if (userId) {
+    // Фільтр за userId, якщо myOrders === true
+    if (myOrders === true && userId) {
+      console.log('Applying filter for myOrders with userId:', userId);
       qb.andWhere('order.manager_id = :userId', { userId });
+    } else {
+      console.log('No myOrders filter applied. myOrders:', myOrders, 'userId:', userId);
     }
 
-    // Фільтри по полях
+    // Фільтр за manager_id, якщо передано явно
+    if (manager_id) {
+      console.log('Applying filter for manager_id:', manager_id);
+      qb.andWhere('order.manager_id = :manager_id', { manager_id });
+    }
+
+    // Решта фільтрів
     if (name) qb.andWhere('order.name LIKE :name', { name: `%${name}%` });
     if (surname) qb.andWhere('order.surname LIKE :surname', { surname: `%${surname}%` });
     if (email) qb.andWhere('order.email LIKE :email', { email: `%${email}%` });
     if (phone) qb.andWhere('order.phone LIKE :phone', { phone: `%${phone}%` });
     if (age) qb.andWhere('order.age LIKE :age', { age: `%${age}%` });
     if (course) qb.andWhere('order.course LIKE :course', { course: `%${course}%` });
-    if (course_format)
-      qb.andWhere('order.course_format LIKE :course_format', {
-        course_format: `%${course_format}%`,
-      });
-    if (course_type)
-      qb.andWhere('order.course_type LIKE :course_type', {
-        course_type: `%${course_type}%`,
-      });
+    if (course_format) qb.andWhere('order.course_format LIKE :course_format', { course_format: `%${course_format}%` });
+    if (course_type) qb.andWhere('order.course_type LIKE :course_type', { course_type: `%${course_type}%` });
     if (status) qb.andWhere('order.status LIKE :status', { status: `%${status}%` });
     if (sum) qb.andWhere('order.sum LIKE :sum', { sum: `%${sum}%` });
-    if (alreadyPaid)
-      qb.andWhere('order.alreadyPaid LIKE :alreadyPaid', {
-        alreadyPaid: `%${alreadyPaid}%`,
-      });
+    if (alreadyPaid) qb.andWhere('order.alreadyPaid LIKE :alreadyPaid', { alreadyPaid: `%${alreadyPaid}%` });
     if (group) qb.andWhere('order.group LIKE :group', { group: `%${group}%` });
-    // Фільтрація за точною датою
-    if (created_at)
-      qb.andWhere('order.created_at LIKE :created_at', {
-        created_at: `%${created_at}%`,
-      });
+    if (created_at) qb.andWhere('DATE(order.created_at) = :created_at', { created_at });
     if (manager)
       qb.andWhere('manager.name LIKE :manager OR manager.surname LIKE :manager', { manager: `%${manager}%` });
-
-    // Пошук за полями name, surname, email (якщо передано search)
-    if (search) {
-      qb.andWhere(
-        '(LOWER(order.name) LIKE :search OR LOWER(order.surname) LIKE :search OR LOWER(order.email) LIKE :search)',
-        {
-          search: `%${search.toLowerCase()}%`,
-        },
-      );
-    }
 
     // Сортування
     qb.orderBy(`order.${sort}`, order);
@@ -145,7 +116,7 @@ export class OrdersRepository extends Repository<OrderEntity> {
     ]);
 
     const [orders, total] = await qb.getManyAndCount();
-    console.log('Orders fetched:', orders);
+    console.log('Orders fetched:', orders.length, 'Total:', total);
     return [orders, total];
   }
 }

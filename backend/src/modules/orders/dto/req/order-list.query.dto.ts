@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsDateString, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsBoolean, IsDateString, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class OrderListQueryDto {
   @ApiProperty({ description: 'Page number', required: false, default: 1 })
@@ -104,6 +104,8 @@ export class OrderListQueryDto {
 
   @ApiProperty({ description: 'Filter only my orders', required: false })
   @IsOptional()
-  @IsString()
-  myOrders?: string;
+  @IsBoolean()
+  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
+  myOrders?: boolean;
 }

@@ -39,7 +39,6 @@ const Orders = ({ role }: OrdersProps) => {
     (state: RootState) => state.auth,
   );
 
-  // Стан для фільтрів
   const [filters, setFilters] = useState<Record<string, string>>({
     name: searchParams.get('name') || '',
     surname: searchParams.get('surname') || '',
@@ -64,21 +63,17 @@ const Orders = ({ role }: OrdersProps) => {
   const urlSort = searchParams.get('sort') || 'id';
   const urlOrder = (searchParams.get('order') as 'ASC' | 'DESC') || 'ASC';
 
-  // Debounce для запитів
   const debouncedFetchOrders = debounce((page: number) => {
     const params = {
       page,
       filters: {
         ...filters,
-        ...(myOrdersOnly && { myOrders: 'true' }),
-        sort: urlSort,
-        order: urlOrder,
+        myOrders: myOrdersOnly ? 'true' : undefined,
       },
     };
     dispatch(fetchOrders(params));
   }, 500);
 
-  // Оновлення параметрів і запит
   useEffect(() => {
     if (token) {
       dispatch(setSort({ sort: urlSort, order: urlOrder }));

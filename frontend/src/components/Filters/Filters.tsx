@@ -11,12 +11,12 @@ interface FiltersProps {
 }
 
 const Filters = ({
-  filters,
-  setFilters,
-  myOrdersOnly,
-  setMyOrdersOnly,
-  resetFilters,
-}: FiltersProps) => {
+                   filters,
+                   setFilters,
+                   myOrdersOnly,
+                   setMyOrdersOnly,
+                   resetFilters,
+                 }: FiltersProps) => {
   const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });

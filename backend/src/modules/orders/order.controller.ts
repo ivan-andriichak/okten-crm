@@ -27,90 +27,35 @@ export class OrderController {
     type: OrderListDto,
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    description: 'Page number (default: 1)',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    description: 'Limit per page (default: 25)',
-  })
-  @ApiQuery({
-    name: 'sort',
-    required: false,
-    description: 'Sort field (default: id)',
-  })
-  @ApiQuery({
-    name: 'order',
-    required: false,
-    enum: ['ASC', 'DESC'],
-    description: 'Sort order (default: ASC)',
-  })
+  @ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Limit per page (default: 25)' })
+  @ApiQuery({ name: 'sort', required: false, description: 'Sort field (default: id)' })
+  @ApiQuery({ name: 'order', required: false, enum: ['ASC', 'DESC'], description: 'Sort order (default: ASC)' })
   @ApiQuery({ name: 'name', required: false, description: 'Filter by name' })
-  @ApiQuery({
-    name: 'surname',
-    required: false,
-    description: 'Filter by surname',
-  })
+  @ApiQuery({ name: 'surname', required: false, description: 'Filter by surname' })
   @ApiQuery({ name: 'email', required: false, description: 'Filter by email' })
   @ApiQuery({ name: 'phone', required: false, description: 'Filter by phone' })
   @ApiQuery({ name: 'age', required: false, description: 'Filter by age' })
-  @ApiQuery({
-    name: 'course',
-    required: false,
-    description: 'Filter by course',
-  })
-  @ApiQuery({
-    name: 'course_format',
-    required: false,
-    description: 'Filter by course format',
-  })
-  @ApiQuery({
-    name: 'course_type',
-    required: false,
-    description: 'Filter by course type',
-  })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    description: 'Filter by status',
-  })
+  @ApiQuery({ name: 'course', required: false, description: 'Filter by course' })
+  @ApiQuery({ name: 'course_format', required: false, description: 'Filter by course format' })
+  @ApiQuery({ name: 'course_type', required: false, description: 'Filter by course type' })
+  @ApiQuery({ name: 'status', required: false, description: 'Filter by status' })
   @ApiQuery({ name: 'sum', required: false, description: 'Filter by sum' })
-  @ApiQuery({
-    name: 'alreadyPaid',
-    required: false,
-    description: 'Filter by already paid',
-  })
+  @ApiQuery({ name: 'alreadyPaid', required: false, description: 'Filter by already paid' })
   @ApiQuery({ name: 'group', required: false, description: 'Filter by group' })
-  @ApiQuery({
-    name: 'created_at',
-    required: false,
-    description: 'Filter by created at',
-  })
-  @ApiQuery({
-    name: 'manager',
-    required: false,
-    description: 'Filter by manager',
-  })
-  @ApiQuery({
-    name: 'myOrders',
-    required: false,
-    description: 'Filter only my orders (true/false)',
-  })
+  @ApiQuery({ name: 'created_at', required: false, description: 'Filter by created at' })
+  @ApiQuery({ name: 'manager', required: false, description: 'Filter by manager' })
+  @ApiQuery({ name: 'manager_id', required: false, description: 'Filter by manager ID' })
+  @ApiQuery({ name: 'myOrders', required: false, description: 'Filter only my orders (true/false)' })
   public async getListOrders(
     @CurrentUser() userData: IUserData,
     @Query() query: OrderListQueryDto,
   ): Promise<OrderListDto> {
+    console.log('Controller - UserData:', userData); // Логування userData
+    console.log('Controller - Query:', query); // Логування query
+    console.log('Calling service with userId:', userData.userId);
     const [entities, total] = await this.ordersService.getListOrders(userData, query);
     return OrderMapper.toResponseListDTO(entities, total, query);
-  }
-
-  @Get(':orderId')
-  @ApiOkResponse({ description: 'Single order details', type: OrderEntity })
-  public async getOrderById(@Param('orderId') id: number): Promise<OrderEntity> {
-    return await this.ordersService.getOrderById(id);
   }
 
   @Post(':orderId/comment')
