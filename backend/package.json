@@ -1,5 +1,5 @@
 {
-  "name": "okten-crm",
+  "name": "okten-crm-backend",
   "version": "0.0.1",
   "description": "A scalable and flexible platform similar to CRM Programming School, integrated with AWS.",
   "author": "Ivan Andriichak",

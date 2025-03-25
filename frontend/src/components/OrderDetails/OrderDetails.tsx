@@ -18,10 +18,15 @@ interface OrderDetailsProps {
   token: string | null;
 }
 
-const OrderDetails = ({ orderId, commentText, currentUserId, token }: OrderDetailsProps) => {
+const OrderDetails = ({
+  orderId,
+  commentText,
+  currentUserId,
+  token,
+}: OrderDetailsProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const order = useSelector((state: RootState) =>
-   state.orders.orders.find((o) => Number(o.id) === orderId),
+    state.orders.orders.find(o => Number(o.id) === orderId),
   );
 
   if (!order) return <p>Loading order...</p>;
@@ -48,12 +53,11 @@ const OrderDetails = ({ orderId, commentText, currentUserId, token }: OrderDetai
           style={{
             display: 'flex',
             justifyContent: 'flex-end',
-          }}
-          >
+          }}>
           <input
             type="text"
             value={commentText}
-            onChange={(e) => dispatch(setCommentText(e.target.value))}
+            onChange={e => dispatch(setCommentText(e.target.value))}
             placeholder="Add a comment"
             style={{
               width: '30%',
@@ -68,8 +72,7 @@ const OrderDetails = ({ orderId, commentText, currentUserId, token }: OrderDetai
           <Button
             variant="primary"
             onClick={handleEditClick}
-            style={{ marginLeft: '10px' }}
-          >
+            style={{ marginLeft: '10px' }}>
             Edit Order
           </Button>
         </div>

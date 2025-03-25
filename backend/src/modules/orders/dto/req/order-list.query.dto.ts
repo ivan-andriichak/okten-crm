@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class OrderListQueryDto {
   @ApiProperty({ description: 'Page number', required: false, default: 1 })
@@ -22,12 +22,7 @@ export class OrderListQueryDto {
   @IsString()
   sort?: string = 'id';
 
-  @ApiProperty({
-    description: 'Sort order',
-    required: false,
-    enum: ['ASC', 'DESC'],
-    default: 'ASC',
-  })
+  @ApiProperty({ description: 'Sort order', required: false, enum: ['ASC', 'DESC'], default: 'ASC' })
   @IsOptional()
   @IsEnum(['ASC', 'DESC'])
   order?: 'ASC' | 'DESC' = 'ASC';
@@ -92,15 +87,20 @@ export class OrderListQueryDto {
   @IsString()
   group?: string;
 
-  @ApiProperty({ description: 'Filter by created at', required: false })
+  @ApiProperty({ description: 'Filter by created at (e.g., 2021-11-01)', required: false })
   @IsOptional()
-  @IsString()
+  @IsDateString()
   created_at?: string;
 
-  @ApiProperty({ description: 'Filter by manager', required: false })
+  @ApiProperty({ description: 'Filter by manager name', required: false })
   @IsOptional()
   @IsString()
   manager?: string;
+
+  @ApiProperty({ description: 'Filter by manager ID', required: false })
+  @IsOptional()
+  @IsString()
+  manager_id?: string;
 
   @ApiProperty({ description: 'Filter only my orders', required: false })
   @IsOptional()

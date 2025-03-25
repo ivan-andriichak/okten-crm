@@ -68,13 +68,11 @@ export class OrdersRepository extends Repository<OrderEntity> {
 
     // Фільтри по полях
     if (name) qb.andWhere('order.name LIKE :name', { name: `%${name}%` });
-    if (surname)
-      qb.andWhere('order.surname LIKE :surname', { surname: `%${surname}%` });
+    if (surname) qb.andWhere('order.surname LIKE :surname', { surname: `%${surname}%` });
     if (email) qb.andWhere('order.email LIKE :email', { email: `%${email}%` });
     if (phone) qb.andWhere('order.phone LIKE :phone', { phone: `%${phone}%` });
     if (age) qb.andWhere('order.age LIKE :age', { age: `%${age}%` });
-    if (course)
-      qb.andWhere('order.course LIKE :course', { course: `%${course}%` });
+    if (course) qb.andWhere('order.course LIKE :course', { course: `%${course}%` });
     if (course_format)
       qb.andWhere('order.course_format LIKE :course_format', {
         course_format: `%${course_format}%`,
@@ -83,29 +81,28 @@ export class OrdersRepository extends Repository<OrderEntity> {
       qb.andWhere('order.course_type LIKE :course_type', {
         course_type: `%${course_type}%`,
       });
-    if (status)
-      qb.andWhere('order.status LIKE :status', { status: `%${status}%` });
+    if (status) qb.andWhere('order.status LIKE :status', { status: `%${status}%` });
     if (sum) qb.andWhere('order.sum LIKE :sum', { sum: `%${sum}%` });
     if (alreadyPaid)
       qb.andWhere('order.alreadyPaid LIKE :alreadyPaid', {
         alreadyPaid: `%${alreadyPaid}%`,
       });
     if (group) qb.andWhere('order.group LIKE :group', { group: `%${group}%` });
+    // Фільтрація за точною датою
     if (created_at)
       qb.andWhere('order.created_at LIKE :created_at', {
         created_at: `%${created_at}%`,
       });
     if (manager)
-      qb.andWhere(
-        'manager.name LIKE :manager OR manager.surname LIKE :manager',
-        { manager: `%${manager}%` },
-      );
+      qb.andWhere('manager.name LIKE :manager OR manager.surname LIKE :manager', { manager: `%${manager}%` });
 
     // Пошук за полями name, surname, email (якщо передано search)
     if (search) {
       qb.andWhere(
         '(LOWER(order.name) LIKE :search OR LOWER(order.surname) LIKE :search OR LOWER(order.email) LIKE :search)',
-        { search: `%${search.toLowerCase()}%` },
+        {
+          search: `%${search.toLowerCase()}%`,
+        },
       );
     }
 

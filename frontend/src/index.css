@@ -1,26 +1,30 @@
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Скидання базових стилів */
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 /* Стилізація тіла документу */
 body {
-    font-family: Arial, sans-serif;
-    font-size: 13px;
-    line-height: 1.2;
-    margin: 0;
-    box-sizing: border-box;
-    min-height: 100%;
-    background-repeat: no-repeat;
-    background-color: #e7e7e1;
-    color: white;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.2;
+  margin: 0;
+  box-sizing: border-box;
+  min-height: 100%;
+  background-repeat: no-repeat;
+  background-color: #e7e7e1;
+  color: white;
 }
 
 /* Скидання стандартних стилів для кнопок */
@@ -28,19 +32,19 @@ button,
 input[type='button'],
 input[type='submit'],
 input[type='reset'] {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 a {
-    text-decoration: none;
-    color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
 /* Скидання списку стилів для списків */
 ul,
 ol {
-    list-style: none;
+  list-style: none;
 }

@@ -55,7 +55,7 @@
 .input option:focus,
 .input option:active,
 .input option:checked {
-  background:#a9c6ff !important;
+  background: #a9c6ff !important;
   color: white;
 }
 

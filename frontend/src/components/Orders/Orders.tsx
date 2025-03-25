@@ -137,7 +137,10 @@ const Orders = ({ role }: OrdersProps) => {
           <p className={css.name}>
             {name && surname ? `${name} ${surname}` : 'Not available'}
           </p>
-          <Button style={{ margin: '10px' }} variant="primary" onClick={handleLogout}>
+          <Button
+            style={{ margin: '10px' }}
+            variant="primary"
+            onClick={handleLogout}>
             Logout
           </Button>
         </div>
@@ -191,7 +194,11 @@ const Orders = ({ role }: OrdersProps) => {
         </div>
       )}
       {editingOrder && (
-        <EditOrderModal editingOrder={editingOrder} editForm={editForm} token={token} />
+        <EditOrderModal
+          editingOrder={editingOrder}
+          editForm={editForm}
+          token={token}
+        />
       )}
     </>
   );

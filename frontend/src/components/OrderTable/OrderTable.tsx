@@ -6,15 +6,15 @@ import { columns, tableStyles } from './constants';
 import { OrderDetails } from '../OrderDetails/OrderDetails';
 
 const OrderTable = ({
-                      orders,
-                      sort,
-                      sortOrder,
-                      expandedOrderId,
-                      currentUserId,
-                      commentText,
-                      token,
-                      onSortChange,
-                    }: OrderTableProps) => {
+  orders,
+  sort,
+  sortOrder,
+  expandedOrderId,
+  currentUserId,
+  commentText,
+  token,
+  onSortChange,
+}: OrderTableProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleSort = (field: string) => {
@@ -39,7 +39,7 @@ const OrderTable = ({
   };
 
   const getRowStyle = (orderId: string) => ({
-    ...tableStyles.td, // Базові стилі для рядка
+    ...tableStyles.td,
     backgroundColor: expandedOrderId === orderId ? '#f0ffe8' : 'inherit',
     cursor: 'pointer',
   });
@@ -47,45 +47,44 @@ const OrderTable = ({
   return (
     <table style={tableStyles.table}>
       <thead>
-      <tr>
-        {columns.map(({ key, label, width }) => (
-          <th
-            key={key}
-            style={{ ...tableStyles.th, width }}
-            onClick={() => handleSort(key)}
-          >
-            {label} {sort === key && (sortOrder === 'ASC' ? '↑' : '↓')}
-          </th>
-        ))}
-      </tr>
+        <tr>
+          {columns.map(({ key, label, width }) => (
+            <th
+              key={key}
+              style={{ ...tableStyles.th, width }}
+              onClick={() => handleSort(key)}>
+              {label} {sort === key && (sortOrder === 'ASC' ? '↑' : '↓')}
+            </th>
+          ))}
+        </tr>
       </thead>
       <tbody>
-      {orders.map(order => (
-        <React.Fragment key={order.id}>
-          <tr
-            onClick={() => dispatch(toggleExpand(order.id))}
-            style={getRowStyle(order.id)} // Застосовуємо динамічний стиль
-          >
-            {columns.map(({ key, width }) => (
-              <td key={key} style={{ ...tableStyles.td, width }}>
-                {formatCell(key, order[key as keyof typeof order])}
-              </td>
-            ))}
-          </tr>
-          {expandedOrderId === order.id && (
-            <tr>
-              <td colSpan={columns.length} style={tableStyles.expandedTd}>
-                <OrderDetails
-                  orderId={parseInt(order.id)}
-                  commentText={commentText}
-                  currentUserId={currentUserId}
-                  token={token}
-                />
-              </td>
+        {orders.map(order => (
+          <React.Fragment key={order.id}>
+            <tr
+              onClick={() => dispatch(toggleExpand(order.id))}
+              style={getRowStyle(order.id)} // Застосовуємо динамічний стиль
+            >
+              {columns.map(({ key, width }) => (
+                <td key={key} style={{ ...tableStyles.td, width }}>
+                  {formatCell(key, order[key as keyof typeof order])}
+                </td>
+              ))}
             </tr>
-          )}
-        </React.Fragment>
-      ))}
+            {expandedOrderId === order.id && (
+              <tr>
+                <td colSpan={columns.length} style={tableStyles.expandedTd}>
+                  <OrderDetails
+                    orderId={parseInt(order.id)}
+                    commentText={commentText}
+                    currentUserId={currentUserId}
+                    token={token}
+                  />
+                </td>
+              </tr>
+            )}
+          </React.Fragment>
+        ))}
       </tbody>
     </table>
   );

@@ -40,7 +40,6 @@ export interface OrderTableProps {
   onSortChange?: (sort: string, order: 'ASC' | 'DESC') => void;
 }
 
-
 export interface OrderState {
   orders: Order[];
   total: number;
@@ -58,7 +57,7 @@ export interface OrderState {
 }
 
 export interface Comment {
-  id: string
+  id: string;
   text: string;
   utm?: string | null;
   author?: string;

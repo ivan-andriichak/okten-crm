@@ -9,11 +9,11 @@ interface PaginationProps {
 }
 
 const Pagination = ({
-                      currentPage,
-                      totalItems,
-                      itemsPerPage = 25,
-                      onPageChange,
-                    }: PaginationProps) => {
+  currentPage,
+  totalItems,
+  itemsPerPage = 25,
+  onPageChange,
+}: PaginationProps) => {
   const totalPages = React.useMemo(
     () => Math.ceil(totalItems / itemsPerPage),
     [totalItems, itemsPerPage],
@@ -67,13 +67,23 @@ const Pagination = ({
   const paginationItems = getPaginationItems();
 
   return (
-    <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+    <div
+      style={{
+        marginTop: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '5px',
+      }}>
       {currentPage > 1 && (
         <Button
           variant="primary"
           onClick={() => onPageChange(currentPage - 1)}
-          style={{ borderRadius: '50%', width: '30px', height: '30px', padding: 0 }}
-        >
+          style={{
+            borderRadius: '50%',
+            width: '30px',
+            height: '30px',
+            padding: 0,
+          }}>
           ←
         </Button>
       )}
@@ -93,8 +103,7 @@ const Pagination = ({
             alignItems: 'center',
             justifyContent: 'center',
             cursor: typeof item === 'number' ? 'pointer' : 'default',
-          }}
-        >
+          }}>
           {item}
         </Button>
       ))}
@@ -103,8 +112,12 @@ const Pagination = ({
         <Button
           variant="primary"
           onClick={() => onPageChange(currentPage + 1)}
-          style={{ borderRadius: '50%', width: '30px', height: '30px', padding: 0 }}
-        >
+          style={{
+            borderRadius: '50%',
+            width: '30px',
+            height: '30px',
+            padding: 0,
+          }}>
           →
         </Button>
       )}

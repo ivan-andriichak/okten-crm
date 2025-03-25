@@ -6,4 +6,3 @@ export interface OrderDetailsProps {
   currentUserId: string | null;
   token: string | null;
 }
-

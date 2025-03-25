@@ -1,25 +1,30 @@
 .filtersContainer {
-    margin: 20px 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    align-items: center;
-}
-
-.filterLabel {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+  max-width: 95%;
+  margin: 10px auto;
+  display: flex;
+  justify-content: start;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
 }
 
 .filterInput {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-.checkboxLabel {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+input {
+  padding: 8px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: border-color 0.2s;
 }
+
+input:focus {
+  border-color: #488ff1;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+}
+

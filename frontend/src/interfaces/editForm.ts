@@ -13,7 +13,14 @@ export interface EditForm {
   sum?: string | null;
   alreadyPaid?: string | null;
   group?: string | null;
-  comments?: { text: string; utm?: string | null; author?: string; createdAt: string }[] | null;
+  comments?:
+    | {
+        text: string;
+        utm?: string | null;
+        author?: string;
+        createdAt: string;
+      }[]
+    | null;
 }
 
 export interface EditOrderModalProps {

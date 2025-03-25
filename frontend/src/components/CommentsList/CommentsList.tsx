@@ -17,13 +17,14 @@ const CommentList = ({ comments, order }: CommentListProps) => {
   };
 
   return (
-    <div style={{
-      margin: '10px 0',
-      display: 'flex',
-      flexDirection: 'row',
-      gap: '10px',
-      justifyContent: 'space-between',
-       }}>
+    <div
+      style={{
+        margin: '10px 0',
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '10px',
+        justifyContent: 'space-between',
+      }}>
       <div
         style={{
           maxWidth: '30%',

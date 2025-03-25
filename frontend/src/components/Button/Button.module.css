@@ -1,48 +1,49 @@
 .button {
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    border: 1px solid #ddd;
-    transition: background-color 0.2s, color 0.2s;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #ddd;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .primary {
-    background-color: #e2ebfd;
-    color: #333;
-    border: 1px solid #b0c4de;
-    width: fit-content;
-
+  background-color: #e2ebfd;
+  color: #333;
+  border: 1px solid #b0c4de;
+  width: fit-content;
 }
 
 .primary:hover {
-    background-color: #a9c6ff;
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: #a9c6ff;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .secondary {
-    background-color: #f7f8fa;
-    color: #555;
-    border: 1px solid #ccc;
+  background-color: #f7f8fa;
+  color: #555;
+  border: 1px solid #ccc;
 }
 
 .outline {
-    background-color: transparent;
-    color: #333;
-    border: 1px solid #ddd;
+  background-color: transparent;
+  color: #333;
+  border: 1px solid #ddd;
 }
 
 .delete {
-    background-color: #e2ebfd;
-    color: #333;
-    border: 1px solid #ddd;
-    width: fit-content;
+  background-color: #e2ebfd;
+  color: #333;
+  border: 1px solid #ddd;
+  width: fit-content;
 }
 
 .delete:hover {
-    background-color: #d4746b;
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: #d4746b;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }

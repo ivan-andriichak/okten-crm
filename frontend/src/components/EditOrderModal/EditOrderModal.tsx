@@ -19,10 +19,10 @@ interface RootState {
 }
 
 const EditOrderModal = ({
-                          editingOrder,
-                          editForm,
-                          token,
-                        }: EditOrderModalProps) => {
+  editingOrder,
+  editForm,
+  token,
+}: EditOrderModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const groups = useSelector((state: RootState) => state.orders.groups) || [];
   const loading = useSelector((state: RootState) => state.orders.loading);
@@ -115,7 +115,7 @@ const EditOrderModal = ({
                   <input
                     type="text"
                     value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
+                    onChange={e => setNewGroupName(e.target.value)}
                     placeholder="New group name"
                     className={css.input}
                     disabled={loading}
@@ -124,15 +124,13 @@ const EditOrderModal = ({
                     <Button
                       variant="primary"
                       onClick={handleAddGroup}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
                       Add
                     </Button>
                     <Button
                       variant="secondary"
                       onClick={() => setIsAddingGroup(false)}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
                       Select
                     </Button>
                   </div>
@@ -144,10 +142,9 @@ const EditOrderModal = ({
                     value={editForm.group ?? ''}
                     onChange={handleSelectGroup}
                     className={css.input}
-                    disabled={loading}
-                  >
+                    disabled={loading}>
                     <option value="">Select Group</option>
-                    {groups.map((group) => (
+                    {groups.map(group => (
                       <option key={group} value={group}>
                         {group}
                       </option>
@@ -157,15 +154,13 @@ const EditOrderModal = ({
                     <Button
                       variant="secondary"
                       onClick={() => setIsAddingGroup(true)}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
                       Add
                     </Button>
                     <Button
                       variant="primary"
                       onClick={() => setIsAddingGroup(false)}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
                       Select
                     </Button>
                   </div>
@@ -225,14 +220,13 @@ const EditOrderModal = ({
             </div>
           </div>
           <div className={css.column}>
-            <div style={{marginBottom:'25px'}}>
+            <div style={{ marginBottom: '25px' }}>
               <label>Status:</label>
               <select
                 name="status"
                 value={editForm.status ?? ''}
                 onChange={handleEditChange}
-                className={css.input}
-              >
+                className={css.input}>
                 <option value="">Select Status</option>
                 <option value="In work">In work</option>
                 <option value="New">New</option>
@@ -267,8 +261,7 @@ const EditOrderModal = ({
                 name="course"
                 value={editForm.course ?? ''}
                 onChange={handleEditChange}
-                className={css.input}
-              >
+                className={css.input}>
                 <option value="">Select Course</option>
                 <option value="FS">FS</option>
                 <option value="QACX">QACX</option>
@@ -284,8 +277,7 @@ const EditOrderModal = ({
                 name="course_format"
                 value={editForm.course_format ?? ''}
                 onChange={handleEditChange}
-                className={css.input}
-              >
+                className={css.input}>
                 <option value="">Select Format</option>
                 <option value="static">Static</option>
                 <option value="online">Online</option>
@@ -297,8 +289,7 @@ const EditOrderModal = ({
                 name="course_type"
                 value={editForm.course_type ?? ''}
                 onChange={handleEditChange}
-                className={css.input}
-              >
+                className={css.input}>
                 <option value="">Select Type</option>
                 <option value="pro">Pro</option>
                 <option value="minimal">Minimal</option>
@@ -314,16 +305,14 @@ const EditOrderModal = ({
             variant="primary"
             type="submit"
             onClick={handleEditSubmit}
-            disabled={loading}
-          >
+            disabled={loading}>
             Submit
           </Button>
           <Button
             variant="primary"
             type="button"
             onClick={() => dispatch(closeEditModal())}
-            disabled={loading}
-          >
+            disabled={loading}>
             Close
           </Button>
         </div>

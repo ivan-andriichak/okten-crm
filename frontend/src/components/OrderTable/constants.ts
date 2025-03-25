@@ -1,4 +1,4 @@
-export  const tableStyles = {
+export const tableStyles = {
   table: {
     width: '95%',
     borderCollapse: 'collapse' as const,
@@ -48,21 +48,60 @@ export const columnWidths = {
   manager: '8%',
 };
 
-
 export const columns = [
   { key: 'id', label: 'ID', sortable: true, width: columnWidths.id },
   { key: 'name', label: 'Name', sortable: true, width: columnWidths.name },
-  { key: 'surname', label: 'Surname', sortable: true, width: columnWidths.surname },
+  {
+    key: 'surname',
+    label: 'Surname',
+    sortable: true,
+    width: columnWidths.surname,
+  },
   { key: 'email', label: 'Email', sortable: true, width: columnWidths.email },
   { key: 'phone', label: 'Phone', sortable: true, width: columnWidths.phone },
   { key: 'age', label: 'Age', sortable: true, width: columnWidths.age },
-  { key: 'course', label: 'Course', sortable: false, width: columnWidths.course },
-  { key: 'course_format', label: 'Course Format', sortable: false, width: columnWidths.course_format },
-  { key: 'course_type', label: 'Course Type', sortable: false, width: columnWidths.course_type },
-  { key: 'status', label: 'Status', sortable: true, width: columnWidths.status },
+  {
+    key: 'course',
+    label: 'Course',
+    sortable: false,
+    width: columnWidths.course,
+  },
+  {
+    key: 'course_format',
+    label: 'Course Format',
+    sortable: false,
+    width: columnWidths.course_format,
+  },
+  {
+    key: 'course_type',
+    label: 'Course Type',
+    sortable: false,
+    width: columnWidths.course_type,
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    sortable: true,
+    width: columnWidths.status,
+  },
   { key: 'sum', label: 'Sum', sortable: false, width: columnWidths.sum },
-  { key: 'alreadyPaid', label: 'Already Paid', sortable: false, width: columnWidths.alreadyPaid },
+  {
+    key: 'alreadyPaid',
+    label: 'Already Paid',
+    sortable: false,
+    width: columnWidths.alreadyPaid,
+  },
   { key: 'group', label: 'Group', sortable: false, width: columnWidths.group },
-  { key: 'created_at', label: 'Created At', sortable: true, width: columnWidths.created_at },
-  { key: 'manager', label: 'Manager', sortable: true, width: columnWidths.manager },
+  {
+    key: 'created_at',
+    label: 'Created At',
+    sortable: true,
+    width: columnWidths.created_at,
+  },
+  {
+    key: 'manager',
+    label: 'Manager',
+    sortable: true,
+    width: columnWidths.manager,
+  },
 ];

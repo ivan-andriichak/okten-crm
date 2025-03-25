@@ -1,2 +1,2 @@
-export * from './EditOrderModal'
-export * from './EditOrderModal.module.css'
+export * from './EditOrderModal';
+export * from './EditOrderModal.module.css';

@@ -1,20 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiQuery,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
 import { Public } from '../../common/decorators/public.decorator';
 import { OrderEntity } from '../../database/entities/order.entity';
@@ -118,18 +103,13 @@ export class OrderController {
     @CurrentUser() userData: IUserData,
     @Query() query: OrderListQueryDto,
   ): Promise<OrderListDto> {
-    const [entities, total] = await this.ordersService.getListOrders(
-      userData,
-      query,
-    );
+    const [entities, total] = await this.ordersService.getListOrders(userData, query);
     return OrderMapper.toResponseListDTO(entities, total, query);
   }
 
   @Get(':orderId')
   @ApiOkResponse({ description: 'Single order details', type: OrderEntity })
-  public async getOrderById(
-    @Param('orderId') id: number,
-  ): Promise<OrderEntity> {
+  public async getOrderById(@Param('orderId') id: number): Promise<OrderEntity> {
     return await this.ordersService.getOrderById(id);
   }
 
@@ -149,28 +129,20 @@ export class OrderController {
   @Delete('comments/:commentId')
   @ApiOkResponse({ description: 'Comment deleted successfully' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async deleteComment(
-    @Param('commentId') commentId: string,
-    @CurrentUser() userData: IUserData,
-  ): Promise<void> {
+  async deleteComment(@Param('commentId') commentId: string, @CurrentUser() userData: IUserData): Promise<void> {
     await this.ordersService.deleteComment(commentId, userData);
   }
 
   @Patch(':id/edit')
   @ApiOkResponse({ description: 'Updated order', type: OrderEntity })
-  async editOrder(
-    @Param('id') id: number,
-    @Body() editOrderDto: EditOrderDto,
-  ): Promise<OrderEntity> {
+  async editOrder(@Param('id') id: number, @Body() editOrderDto: EditOrderDto): Promise<OrderEntity> {
     return await this.ordersService.editOrder(id, editOrderDto);
   }
 
   @Post('public')
   @Public()
   @ApiOkResponse({ description: 'Public order created', type: OrderEntity })
-  async createPublicOrder(
-    @Body() createOrderDto: CreateOrderReqDto,
-  ): Promise<OrderEntity> {
+  async createPublicOrder(@Body() createOrderDto: CreateOrderReqDto): Promise<OrderEntity> {
     return await this.ordersService.createPublicOrder(createOrderDto);
   }
 
