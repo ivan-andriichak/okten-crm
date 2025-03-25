@@ -1,5 +1,3 @@
-// import './instrument';
-
 import {
   BadRequestException,
   Logger,

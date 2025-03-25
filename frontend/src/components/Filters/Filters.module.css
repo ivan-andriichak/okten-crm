@@ -1,0 +1,25 @@
+.filtersContainer {
+    margin: 20px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+}
+
+.filterLabel {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.filterInput {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}

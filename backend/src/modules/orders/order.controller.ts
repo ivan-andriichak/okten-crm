@@ -50,23 +50,69 @@ export class OrderController {
   @ApiQuery({
     name: 'limit',
     required: false,
-    description: 'Limit per page (default: 20)',
+    description: 'Limit per page (default: 25)',
   })
   @ApiQuery({
     name: 'sort',
     required: false,
-    description: 'Sort field (default: created_at)',
+    description: 'Sort field (default: id)',
   })
   @ApiQuery({
     name: 'order',
     required: false,
     enum: ['ASC', 'DESC'],
-    description: 'Sort order (default: DESC)',
+    description: 'Sort order (default: ASC)',
+  })
+  @ApiQuery({ name: 'name', required: false, description: 'Filter by name' })
+  @ApiQuery({
+    name: 'surname',
+    required: false,
+    description: 'Filter by surname',
+  })
+  @ApiQuery({ name: 'email', required: false, description: 'Filter by email' })
+  @ApiQuery({ name: 'phone', required: false, description: 'Filter by phone' })
+  @ApiQuery({ name: 'age', required: false, description: 'Filter by age' })
+  @ApiQuery({
+    name: 'course',
+    required: false,
+    description: 'Filter by course',
   })
   @ApiQuery({
-    name: 'search',
+    name: 'course_format',
     required: false,
-    description: 'Search by name, surname, or email',
+    description: 'Filter by course format',
+  })
+  @ApiQuery({
+    name: 'course_type',
+    required: false,
+    description: 'Filter by course type',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'Filter by status',
+  })
+  @ApiQuery({ name: 'sum', required: false, description: 'Filter by sum' })
+  @ApiQuery({
+    name: 'alreadyPaid',
+    required: false,
+    description: 'Filter by already paid',
+  })
+  @ApiQuery({ name: 'group', required: false, description: 'Filter by group' })
+  @ApiQuery({
+    name: 'created_at',
+    required: false,
+    description: 'Filter by created at',
+  })
+  @ApiQuery({
+    name: 'manager',
+    required: false,
+    description: 'Filter by manager',
+  })
+  @ApiQuery({
+    name: 'myOrders',
+    required: false,
+    description: 'Filter only my orders (true/false)',
   })
   public async getListOrders(
     @CurrentUser() userData: IUserData,

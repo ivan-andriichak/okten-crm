@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { api } from '../../services/api';
 import { EditForm } from '../../interfaces/editForm';
 import { GroupEntity, Order, OrderState } from '../../interfaces/order';
+import { AppDispatch, RootState } from '../store';
 
 const initialState: OrderState = {
   orders: [],
@@ -19,147 +20,122 @@ const initialState: OrderState = {
   groups: [],
 };
 
-const fetchOrders = createAsyncThunk(
-  'orders/fetchOrders',
-  async (page: number, { getState }) => {
-    const state = getState() as {
-      orders: OrderState;
-      auth: {
-        token: string | null;
-        currentUserId: string | null;
-        role: 'admin' | 'manager' | null;
-        name: string | null;
-        surname: string | null;
-      };
-    };
-    const { limit, sort, order } = state.orders;
-    const { token, currentUserId, role } = state.auth;
+// Типізація для конфігурації ThunkAPI
+interface ThunkConfig {
+  state: RootState;
+  dispatch: AppDispatch;
+  extra?: Record<string, string>; // Додаткові параметри (фільтри)
+}
 
-    const params: any = {
-      page,
-      limit,
-      sort,
-      order,
-      manager_id: role === 'manager' ? currentUserId : undefined,
-    };
+// Тип для параметрів fetchOrders
+interface FetchOrdersParams {
+  page: number;
+  filters: Record<string, string>;
+}
 
-    const response = await api.get<{ orders: Order[]; total: number }>(
-      '/orders',
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        params,
-      },
-    );
+// Створення fetchOrders з правильною типізацією
+const fetchOrders = createAsyncThunk<
+  { orders: Order[]; total: number }, // Тип повернення
+  FetchOrdersParams, // Тип аргументу
+  ThunkConfig // Тип конфігурації
+>('orders/fetchOrders', async ({ page, filters }, { getState }) => {
+  const state = getState();
+  const { limit, sort, order } = state.orders;
+  const { token, currentUserId, role } = state.auth;
 
-    console.log('Fetched orders:', response.data);
-    return { orders: response.data.orders, total: response.data.total };
-  },
-);
+  const params: any = {
+    page,
+    limit,
+    sort,
+    order,
+    manager_id: role === 'manager' || filters?.myOrders === 'true' ? currentUserId : undefined,
+    ...(filters?.name && { name: filters.name }),
+    ...(filters?.surname && { surname: filters.surname }),
+    ...(filters?.email && { email: filters.email }),
+    ...(filters?.phone && { phone: filters.phone }),
+    ...(filters?.age && { age: filters.age }),
+    ...(filters?.course && { course: filters.course }),
+    ...(filters?.course_format && { course_format: filters.course_format }),
+    ...(filters?.course_type && { course_type: filters.course_type }),
+    ...(filters?.status && { status: filters.status }),
+    ...(filters?.sum && { sum: filters.sum }),
+    ...(filters?.alreadyPaid && { alreadyPaid: filters.alreadyPaid }),
+    ...(filters?.group && { group: filters.group }),
+    ...(filters?.created_at && { created_at: filters.created_at }),
+    ...(filters?.manager && { manager: filters.manager }),
+  };
 
-const fetchGroups = createAsyncThunk(
+  const response = await api.get<{ orders: Order[]; total: number }>('/orders', {
+    headers: { Authorization: `Bearer ${token}` },
+    params,
+  });
+
+  console.log('Fetched orders:', response.data);
+  return { orders: response.data.orders, total: response.data.total };
+});
+
+// Решта thunk-ів без змін
+const fetchGroups = createAsyncThunk<string[], void, ThunkConfig>(
   'orders/fetchGroups',
   async (_, { getState }) => {
-    const state = getState() as { auth: { token: string | null } };
-    const { token } = state.auth;
-
+    const { token } = getState().auth;
     const response = await api.get<GroupEntity[]>('/groups', {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data.map(group => group.name); // Повертаємо лише назви груп
+    return response.data.map(group => group.name);
   },
 );
 
-const addGroup = createAsyncThunk(
+const addGroup = createAsyncThunk<string, string, ThunkConfig>(
   'orders/addGroup',
-  async (groupName: string, { getState }) => {
-    const state = getState() as { auth: { token: string | null } };
-    const { token } = state.auth;
-
-    const response = await api.post<GroupEntity>(
-      '/groups',
-      { name: groupName },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-    return response.data.name; // Повертаємо назву нової групи
+  async (groupName, { getState }) => {
+    const { token } = getState().auth;
+    const response = await api.post<GroupEntity>('/groups', { name: groupName }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.name;
   },
 );
 
-const createOrder = createAsyncThunk(
+const createOrder = createAsyncThunk<Order, Partial<Order>, ThunkConfig>(
   'orders/createOrder',
-  async (orderData: Partial<Order>, { getState }) => {
-    const state = getState() as { auth: { token: string | null } };
-    const { token } = state.auth;
-
+  async (orderData, { getState }) => {
+    const { token } = getState().auth;
     const response = await api.post<Order>('/orders/public', orderData, {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
-
     return response.data;
   },
 );
 
-const updateOrder = createAsyncThunk(
+const updateOrder = createAsyncThunk<Order, { id: string; updates: Partial<Order> }, ThunkConfig>(
   'orders/updateOrder',
-  async (payload: { id: string; updates: Partial<Order> }, { getState }) => {
-    const state = getState() as {
-      orders: OrderState;
-      auth: { token: string | null };
-    };
-    const { token } = state.auth;
-
-    const response = await api.patch<Order>(
-      `/orders/${payload.id}/edit`,
-      payload.updates,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
+  async (payload, { getState }) => {
+    const { token } = getState().auth;
+    const response = await api.patch<Order>(`/orders/${payload.id}/edit`, payload.updates, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return response.data;
   },
 );
 
-const addComment = createAsyncThunk(
+const addComment = createAsyncThunk<Order, { orderId: string; commentText: string }, ThunkConfig>(
   'orders/addComment',
-  async (
-    { orderId, commentText }: { orderId: string; commentText: string },
-    { getState },
-  ) => {
-    const state = getState() as {
-      orders: OrderState;
-      auth: {
-        token: string | null;
-        currentUserId: string | null;
-        role: 'admin' | 'manager' | null;
-        name: string | null;
-        surname: string | null;
-      };
-    };
-    const { token } = state.auth;
-
-    if (!token || !commentText)
-      throw new Error('Token or comment text missing');
-
-    const response = await api.post<Order>(
-      `/orders/${orderId}/comment`,
-      { text: commentText },
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
+  async ({ orderId, commentText }, { getState }) => {
+    const { token } = getState().auth;
+    if (!token || !commentText) throw new Error('Token or comment text missing');
+    const response = await api.post<Order>(`/orders/${orderId}/comment`, { text: commentText }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     console.log('addComment response:', response.data);
     return response.data;
   },
 );
 
-const deleteComment = createAsyncThunk(
+const deleteComment = createAsyncThunk<string, string, ThunkConfig>(
   'orders/deleteComment',
-  async (commentId: string, { getState }) => {
-    const state = getState() as {
-      orders: OrderState;
-      auth: { token: string | null };
-    };
-    const { token } = state.auth;
-
+  async (commentId, { getState }) => {
+    const { token } = getState().auth;
     await api.delete(`/orders/comments/${commentId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -225,7 +201,7 @@ const orderSlice = createSlice({
       })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.error.message || 'Failed to fetch orders';
       })
       .addCase(fetchGroups.pending, state => {
         state.loading = true;
@@ -272,7 +248,7 @@ const orderSlice = createSlice({
         state.editForm = {};
       })
       .addCase(updateOrder.rejected, (state, action) => {
-        state.error = (action.payload as string) || 'Failed to update order';
+        state.error = action.error.message || 'Failed to update order';
       })
       .addCase(addComment.pending, state => {
         state.loading = true;
@@ -282,9 +258,7 @@ const orderSlice = createSlice({
         state.loading = false;
         state.commentText = '';
         const updatedOrder = action.payload;
-        const orderIndex = state.orders.findIndex(
-          o => o.id === updatedOrder.id,
-        );
+        const orderIndex = state.orders.findIndex(o => o.id === updatedOrder.id);
         if (orderIndex !== -1) {
           state.orders[orderIndex] = updatedOrder;
         }
@@ -302,13 +276,12 @@ const orderSlice = createSlice({
         const commentId = action.payload;
         state.orders = state.orders.map(order => ({
           ...order,
-          comments:
-            order.comments?.filter(comment => comment.id !== commentId) || [],
+          comments: order.comments?.filter(comment => comment.id !== commentId) || [],
         }));
       })
       .addCase(deleteComment.rejected, (state, action) => {
         state.loading = false;
-        state.error = (action.payload as string) || 'Failed to delete comment';
+        state.error = action.error.message || 'Failed to delete comment';
       });
   },
 });
