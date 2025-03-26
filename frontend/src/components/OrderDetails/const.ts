@@ -1,7 +1,5 @@
-import { Order } from '../../interfaces/order';
-
 export interface OrderDetailsProps {
-  order: Order;
+  orderId: number;
   commentText: string;
   currentUserId: string | null;
   token: string | null;

@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import oktenLogo from '../../images/okten.jpg';
+import Logout from '../../images/Logout.png';
+import admin from '../../images/admin.png';
+
 import {
   AppDispatch,
   fetchOrders,
@@ -15,7 +18,6 @@ import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import { Pagination } from '../Pagination/Pagination';
 import { OrderTable } from '../OrderTable/OrderTable';
 import css from './Orders.module.css';
-import Button from '../Button/Button';
 import { EditOrderModal } from '../EditOrderModal';
 import { Filters } from '../Filters';
 
@@ -122,32 +124,36 @@ const Orders = ({ role }: OrdersProps) => {
   };
 
   return (
-    <>
+    <div className={css.container}>
       <div className={css.orders_container}>
         <div className={css.logo}>
           <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
         </div>
         <div className={css.user_info}>
-          <p className={css.role}>{role}</p>
-          <p className={css.name}>
-            {name && surname ? `${name} ${surname}` : 'Not available'}
-          </p>
-          <Button
-            style={{ margin: '10px' }}
-            variant="primary"
-            onClick={handleLogout}>
-            Logout
-          </Button>
+          <div style={{ display: 'flex', gap:'5px',  marginRight: '20px' }}>
+            <p className={css.role}>{role}</p>
+            <p className={css.name}>
+              {name && surname ? `${name} ${surname}` : 'Not available'}
+            </p>
+          </div>
+
+          <a>
+            <img src={admin} alt="admin" className={css.resetButton} />
+          </a>
+
+          <a onClick={handleLogout}>
+          <img src={Logout} alt="logout" className={css.resetButton} />
+          </a>
+
         </div>
       </div>
-
-      <Filters
-        filters={filters}
-        setFilters={setFilters}
-        myOrdersOnly={myOrdersOnly}
-        setMyOrdersOnly={setMyOrdersOnly}
-        resetFilters={resetFilters}
-      />
+        <Filters
+          filters={filters}
+          setFilters={setFilters}
+          myOrdersOnly={myOrdersOnly}
+          setMyOrdersOnly={setMyOrdersOnly}
+          resetFilters={resetFilters}
+        />
 
       {loading && <LoadingSpinner />}
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -195,7 +201,7 @@ const Orders = ({ role }: OrdersProps) => {
           token={token}
         />
       )}
-    </>
+    </div>
   );
 };
 

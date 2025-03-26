@@ -10,13 +10,7 @@ import {
 import Button from '../Button/Button';
 import { CommentList } from '../CommentsList/CommentsList';
 import React from 'react';
-
-interface OrderDetailsProps {
-  orderId: number;
-  commentText: string;
-  currentUserId: string | null;
-  token: string | null;
-}
+import { OrderDetailsProps } from './const';
 
 const OrderDetails = ({
   orderId,

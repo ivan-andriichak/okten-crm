@@ -1,19 +1,24 @@
+.container {
+  position: relative;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
 .orders_container {
   margin: 1rem auto;
   max-width: 95%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #333;
-}
-
-.orders_container h3 {
-  font-size: 16px;
-  color: #333;
-}
-
-.orders_container p {
-  color: #333;
+  border-radius: 5px;
+  position: sticky;
+  top: 9px;
+  padding: 0 5px 0;
+  background-color: rgba(231, 231, 225);
+  border: 1px solid rgba(185, 185, 180, 0.5);
+  box-shadow:
+    0 2px 4px 0 rgba(0, 0, 0, 0.2),
+    0 3px 10px 0 rgba(0, 0, 0, 0.19);
 }
 
 .user_info {
@@ -22,23 +27,23 @@
   gap: 10px;
 }
 
-.role,
-.name {
-  margin: 0.5rem 0;
-  font-size: 1rem;
-}
-
 .role {
+  text-decoration: underline;
+  text-decoration-color: #86b6f1;
+  margin: 0.1rem 0;
+  font-size: 1rem;
   font-weight: bold;
   color: #666;
 }
 
 .name {
-  color: #86b6f1;
+  margin: 0.1rem 0;
+  font-size: 1rem;
+  color: #666;
 }
 
 .logoImage {
-  width: 40px;
+  width: 30px;
   border-radius: 50%;
   height: auto;
   object-fit: contain;
@@ -47,8 +52,7 @@
     0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-.logo {
-  /*display: flex;*/
-  /*align-items: center;*/
-  /*justify-content: center;*/
+.resetButton {
+  width: 25px;
+  cursor: pointer;
 }

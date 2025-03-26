@@ -69,7 +69,7 @@ const Pagination = ({
   return (
     <div
       style={{
-        marginTop: '20px',
+        margin: '20px 0',
         display: 'flex',
         alignItems: 'center',
         gap: '5px',
