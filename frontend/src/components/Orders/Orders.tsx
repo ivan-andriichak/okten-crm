@@ -71,6 +71,7 @@ const Orders = ({ role }: OrdersProps) => {
       filters: {
         ...filters,
         myOrders: myOrdersOnly ? 'true' : undefined,
+        managerId: myOrdersOnly ? currentUserId || undefined : undefined,
       },
     };
     dispatch(fetchOrders(params));
@@ -130,7 +131,7 @@ const Orders = ({ role }: OrdersProps) => {
           <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
         </div>
         <div className={css.user_info}>
-          <div style={{ display: 'flex', gap:'5px',  marginRight: '20px' }}>
+          <div style={{ display: 'flex', gap: '5px', marginRight: '20px' }}>
             <p className={css.role}>{role}</p>
             <p className={css.name}>
               {name && surname ? `${name} ${surname}` : 'Not available'}
@@ -142,18 +143,26 @@ const Orders = ({ role }: OrdersProps) => {
           </a>
 
           <a onClick={handleLogout}>
-          <img src={Logout} alt="logout" className={css.resetButton} />
+            <img src={Logout} alt="logout" className={css.resetButton} />
           </a>
-
         </div>
       </div>
-        <Filters
-          filters={filters}
-          setFilters={setFilters}
-          myOrdersOnly={myOrdersOnly}
-          setMyOrdersOnly={setMyOrdersOnly}
-          resetFilters={resetFilters}
-        />
+      <Filters
+        filters={filters}
+        setFilters={setFilters}
+        myOrdersOnly={myOrdersOnly}
+        setMyOrdersOnly={value => {
+          setMyOrdersOnly(value);
+          setSearchParams({
+            page: '1',
+            sort: sort || 'id',
+            order: sortOrder || 'ASC',
+            ...filters,
+            ...(value && { myOrders: 'true' }),
+          });
+        }}
+        resetFilters={resetFilters}
+      />
 
       {loading && <LoadingSpinner />}
       {error && <p style={{ color: 'red' }}>{error}</p>}

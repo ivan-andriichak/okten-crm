@@ -7,7 +7,7 @@ import { AppDispatch, RootState } from '../store';
 const initialState: OrderState = {
   orders: [],
   total: 0,
-  loading: false,
+  loading: true,
   error: null,
   page: 1,
   limit: 25,

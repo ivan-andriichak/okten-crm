@@ -29,6 +29,22 @@ export const tableStyles = {
     padding: '8px',
     backgroundColor: '#f9f9f9',
   },
+  expandedCell: {
+    border: '1px solid #ddd',
+    padding: '8px',
+    whiteSpace: 'nowrap' as const,
+    overflowX: 'auto' as const,
+    textOverflow: 'clip' as const,
+    boxSizing: 'border-box' as const,
+  },
+  expandedRowContainer: {
+    maxWidth: '100%',
+    padding: '0',
+  },
+  expandedRow: {
+    display: 'flex' as const,
+    minWidth: '100%',
+  },
 };
 
 export const columnWidths = {
@@ -52,21 +68,11 @@ export const columnWidths = {
 export const columns = [
   { key: 'id', label: 'ID', sortable: true, width: columnWidths.id },
   { key: 'name', label: 'Name', sortable: true, width: columnWidths.name },
-  {
-    key: 'surname',
-    label: 'Surname',
-    sortable: true,
-    width: columnWidths.surname,
-  },
+  { key: 'surname', label: 'Surname', sortable: true, width: columnWidths.surname },
   { key: 'email', label: 'Email', sortable: true, width: columnWidths.email },
   { key: 'phone', label: 'Phone', sortable: true, width: columnWidths.phone },
   { key: 'age', label: 'Age', sortable: true, width: columnWidths.age },
-  {
-    key: 'course',
-    label: 'Course',
-    sortable: false,
-    width: columnWidths.course,
-  },
+  { key: 'course', label: 'Course', sortable: false, width: columnWidths.course },
   {
     key: 'course_format',
     label: 'Course Format',
@@ -79,12 +85,7 @@ export const columns = [
     sortable: false,
     width: columnWidths.course_type,
   },
-  {
-    key: 'status',
-    label: 'Status',
-    sortable: true,
-    width: columnWidths.status,
-  },
+  { key: 'status', label: 'Status', sortable: true, width: columnWidths.status },
   { key: 'sum', label: 'Sum', sortable: false, width: columnWidths.sum },
   {
     key: 'alreadyPaid',
@@ -99,10 +100,5 @@ export const columns = [
     sortable: true,
     width: columnWidths.created_at,
   },
-  {
-    key: 'manager',
-    label: 'Manager',
-    sortable: true,
-    width: columnWidths.manager,
-  },
+  { key: 'manager', label: 'Manager', sortable: true, width: columnWidths.manager },
 ];

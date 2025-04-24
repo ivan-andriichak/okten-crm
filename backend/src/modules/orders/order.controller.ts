@@ -51,8 +51,8 @@ export class OrderController {
     @CurrentUser() userData: IUserData,
     @Query() query: OrderListQueryDto,
   ): Promise<OrderListDto> {
-    console.log('Controller - UserData:', userData); // Логування userData
-    console.log('Controller - Query:', query); // Логування query
+    console.log('Controller - UserData:', userData);
+    console.log('Controller - Query:', query);
     console.log('Calling service with userId:', userData.userId);
     const [entities, total] = await this.ordersService.getListOrders(userData, query);
     return OrderMapper.toResponseListDTO(entities, total, query);
