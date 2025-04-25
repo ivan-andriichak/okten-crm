@@ -4,11 +4,7 @@ import { OrderListQueryDto } from '../dto/req/order-list.query.dto';
 import { OrderListItemResDto } from '../dto/res/order-list-item.res.dto';
 
 export class OrderMapper {
-  public static toResponseListDTO(
-    entities: OrderEntity[],
-    total: number,
-    query: OrderListQueryDto,
-  ) {
+  public static toResponseListDTO(entities: OrderEntity[], total: number, query: OrderListQueryDto) {
     return {
       orders: entities.map((order) => OrderMapper.toOrderListItemResDto(order)),
       total,
@@ -16,9 +12,7 @@ export class OrderMapper {
     };
   }
 
-  public static toOrderListItemResDto(
-    entity: OrderEntity,
-  ): OrderListItemResDto {
+  public static toOrderListItemResDto(entity: OrderEntity): OrderListItemResDto {
     return {
       id: entity.id,
       name: entity.name,
@@ -41,8 +35,7 @@ export class OrderMapper {
           return {
             id: comment.id,
             text: comment.text,
-            author:
-              `${comment.user?.name || 'Unknown'} ${comment.user?.surname || ''}`.trim(),
+            author: `${comment.user?.name || 'Unknown'} ${comment.user?.surname || ''}`.trim(),
             createdAt: comment.created_at,
           };
         }) || [],

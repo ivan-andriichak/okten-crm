@@ -20,26 +20,8 @@ import { Config, MysqlConfig } from '../../config/config.type';
           username: config.user,
           password: config.password,
           database: config.dbName,
-          entities: [
-            path.join(
-              process.cwd(),
-              'dist',
-              'src',
-              'database',
-              'entities',
-              '*.entity.js',
-            ),
-          ],
-          migrations: [
-            path.join(
-              process.cwd(),
-              'dist',
-              'src',
-              'database',
-              'migrations',
-              '*.js',
-            ),
-          ],
+          entities: [path.join(process.cwd(), 'dist', 'src', 'database', 'entities', '*.entity.js')],
+          migrations: [path.join(process.cwd(), 'dist', 'src', 'database', 'migrations', '*.js')],
 
           migrationsRun: true,
           synchronize: false,

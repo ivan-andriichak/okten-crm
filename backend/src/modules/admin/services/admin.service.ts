@@ -27,7 +27,6 @@ export class AdminService {
       throw new NotFoundException(`User with email ${dto.email} already exists`);
     }
 
-    // Використовуємо AuthService.register для створення менеджера
     const registerDto: RegisterReqDto = {
       email: dto.email,
       name: dto.name,
@@ -64,8 +63,7 @@ export class AdminService {
     await this.userRepository.save(manager);
   }
 
-  // Решта методів (getManagers, toggleManagerStatus, тощо) залишаються без змін
-  async getManagers(page: number = 1, limit: number = 25): Promise<[UserEntity[], number]> {
+  async getManagers(page: number = 1, limit: number = 2): Promise<[UserEntity[], number]> {
     return await this.userRepository.findAndCount({
       where: { role: Role.MANAGER },
       select: ['id', 'email', 'name', 'surname', 'is_active', 'last_login'],

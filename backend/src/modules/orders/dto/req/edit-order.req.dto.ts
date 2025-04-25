@@ -1,12 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
-import {
-  CourseEnum,
-  CourseFormatEnum,
-  CourseTypeEnum,
-  StatusEnum,
-} from '../../enums/order.enums';
+import { CourseEnum, CourseFormatEnum, CourseTypeEnum, StatusEnum } from '../../enums/order.enums';
 
 export class EditOrderDto {
   @IsOptional()

@@ -9,11 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import {
-  CourseEnum,
-  CourseFormatEnum,
-  CourseTypeEnum,
-} from '../../modules/orders/enums/order.enums';
+import { CourseEnum, CourseFormatEnum, CourseTypeEnum } from '../../modules/orders/enums/order.enums';
 import { CommentEntity } from './comment.entity';
 import { TableNameEnum } from './enums/table-name.enum';
 import { GroupEntity } from './group.entity';

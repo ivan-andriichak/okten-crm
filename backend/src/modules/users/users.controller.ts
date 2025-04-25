@@ -58,10 +58,7 @@ export class UsersController {
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @Roles(Role.ADMIN, Role.MANAGER)
   @Put('me')
-  public async updateMe(
-    @CurrentUser() userData: IUserData,
-    @Body() dto: UpdateUserDto,
-  ): Promise<UserResDto> {
+  public async updateMe(@CurrentUser() userData: IUserData, @Body() dto: UpdateUserDto): Promise<UserResDto> {
     const result = await this.usersService.updateMe(userData, dto);
     return UserMapper.toResponseDTO(result);
   }
@@ -101,9 +98,7 @@ export class UsersController {
   @SkipAuth()
   // @Roles(Role.ADMIN)
   @Get(':userId')
-  public async findOne(
-    @Param('userId', ParseUUIDPipe) userId: string,
-  ): Promise<UserResDto> {
+  public async findOne(@Param('userId', ParseUUIDPipe) userId: string): Promise<UserResDto> {
     const result = await this.usersService.findOne(userId);
     return UserMapper.toResponseDTO(result);
   }

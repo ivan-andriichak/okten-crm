@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { UserRepository } from '../../repository/services/user.repository';
@@ -25,16 +20,12 @@ export class JwtRefreshGuard implements CanActivate {
     if (!refreshToken) {
       throw new UnauthorizedException();
     }
-    const payload = await this.tokenService.verifyToken(
-      refreshToken,
-      TokenType.REFRESH,
-    );
+    const payload = await this.tokenService.verifyToken(refreshToken, TokenType.REFRESH);
     if (!payload) {
       throw new UnauthorizedException();
     }
 
-    const isRefreshTokenExist =
-      await this.refreshTokenRepository.isRefreshTokenExist(refreshToken);
+    const isRefreshTokenExist = await this.refreshTokenRepository.isRefreshTokenExist(refreshToken);
     if (!isRefreshTokenExist) {
       throw new UnauthorizedException();
     }

@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
 import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator';
@@ -34,10 +29,7 @@ export class JwtAccessGuard implements CanActivate {
     }
 
     // Перевіряємо SKIP_AUTH (залишаємо для сумісності з іншими частинами коду)
-    const skipAuth = this.reflector.getAllAndOverride<boolean>('SKIP_AUTH', [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const skipAuth = this.reflector.getAllAndOverride<boolean>('SKIP_AUTH', [context.getHandler(), context.getClass()]);
     if (skipAuth) {
       return true;
     }
@@ -48,10 +40,7 @@ export class JwtAccessGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const payload = await this.tokenService.verifyToken(
-      accessToken,
-      TokenType.ACCESS,
-    );
+    const payload = await this.tokenService.verifyToken(accessToken, TokenType.ACCESS);
     if (!payload) {
       throw new UnauthorizedException();
     }

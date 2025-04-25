@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { Role } from '../../../common/enums/role.enum';
@@ -76,9 +72,7 @@ export class AuthService {
         }),
         this.authCacheService.deleteToken(user.id, dto.deviceId),
       ]);
-      this.logger.log(
-        `Old tokens removed for user ${user.id} and device ${dto.deviceId}`,
-      );
+      this.logger.log(`Old tokens removed for user ${user.id} and device ${dto.deviceId}`);
 
       await Promise.all([
         this.refreshTokenRepository.save({
@@ -86,11 +80,7 @@ export class AuthService {
           refreshToken: tokens.refreshToken,
           user_id: user.id,
         }),
-        this.authCacheService.saveToken(
-          tokens.accessToken,
-          user.id,
-          dto.deviceId,
-        ),
+        this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
       ]);
       this.logger.log(`Tokens saved for user ${user.id}`);
 
@@ -137,11 +127,7 @@ export class AuthService {
           refreshToken: tokens.refreshToken,
           user_id: user.id,
         }),
-        this.authCacheService.saveToken(
-          tokens.accessToken,
-          user.id,
-          dto.deviceId,
-        ),
+        this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
       ]);
       this.logger.log(`New tokens saved for user ${user.id}`);
 
@@ -179,11 +165,7 @@ export class AuthService {
           refreshToken: tokens.refreshToken,
           user_id: userData.userId,
         }),
-        this.authCacheService.saveToken(
-          tokens.accessToken,
-          userData.userId,
-          userData.deviceId,
-        ),
+        this.authCacheService.saveToken(tokens.accessToken, userData.userId, userData.deviceId),
       ]);
 
       this.logger.log(`Tokens refreshed for user ${userData.userId}`);

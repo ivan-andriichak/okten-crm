@@ -29,6 +29,7 @@ const Header: React.FC = () => {
         <Link to="/orders">
           <div className={css.logo}>
             <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
+            <span className={css.logoText}>Orders</span>
           </div>
         </Link>
       )}

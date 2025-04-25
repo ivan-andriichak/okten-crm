@@ -1,10 +1,4 @@
-import {
-  ArgumentsHost,
-  BadRequestException,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-} from '@nestjs/common';
+import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
@@ -36,10 +30,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status = 500;
       messages = 'Internal server error';
     }
-    this.logger.error(
-      exception,
-      exception instanceof Error ? exception.stack : '',
-    );
+    this.logger.error(exception, exception instanceof Error ? exception.stack : '');
     Sentry.captureException(exception);
     messages = Array.isArray(messages) ? messages : [messages];
     response.status(status).json({

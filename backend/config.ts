@@ -16,12 +16,8 @@ export default new DataSource({
   username: databaseConfig.user,
   password: databaseConfig.password,
   database: databaseConfig.dbName,
-  entities: [
-    path.join(process.cwd(), 'src', 'database', 'entities', '*.entity.ts'),
-  ],
-  migrations: [
-    path.join(process.cwd(), 'src', 'database', 'migrations', '*.ts'),
-  ],
+  entities: [path.join(process.cwd(), 'src', 'database', 'entities', '*.entity.ts')],
+  migrations: [path.join(process.cwd(), 'src', 'database', 'migrations', '*.ts')],
   synchronize: false,
   dropSchema: false,
 });

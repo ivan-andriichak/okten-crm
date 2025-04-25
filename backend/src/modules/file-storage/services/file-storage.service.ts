@@ -1,11 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import * as path from 'node:path';
 
-import {
-  DeleteObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Express } from 'express';
@@ -36,11 +32,7 @@ export class FileStorageService {
     });
   }
 
-  public async uploadFile(
-    file: Express.Multer.File,
-    itemType: ContentType,
-    itemId: string,
-  ): Promise<string> {
+  public async uploadFile(file: Express.Multer.File, itemType: ContentType, itemId: string): Promise<string> {
     try {
       const filePath = this.buildPath(itemType, itemId, file.originalname);
       await this.s3Client.send(
@@ -70,11 +62,7 @@ export class FileStorageService {
     }
   }
 
-  private buildPath(
-    itemType: ContentType,
-    itemId: string,
-    fileName: string,
-  ): string {
+  private buildPath(itemType: ContentType, itemId: string, fileName: string): string {
     return `${itemType}/${itemId}/${randomUUID()}${path.extname(fileName)}`;
   }
 }

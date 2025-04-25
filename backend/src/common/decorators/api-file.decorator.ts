@@ -1,11 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 
-export const ApiFile = (
-  fileName: string,
-  isArray = true,
-  isRequired = true,
-): MethodDecorator => {
+export const ApiFile = (fileName: string, isArray = true, isRequired = true): MethodDecorator => {
   return applyDecorators(
     ApiBody({
       schema: {

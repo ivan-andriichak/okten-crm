@@ -1,12 +1,6 @@
 // backend/src/modules/orders/dto/req/base-order.req.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsDate,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsDate, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 
 import { UserResDto } from '../../../users/dto/res/user.res.dto';
 

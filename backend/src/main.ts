@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Logger,
-  ValidationError,
-  ValidationPipe,
-} from '@nestjs/common';
+import { BadRequestException, Logger, ValidationError, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -19,9 +14,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('OKTEN-SCHOOL-CRM')
-    .setDescription(
-      'OKTEN-SCHOOL-CRM - a scalable and flexible platform similar to CRM, integrated with AWS.',
-    )
+    .setDescription('OKTEN-SCHOOL-CRM - a scalable and flexible platform similar to CRM, integrated with AWS.')
     .setVersion('1.0.0')
     .addBearerAuth({
       type: 'http',
@@ -68,9 +61,7 @@ async function bootstrap() {
 
   await app.listen(appConfig.port, () => {
     Logger.log(`Server running on http://${appConfig.host}:${appConfig.port}`);
-    Logger.log(
-      `Swagger running on http://${appConfig.host}:${appConfig.port}/docs`,
-    );
+    Logger.log(`Swagger running on http://${appConfig.host}:${appConfig.port}/docs`);
   });
 }
 

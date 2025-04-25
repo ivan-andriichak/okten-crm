@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AppDispatch, RootState} from '../../store';
+import { AppDispatch, RootState } from '../../store';
 import {
-  fetchManagers,
   activateManager,
-  recoverPassword,
   banManager,
+  fetchManagers,
+  recoverPassword,
   unbanManager,
 } from '../../store/slices/managerSlice';
 import css from './AdminPanel.module.css';
 import { api } from '../../services/api';
 import Button from '../Button/Button';
 import Header from '../Header/Header';
+import CreateManagerModal from '../CreateManagerModal/CreateManagerModal';
+import { Pagination } from '../Pagination/Pagination';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 
 interface ManagerFormData {
   email: string;
@@ -29,7 +32,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { managers, total, loading, error, page, limit } = useSelector(
-    (state: RootState) => state.managers
+    (state: RootState) => state.managers,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<ManagerFormData>({
@@ -50,29 +53,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post(
-        '/admin/managers',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      await api.post('/admin/managers', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       setFormSuccess('Manager created successfully!');
       setFormData({ email: '', name: '', surname: '' });
       setIsModalOpen(false);
       setFormError(null);
       dispatch(fetchManagers({ page: 1, limit }));
     } catch (err: any) {
-      setFormError(err.response?.data?.messages?.[0] || 'Failed to create manager');
+      setFormError(
+        err.response?.data?.messages?.[0] || 'Failed to create manager',
+      );
       setFormSuccess(null);
     }
   };
@@ -108,64 +109,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
   return (
     <div className={css.container}>
       <Header />
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <Button
-          className={css.createButton}
-          onClick={() => setIsModalOpen(true)}
-        >
-          CREATE
-        </Button>
+      <div>
+        <Button onClick={() => setIsModalOpen(true)}>CREATE</Button>
       </div>
 
-      {isModalOpen && (
-        <div className={css.modalOverlay}>
-          <div className={css.modal}>
-            <h2 className={css.modalTitle}>Create New Manager</h2>
-            <form className={css.form} onSubmit={handleSubmit}>
-              <div>
-                <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div>
-                <label>Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div>
-                <label>Surname</label>
-                <input
-                  type="text"
-                  name="surname"
-                  value={formData.surname}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              {formError && <p className={css.error}>{formError}</p>}
-              {formSuccess && <p className={css.success}>{formSuccess}</p>}
-              <div>
-                <Button type="button" onClick={closeModal}>
-                  Cancel
-                </Button>
-                <button type="submit">Create</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <CreateManagerModal
+        isOpen={isModalOpen}
+        formData={formData}
+        formError={formError}
+        formSuccess={formSuccess}
+        onClose={closeModal}
+        onInputChange={handleInputChange}
+        onSubmit={handleSubmit}
+      />
 
-      {loading && <div className={css.loading}>Loading...</div>}
+      {loading && <LoadingSpinner />}
       {error && <p className={css.error}>{error}</p>}
       {managers.length > 0 ? (
         <>
@@ -180,7 +138,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
             </tr>
             </thead>
             <tbody>
-            {managers.map((manager) => (
+            {managers.map(manager => (
               <tr key={manager.id}>
                 <td>{manager.email}</td>
                 <td>{manager.name}</td>
@@ -223,19 +181,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
             </tbody>
           </table>
           <div className={css.pagination}>
-            <Button
-              disabled={page === 1}
-              onClick={() => handlePageChange(page - 1)}
-            >
-              Previous
-            </Button>
-            <span>Page {page}</span>
-            <Button
-              disabled={page * limit >= total}
-              onClick={() => handlePageChange(page + 1)}
-            >
-              Next
-            </Button>
+            <Pagination
+              currentPage={page}
+              totalItems={total}
+              itemsPerPage={limit}
+              onPageChange={handlePageChange}
+            />
           </div>
         </>
       ) : (

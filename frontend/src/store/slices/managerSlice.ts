@@ -25,7 +25,7 @@ const initialState: ManagerState = {
   loading: false,
   error: null,
   page: 1,
-  limit: 10,
+  limit: 2,
 };
 
 interface FetchManagersParams {
@@ -55,9 +55,13 @@ export const activateManager = createAsyncThunk<
   { state: RootState }
 >('managers/activateManager', async (managerId, { getState }) => {
   const { token } = getState().auth;
-  await api.post(`/admin/managers/${managerId}/activate`, {}, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  await api.post(
+    `/admin/managers/${managerId}/activate`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
 });
 
 export const recoverPassword = createAsyncThunk<
@@ -66,21 +70,28 @@ export const recoverPassword = createAsyncThunk<
   { state: RootState }
 >('managers/recoverPassword', async (managerId, { getState }) => {
   const { token } = getState().auth;
-  await api.post(`/admin/managers/${managerId}/recover`, {}, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  await api.post(
+    `/admin/managers/${managerId}/recover`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
 });
 
-export const banManager = createAsyncThunk<
-  void,
-  string,
-  { state: RootState }
->('managers/banManager', async (managerId, { getState }) => {
-  const { token } = getState().auth;
-  await api.post(`/admin/managers/${managerId}/ban`, {}, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-});
+export const banManager = createAsyncThunk<void, string, { state: RootState }>(
+  'managers/banManager',
+  async (managerId, { getState }) => {
+    const { token } = getState().auth;
+    await api.post(
+      `/admin/managers/${managerId}/ban`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  },
+);
 
 export const unbanManager = createAsyncThunk<
   void,
@@ -88,18 +99,22 @@ export const unbanManager = createAsyncThunk<
   { state: RootState }
 >('managers/unbanManager', async (managerId, { getState }) => {
   const { token } = getState().auth;
-  await api.post(`/admin/managers/${managerId}/unban`, {}, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  await api.post(
+    `/admin/managers/${managerId}/unban`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
 });
 
 const managerSlice = createSlice({
   name: 'managers',
   initialState,
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(fetchManagers.pending, (state) => {
+      .addCase(fetchManagers.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -113,56 +128,56 @@ const managerSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch managers';
       })
-      .addCase(activateManager.pending, (state) => {
+      .addCase(activateManager.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(activateManager.fulfilled, (state, action) => {
         state.loading = false;
         const managerId = action.meta.arg;
-        state.managers = state.managers.map((manager) =>
-          manager.id === managerId ? { ...manager, is_active: true } : manager
+        state.managers = state.managers.map(manager =>
+          manager.id === managerId ? { ...manager, is_active: true } : manager,
         );
       })
       .addCase(activateManager.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to activate manager';
       })
-      .addCase(recoverPassword.pending, (state) => {
+      .addCase(recoverPassword.pending, state => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(recoverPassword.fulfilled, (state) => {
+      .addCase(recoverPassword.fulfilled, state => {
         state.loading = false;
       })
       .addCase(recoverPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to recover password';
       })
-      .addCase(banManager.pending, (state) => {
+      .addCase(banManager.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(banManager.fulfilled, (state, action) => {
         state.loading = false;
         const managerId = action.meta.arg;
-        state.managers = state.managers.map((manager) =>
-          manager.id === managerId ? { ...manager, is_active: false } : manager
+        state.managers = state.managers.map(manager =>
+          manager.id === managerId ? { ...manager, is_active: false } : manager,
         );
       })
       .addCase(banManager.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to ban manager';
       })
-      .addCase(unbanManager.pending, (state) => {
+      .addCase(unbanManager.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(unbanManager.fulfilled, (state, action) => {
         state.loading = false;
         const managerId = action.meta.arg;
-        state.managers = state.managers.map((manager) =>
-          manager.id === managerId ? { ...manager, is_active: true } : manager
+        state.managers = state.managers.map(manager =>
+          manager.id === managerId ? { ...manager, is_active: true } : manager,
         );
       })
       .addCase(unbanManager.rejected, (state, action) => {

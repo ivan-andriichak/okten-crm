@@ -15,11 +15,7 @@ export class AuthCacheService {
     this.jwtConfig = this.configService.get('jwt');
   }
 
-  public async saveToken(
-    token: string,
-    userId: string,
-    deviceId: string,
-  ): Promise<void> {
+  public async saveToken(token: string, userId: string, deviceId: string): Promise<void> {
     const key = this.getKey(userId, deviceId);
 
     await this.redisService.deleteByKey(key);
@@ -27,11 +23,7 @@ export class AuthCacheService {
     await this.redisService.expire(key, this.jwtConfig.accessExpiresIn);
   }
 
-  public async isAccessTokenExist(
-    userId: string,
-    deviceId: string,
-    token: string,
-  ): Promise<boolean> {
+  public async isAccessTokenExist(userId: string, deviceId: string, token: string): Promise<boolean> {
     const key = this.getKey(userId, deviceId);
     const set = await this.redisService.sMembers(key);
     return set.includes(token);

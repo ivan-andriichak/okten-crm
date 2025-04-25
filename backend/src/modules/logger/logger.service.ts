@@ -16,10 +16,7 @@ export class LoggerService {
 
     Sentry.init({
       dsn: sentryConfig.dsn,
-      integrations: [
-        nodeProfilingIntegration(),
-        Sentry.anrIntegration({ captureStackTrace: true }),
-      ],
+      integrations: [nodeProfilingIntegration(), Sentry.anrIntegration({ captureStackTrace: true })],
       debug: sentryConfig.debug,
       // Tracing
       tracesSampleRate: 1.0, //  Capture 100% of the transactions
