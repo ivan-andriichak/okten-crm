@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import debounce from 'lodash/debounce';
-import oktenLogo from '../../images/okten.jpg';
-import Logout from '../../images/Logout.png';
-import admin from '../../images/admin.png';
-
 import {
   AppDispatch,
   fetchOrders,
-  logout,
   RootState,
   setSort,
 } from '../../store';
@@ -20,11 +15,11 @@ import { OrderTable } from '../OrderTable/OrderTable';
 import css from './Orders.module.css';
 import { EditOrderModal } from '../EditOrderModal';
 import { Filters } from '../Filters';
+import Header from '../Header/Header';
 
-const Orders = ({ role }: OrdersProps) => {
+const Orders = ({ }: OrdersProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   const {
     orders,
     total,
@@ -37,7 +32,7 @@ const Orders = ({ role }: OrdersProps) => {
     editForm,
     commentText,
   } = useSelector((state: RootState) => state.orders);
-  const { currentUserId, token, name, surname } = useSelector(
+  const { currentUserId, token } = useSelector(
     (state: RootState) => state.auth,
   );
 
@@ -94,11 +89,6 @@ const Orders = ({ role }: OrdersProps) => {
     });
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
-  };
-
   const resetFilters = () => {
     setFilters({
       name: '',
@@ -126,27 +116,7 @@ const Orders = ({ role }: OrdersProps) => {
 
   return (
     <div className={css.container}>
-      <div className={css.orders_container}>
-        <div className={css.logo}>
-          <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
-        </div>
-        <div className={css.user_info}>
-          <div style={{ display: 'flex', gap: '5px', marginRight: '20px' }}>
-            <p className={css.role}>{role}</p>
-            <p className={css.name}>
-              {name && surname ? `${name} ${surname}` : 'Not available'}
-            </p>
-          </div>
-
-          <a>
-            <img src={admin} alt="admin" className={css.resetButton} />
-          </a>
-
-          <a onClick={handleLogout}>
-            <img src={Logout} alt="logout" className={css.resetButton} />
-          </a>
-        </div>
-      </div>
+      <Header />
       <Filters
         filters={filters}
         setFilters={setFilters}

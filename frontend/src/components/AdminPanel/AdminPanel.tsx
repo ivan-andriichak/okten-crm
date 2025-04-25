@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AppDispatch, RootState, logout } from '../../store';
+import { AppDispatch, RootState} from '../../store';
 import {
   fetchManagers,
   activateManager,
@@ -12,6 +12,7 @@ import {
 import css from './AdminPanel.module.css';
 import { api } from '../../services/api';
 import Button from '../Button/Button';
+import Header from '../Header/Header';
 
 interface ManagerFormData {
   email: string;
@@ -19,14 +20,12 @@ interface ManagerFormData {
   surname: string;
 }
 
-// Оновлюємо тип пропсів, видаляючи currentUserId
 interface AdminPanelProps {
   token: string;
   role: 'admin' | 'manager';
-  onLogout: () => void;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ token, role, onLogout }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { managers, total, loading, error, page, limit } = useSelector(
@@ -106,27 +105,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role, onLogout }) => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    onLogout();
-    navigate('/login');
-  };
-
   return (
     <div className={css.container}>
-      <h1 className={css.title}>Admin Panel</h1>
+      <Header />
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
         <Button
           className={css.createButton}
           onClick={() => setIsModalOpen(true)}
         >
-          Create Manager
-        </Button>
-        <Button
-          className={css.createButton}
-          onClick={handleLogout}
-        >
-          Logout
+          CREATE
         </Button>
       </div>
 

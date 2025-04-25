@@ -32,15 +32,12 @@ const ProtectedOrdersRoute = () => {
 };
 
 const ProtectedAdminRoute = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { token, role } = useSelector((state: RootState) => state.auth);
 
-  const handleLogout = () => {
-    dispatch(logout());
-  };
+
 
   return token && role === 'admin' ? (
-    <AdminPanel token={token} role={role} onLogout={handleLogout} />
+    <AdminPanel token={token} role={role}  />
   ) : (
     <Navigate to="/login" replace />
   );

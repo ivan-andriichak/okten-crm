@@ -1,7 +1,7 @@
 .container {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    position: relative;
+    max-height: 100vh;
+    overflow-y: auto;
     color: #333;
 }
 
