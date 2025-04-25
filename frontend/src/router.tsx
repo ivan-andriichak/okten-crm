@@ -6,6 +6,8 @@ import { ErrorPage, HomePage } from './pages';
 import { Orders } from './components/Orders';
 import { PublicOrderForm } from './components/PublicOrderForm';
 import { Login } from './components/Login';
+import AdminPanel from './components/AdminPanel/AdminPanel';
+// import { ActivateAccount } from './components/ActivateAccount/ActivateAccount'; // Буде додано пізніше
 
 const ProtectedOrdersRoute = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,6 +31,21 @@ const ProtectedOrdersRoute = () => {
   );
 };
 
+const ProtectedAdminRoute = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { token, role } = useSelector((state: RootState) => state.auth);
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  return token && role === 'admin' ? (
+    <AdminPanel token={token} role={role} onLogout={handleLogout} />
+  ) : (
+    <Navigate to="/login" replace />
+  );
+};
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -38,6 +55,7 @@ const router = createBrowserRouter([
       { path: '/', element: <HomePage /> },
       { path: '/login', element: <Login /> },
       { path: '/orders', element: <ProtectedOrdersRoute /> },
+      { path: '/admin', element: <ProtectedAdminRoute /> },
     ],
   },
   {
@@ -45,6 +63,11 @@ const router = createBrowserRouter([
     element: <PublicOrderForm />,
     errorElement: <ErrorPage />,
   },
+  // {
+  //   path: '/activate/:token',
+  //   element: <ActivateAccount />,
+  //   errorElement: <ErrorPage />,
+  // }, // Буде додано пізніше
 ]);
 
 export { router };

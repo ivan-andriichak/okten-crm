@@ -41,4 +41,10 @@ export class UserEntity extends CreateUpdateModel {
 
   @OneToMany(() => CommentEntity, (comment) => comment.user)
   comments?: CommentEntity[];
+
+  @Column('text', { nullable: true })
+  passwordResetToken?: string;
+
+  @Column('datetime', { nullable: true })
+  passwordResetExpires?: Date;
 }

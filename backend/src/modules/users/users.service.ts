@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Express } from 'express';
 
 import { UserEntity } from '../../database/entities/user.entity';
@@ -28,10 +24,7 @@ export class UsersService {
     return await this.userRepository.findOneBy({ id: userData.userId });
   }
 
-  public async updateMe(
-    userData: IUserData,
-    dto: UpdateUserDto,
-  ): Promise<UserEntity> {
+  public async updateMe(userData: IUserData, dto: UpdateUserDto): Promise<UserEntity> {
     this.logger.log(`updateMe called for user ${userData.userId}`);
     const user = await this.userRepository.findOneBy({ id: userData.userId });
     this.userRepository.merge(user, dto);
@@ -53,16 +46,9 @@ export class UsersService {
     return user;
   }
 
-  public async uploadAvatar(
-    userData: IUserData,
-    avatar: Express.Multer.File,
-  ): Promise<void> {
+  public async uploadAvatar(userData: IUserData, avatar: Express.Multer.File): Promise<void> {
     this.logger.log(`uploadAvatar called for user ${userData.userId}`);
-    const image = await this.fileStorageService.uploadFile(
-      avatar,
-      ContentType.AVATAR,
-      userData.userId,
-    );
+    const image = await this.fileStorageService.uploadFile(avatar, ContentType.AVATAR, userData.userId);
     await this.userRepository.update(userData.userId, { image });
   }
 
@@ -71,9 +57,7 @@ export class UsersService {
     const user = await this.userRepository.findOneBy({ id: userData.userId });
     if (user.image) {
       await this.fileStorageService.deleteFile(user.image);
-      await this.userRepository.save(
-        this.userRepository.merge(user, { image: null }),
-      );
+      await this.userRepository.save(this.userRepository.merge(user, { image: null }));
     }
   }
 

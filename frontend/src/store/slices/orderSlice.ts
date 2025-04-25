@@ -26,7 +26,6 @@ interface ThunkConfig {
   extra?: Record<string, string>;
 }
 
-// Тип для параметрів fetchOrders
 interface FetchOrdersParams {
   page: number;
   filters: Record<string, string | undefined>;

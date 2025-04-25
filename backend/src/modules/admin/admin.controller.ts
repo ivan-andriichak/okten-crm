@@ -1,60 +1,60 @@
-import { Controller } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Role } from '../../common/enums/role.enum';
+import { UserEntity } from '../../database/entities/user.entity';
+import { RegisterAdminReqDto } from './dto/req/register-admin.req.dto';
 import { AdminService } from './services/admin.service';
 
+@ApiBearerAuth()
 @ApiTags('Admin')
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  // @Get('dashboard')
-  // async getDashboard(): Promise<DashboardDto> {
-  //   return this.adminService.getDashboard();
-  // }
+  @Post('managers')
+  // @Roles(Role.ADMIN)
+  @ApiOkResponse({ description: 'Manager created', type: UserEntity })
+  async createManager(@Body() dto: RegisterAdminReqDto): Promise<UserEntity> {
+    return await this.adminService.createManager(dto);
+  }
 
-  // @Post('create-manager')
-  // @Roles(Role.ADMIN) // Тільки адміністратор може створювати менеджерів
-  // async createManager(@Body() createManagerDto: CreateManagerDto): Promise<{ message: string }> {
-  //   return this.adminService.createManager(createManagerDto);
-  // }
+  @Get('managers')
+  // @Roles(Role.ADMIN)
+  @ApiOkResponse({ description: 'List of managers with pagination' })
+  async getManagers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 25,
+  ): Promise<{ managers: UserEntity[]; total: number }> {
+    const [managers, total] = await this.adminService.getManagers(page, limit);
+    return { managers, total };
+  }
 
-  // @Get()
-  //   async getManagers(@Query() query: OrderListQueryDto): Promise<ManagerListDto> {
-  //     return this.managerService.getManagers(query);
-  //   }
-  //
-  //   @Post()
-  //   @Roles(Role.ADMIN) // Тільки адміністратор може створювати нових менеджерів
-  //   async createManager(@Body() createManagerDto: CreateManagerDto): Promise<{ message: string }> {
-  //     return this.managerService.createManager(createManagerDto);
-  //   }
-  //
-  //   @Patch(':id/activate')
-  //   @Roles(Role.ADMIN) // Тільки адміністратор може активувати менеджерів
-  //   async activateManager(@Param('id') id: string): Promise<{ message: string }> {
-  //     return this.managerService.activateManager(id);
-  //   }
-  //
-  //   @Patch(':id/ban')
-  //   @Roles(Role.ADMIN) // Тільки адміністратор може блокувати менеджерів
-  //   async banManager(@Param('id') id: string): Promise<{ message: string }> {
-  //     return this.managerService.banManager(id);
-  //   }
-  //
-  //   @Patch(':id/unban')
-  //   @Roles(Role.ADMIN) // Тільки адміністратор може розблокувати менеджерів
-  //   async unbanManager(@Param('id') id: string): Promise<{ message: string }> {
-  //     return this.managerService.unbanManager(id);
-  //   }
-  //
-  //   @Get(':id/statistics')
-  //   async getManagerStatistics(@Param('id') id: string): Promise<ManagerStatisticsDto> {
-  //     return this.managerService.getManagerStatistics(id);
-  //   }
+  @Patch('managers/:id')
+  @Roles(Role.ADMIN)
+  @ApiOkResponse({ description: 'Manager status toggled', type: UserEntity })
+  async toggleManagerStatus(@Param('id') id: string): Promise<UserEntity> {
+    return await this.adminService.toggleManagerStatus(id);
+  }
 
-  // @Get('orders/statistics')
-  // async getOrderStatistics(): Promise<OrderStatisticsDto> {
-  //   return this.adminService.getOrderStatistics();
-  // }
+  @Post('set-password/:token')
+  @ApiOkResponse({ description: 'Password set successfully' })
+  async setPassword(@Param('token') token: string, @Body() data: { password: string }): Promise<void> {
+    await this.adminService.setPassword(token, data.password);
+  }
+
+  @Get('statistics')
+  @Roles(Role.ADMIN)
+  @ApiOkResponse({ description: 'Order statistics by status' })
+  async getOrderStatistics(): Promise<Record<string, number>> {
+    return await this.adminService.getOrderStatistics();
+  }
+
+  @Get('managers/:id/statistics')
+  @Roles(Role.ADMIN)
+  @ApiOkResponse({ description: 'Manager statistics by status' })
+  async getManagerStatistics(@Param('id') id: string): Promise<Record<string, number>> {
+    return await this.adminService.getManagerStatistics(id);
+  }
 }

@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -60,9 +52,7 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @SkipAuth()
   @Post('refresh')
-  public async refresh(
-    @CurrentUser() userData: IUserData,
-  ): Promise<TokenPairResDto> {
+  public async refresh(@CurrentUser() userData: IUserData): Promise<TokenPairResDto> {
     return await this.authService.refresh(userData);
   }
 
