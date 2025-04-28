@@ -124,7 +124,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
       />
 
       {loading && <LoadingSpinner />}
-      {error && <p className={css.error}>{error}</p>}
+      {error && <p style={{ color: 'red', display:'flex', justifyContent:'center' }}>{error}</p>}
       {managers.length > 0 ? (
         <>
           <table className={css.table}>

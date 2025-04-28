@@ -5,6 +5,7 @@ import { AppDispatch, RootState, logout } from '../../store';
 import oktenLogo from '../../images/okten.jpg';
 import Logout from '../../images/Logout.png';
 import admin from '../../images/admin.png';
+import back from '../../images/back.png';
 import Button from '../Button/Button';
 import css from './Header.module.css';
 
@@ -21,18 +22,9 @@ const Header: React.FC = () => {
 
   return (
     <div className={css.orders_container}>
-      {pathname === '/orders' ? (
-        <div className={css.logo}>
-          <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
-        </div>
-      ) : (
-        <Link to="/orders">
-          <div className={css.logo}>
-            <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
-            <span className={css.logoText}>Orders</span>
-          </div>
-        </Link>
-      )}
+      <div className={css.logo}>
+        <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
+      </div>
       <div className={css.user_info}>
         <div style={{ display: 'flex', gap: '5px', marginRight: '20px' }}>
           <p className={css.role}>{role || 'Not available'}</p>
@@ -40,11 +32,19 @@ const Header: React.FC = () => {
             {name && surname ? `${name} ${surname}` : 'Not available'}
           </p>
         </div>
-        <Link to="/admin">
-          <Button>
-            <img src={admin} alt="admin" className={css.resetButton} />
-          </Button>
-        </Link>
+        {pathname === '/admin' ? (
+          <Link to="/orders">
+            <Button>
+              <img src={back} alt="back" style={{borderRadius:'50%'}} className={css.resetButton} />
+            </Button>
+          </Link>
+        ) : (
+          <Link to="/admin">
+            <Button>
+              <img src={admin} alt="admin" className={css.resetButton} />
+            </Button>
+          </Link>
+        )}
         <Button>
           <img
             src={Logout}

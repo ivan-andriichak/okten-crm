@@ -135,7 +135,7 @@ const Orders = ({ }: OrdersProps) => {
       />
 
       {loading && <LoadingSpinner />}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p style={{ color: 'red', display:'flex', justifyContent:'center' }}>{error}</p>}
       {orders.length > 0 ? (
         <OrderTable
           orders={orders}
@@ -158,7 +158,7 @@ const Orders = ({ }: OrdersProps) => {
       ) : (
         !loading &&
         orders.length === 0 && (
-          <p style={{ textAlign: 'center', fontSize: '2rem', color: 'tomato' }}>
+          <p style={{ textAlign: 'center', fontSize: '1.5rem', color: '#555' }}>
             No orders found.
           </p>
         )
