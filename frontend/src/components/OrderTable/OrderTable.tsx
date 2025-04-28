@@ -6,15 +6,15 @@ import { columns, tableStyles } from './constants';
 import { OrderDetails } from '../OrderDetails/OrderDetails';
 
 const OrderTable = ({
-                      orders,
-                      sort,
-                      sortOrder,
-                      expandedOrderId,
-                      currentUserId,
-                      commentText,
-                      token,
-                      onSortChange,
-                    }: OrderTableProps) => {
+  orders,
+  sort,
+  sortOrder,
+  expandedOrderId,
+  currentUserId,
+  commentText,
+  token,
+  onSortChange,
+}: OrderTableProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleSort = (field: string) => {
@@ -45,69 +45,66 @@ const OrderTable = ({
   });
 
   const getCellStyle = (orderId: string, width: string) => ({
-    ...(expandedOrderId === orderId ? tableStyles.expandedCell : tableStyles.td),
+    ...(expandedOrderId === orderId
+      ? tableStyles.expandedCell
+      : tableStyles.td),
     width,
   });
 
   return (
     <table style={tableStyles.table}>
       <thead>
-      <tr>
-        {columns.map(({ key, label, width }) => (
-          <th
-            key={key}
-            style={{ ...tableStyles.th, width }}
-            onClick={() => handleSort(key)}>
-            {label} {sort === key && (sortOrder === 'ASC' ? '↑' : '↓')}
-          </th>
-        ))}
-      </tr>
+        <tr>
+          {columns.map(({ key, label, width }) => (
+            <th
+              key={key}
+              style={{ ...tableStyles.th, width }}
+              onClick={() => handleSort(key)}>
+              {label} {sort === key && (sortOrder === 'ASC' ? '↑' : '↓')}
+            </th>
+          ))}
+        </tr>
       </thead>
       <tbody>
-      {orders.map(order => (
-        <Fragment key={order.id}>
-          <tr
-            onClick={() => dispatch(toggleExpand(order.id))}
-            style={getRowStyle(order.id)}
-          >
-            {expandedOrderId === order.id ? (
-              <td colSpan={columns.length} style={{ padding: 0 }}>
-                <div style={tableStyles.expandedRowContainer}>
-                  <div style={tableStyles.expandedRow}>
-                    {columns.map(({ key, width }) => (
-                      <div
-                        key={key}
-                        style={getCellStyle(order.id, width)}>
-                        {formatCell(key, order[key as keyof typeof order])}
-                      </div>
-                    ))}
+        {orders.map(order => (
+          <Fragment key={order.id}>
+            <tr
+              onClick={() => dispatch(toggleExpand(order.id))}
+              style={getRowStyle(order.id)}>
+              {expandedOrderId === order.id ? (
+                <td colSpan={columns.length} style={{ padding: 0 }}>
+                  <div style={tableStyles.expandedRowContainer}>
+                    <div style={tableStyles.expandedRow}>
+                      {columns.map(({ key, width }) => (
+                        <div key={key} style={getCellStyle(order.id, width)}>
+                          {formatCell(key, order[key as keyof typeof order])}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </td>
-            ) : (
-              columns.map(({ key, width }) => (
-                <td
-                  key={key}
-                  style={getCellStyle(order.id, width)}>
-                  {formatCell(key, order[key as keyof typeof order])}
                 </td>
-              ))
-            )}
-          </tr>
-          {expandedOrderId === order.id && (
-            <tr>
-              <td colSpan={columns.length} style={tableStyles.expandedTd}>
-                <OrderDetails
-                  orderId={parseInt(order.id)}
-                  commentText={commentText}
-                  currentUserId={currentUserId}
-                  token={token}
-                />
-              </td>
+              ) : (
+                columns.map(({ key, width }) => (
+                  <td key={key} style={getCellStyle(order.id, width)}>
+                    {formatCell(key, order[key as keyof typeof order])}
+                  </td>
+                ))
+              )}
             </tr>
-          )}
-        </Fragment>
-      ))}
+            {expandedOrderId === order.id && (
+              <tr>
+                <td colSpan={columns.length} style={tableStyles.expandedTd}>
+                  <OrderDetails
+                    orderId={parseInt(order.id)}
+                    commentText={commentText}
+                    currentUserId={currentUserId}
+                    token={token}
+                  />
+                </td>
+              </tr>
+            )}
+          </Fragment>
+        ))}
       </tbody>
     </table>
   );

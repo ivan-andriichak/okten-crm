@@ -45,7 +45,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
 
   useEffect(() => {
     if (token && role === 'admin') {
-      dispatch(fetchManagers({ page, limit }));
+      dispatch(
+        fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }),
+      );
     } else {
       navigate('/login');
     }
@@ -69,7 +71,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
       setFormData({ email: '', name: '', surname: '' });
       setIsModalOpen(false);
       setFormError(null);
-      dispatch(fetchManagers({ page: 1, limit }));
+      dispatch(
+        fetchManagers({ page: 1, limit, sort: 'created_at', order: 'DESC' }),
+      );
     } catch (err: any) {
       setFormError(
         err.response?.data?.messages?.[0] || 'Failed to create manager',
@@ -86,7 +90,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   const handlePageChange = (newPage: number) => {
-    dispatch(fetchManagers({ page: newPage, limit }));
+    dispatch(
+      fetchManagers({
+        page: newPage,
+        limit,
+        sort: 'created_at',
+        order: 'DESC',
+      }),
+    );
   };
 
   const handleAction = (action: string, managerId: string) => {
@@ -107,92 +118,88 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   return (
-    <div className={css.container}>
+    <>
       <Header />
-      <div>
+      <div className={css.container}>
         <Button onClick={() => setIsModalOpen(true)}>CREATE</Button>
+        <CreateManagerModal
+          isOpen={isModalOpen}
+          formData={formData}
+          formError={formError}
+          formSuccess={formSuccess}
+          onClose={closeModal}
+          onInputChange={handleInputChange}
+          onSubmit={handleSubmit}
+        />
+
+        {loading && <LoadingSpinner />}
+        {error && (
+          <p
+            style={{ color: 'red', display: 'flex', justifyContent: 'center' }}>
+            {error}
+          </p>
+        )}
+        {managers.length > 0 ? (
+          <>
+            <table className={css.table}>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Name</th>
+                  <th>Surname</th>
+                  <th>Status</th>
+                  <th>Statistics</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {managers.map(manager => (
+                  <tr key={manager.id}>
+                    <td>{manager.email}</td>
+                    <td>{manager.name}</td>
+                    <td>{manager.surname}</td>
+                    <td>{manager.is_active ? 'Active' : 'Inactive'}</td>
+                    <td>
+                      Total Orders: {manager.statistics?.totalOrders || 0},
+                      Active: {manager.statistics?.activeOrders || 0}
+                    </td>
+                    <td>
+                      {manager.is_active ? (
+                        <Button
+                          onClick={() => handleAction('recover', manager.id)}>
+                          Recover Password
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handleAction('activate', manager.id)}>
+                          Activate
+                        </Button>
+                      )}
+                      <Button onClick={() => handleAction('ban', manager.id)}>
+                        Ban
+                      </Button>
+                      <Button onClick={() => handleAction('unban', manager.id)}>
+                        Unban
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className={css.pagination}>
+              <Pagination
+                currentPage={page}
+                totalItems={total}
+                itemsPerPage={limit}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          </>
+        ) : (
+          !loading && <p className={css.noManagers}>No managers found.</p>
+        )}
       </div>
-
-      <CreateManagerModal
-        isOpen={isModalOpen}
-        formData={formData}
-        formError={formError}
-        formSuccess={formSuccess}
-        onClose={closeModal}
-        onInputChange={handleInputChange}
-        onSubmit={handleSubmit}
-      />
-
-      {loading && <LoadingSpinner />}
-      {error && <p style={{ color: 'red', display:'flex', justifyContent:'center' }}>{error}</p>}
-      {managers.length > 0 ? (
-        <>
-          <table className={css.table}>
-            <thead>
-            <tr>
-              <th>Email</th>
-              <th>Name</th>
-              <th>Surname</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {managers.map(manager => (
-              <tr key={manager.id}>
-                <td>{manager.email}</td>
-                <td>{manager.name}</td>
-                <td>{manager.surname}</td>
-                <td>{manager.is_active ? 'Active' : 'Inactive'}</td>
-                <td>
-                  {!manager.is_active && (
-                    <button
-                      className={`${css.actionButton} ${css.activateButton}`}
-                      onClick={() => handleAction('activate', manager.id)}
-                    >
-                      Activate
-                    </button>
-                  )}
-                  <Button
-                    className={`${css.actionButton} ${css.recoverButton}`}
-                    onClick={() => handleAction('recover', manager.id)}
-                  >
-                    Recover Password
-                  </Button>
-                  {manager.is_active && (
-                    <button
-                      className={`${css.actionButton} ${css.banButton}`}
-                      onClick={() => handleAction('ban', manager.id)}
-                    >
-                      Ban
-                    </button>
-                  )}
-                  {!manager.is_active && (
-                    <Button
-                      className={`${css.actionButton} ${css.unbanButton}`}
-                      onClick={() => handleAction('unban', manager.id)}
-                    >
-                      Unban
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-            </tbody>
-          </table>
-          <div className={css.pagination}>
-            <Pagination
-              currentPage={page}
-              totalItems={total}
-              itemsPerPage={limit}
-              onPageChange={handlePageChange}
-            />
-          </div>
-        </>
-      ) : (
-        !loading && <p className={css.noManagers}>No managers found.</p>
-      )}
-    </div>
+    </>
   );
 };
 

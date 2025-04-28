@@ -38,7 +38,7 @@ const fetchOrders = createAsyncThunk<
 >('orders/fetchOrders', async ({ page, filters }, { getState }) => {
   const state = getState();
   const { limit, sort, order } = state.orders;
-  const { token} = state.auth;
+  const { token } = state.auth;
 
   const params: any = {
     page,
@@ -62,10 +62,13 @@ const fetchOrders = createAsyncThunk<
     ...(filters?.manager && { manager: filters.manager }),
   };
 
-  const response = await api.get<{ orders: Order[]; total: number }>('/orders', {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
+  const response = await api.get<{ orders: Order[]; total: number }>(
+    '/orders',
+    {
+      headers: { Authorization: `Bearer ${token}` },
+      params,
+    },
+  );
 
   console.log('Fetched orders:', response.data);
   return { orders: response.data.orders, total: response.data.total };
@@ -86,9 +89,13 @@ const addGroup = createAsyncThunk<string, string, ThunkConfig>(
   'orders/addGroup',
   async (groupName, { getState }) => {
     const { token } = getState().auth;
-    const response = await api.post<GroupEntity>('/groups', { name: groupName }, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await api.post<GroupEntity>(
+      '/groups',
+      { name: groupName },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
     return response.data.name;
   },
 );
@@ -104,29 +111,39 @@ const createOrder = createAsyncThunk<Order, Partial<Order>, ThunkConfig>(
   },
 );
 
-const updateOrder = createAsyncThunk<Order, { id: string; updates: Partial<Order> }, ThunkConfig>(
-  'orders/updateOrder',
-  async (payload, { getState }) => {
-    const { token } = getState().auth;
-    const response = await api.patch<Order>(`/orders/${payload.id}/edit`, payload.updates, {
+const updateOrder = createAsyncThunk<
+  Order,
+  { id: string; updates: Partial<Order> },
+  ThunkConfig
+>('orders/updateOrder', async (payload, { getState }) => {
+  const { token } = getState().auth;
+  const response = await api.patch<Order>(
+    `/orders/${payload.id}/edit`,
+    payload.updates,
+    {
       headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  },
-);
+    },
+  );
+  return response.data;
+});
 
-const addComment = createAsyncThunk<Order, { orderId: string; commentText: string }, ThunkConfig>(
-  'orders/addComment',
-  async ({ orderId, commentText }, { getState }) => {
-    const { token } = getState().auth;
-    if (!token || !commentText) throw new Error('Token or comment text missing');
-    const response = await api.post<Order>(`/orders/${orderId}/comment`, { text: commentText }, {
+const addComment = createAsyncThunk<
+  Order,
+  { orderId: string; commentText: string },
+  ThunkConfig
+>('orders/addComment', async ({ orderId, commentText }, { getState }) => {
+  const { token } = getState().auth;
+  if (!token || !commentText) throw new Error('Token or comment text missing');
+  const response = await api.post<Order>(
+    `/orders/${orderId}/comment`,
+    { text: commentText },
+    {
       headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log('addComment response:', response.data);
-    return response.data;
-  },
-);
+    },
+  );
+  console.log('addComment response:', response.data);
+  return response.data;
+});
 
 const deleteComment = createAsyncThunk<string, string, ThunkConfig>(
   'orders/deleteComment',
@@ -254,7 +271,9 @@ const orderSlice = createSlice({
         state.loading = false;
         state.commentText = '';
         const updatedOrder = action.payload;
-        const orderIndex = state.orders.findIndex(o => o.id === updatedOrder.id);
+        const orderIndex = state.orders.findIndex(
+          o => o.id === updatedOrder.id,
+        );
         if (orderIndex !== -1) {
           state.orders[orderIndex] = updatedOrder;
         }
@@ -272,7 +291,8 @@ const orderSlice = createSlice({
         const commentId = action.payload;
         state.orders = state.orders.map(order => ({
           ...order,
-          comments: order.comments?.filter(comment => comment.id !== commentId) || [],
+          comments:
+            order.comments?.filter(comment => comment.id !== commentId) || [],
         }));
       })
       .addCase(deleteComment.rejected, (state, action) => {

@@ -35,7 +35,12 @@ const Header: React.FC = () => {
         {pathname === '/admin' ? (
           <Link to="/orders">
             <Button>
-              <img src={back} alt="back" style={{borderRadius:'50%'}} className={css.resetButton} />
+              <img
+                src={back}
+                alt="back"
+                style={{ borderRadius: '50%' }}
+                className={css.resetButton}
+              />
             </Button>
           </Link>
         ) : (

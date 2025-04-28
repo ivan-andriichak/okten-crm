@@ -8,6 +8,10 @@ export interface Manager {
   name: string;
   surname: string;
   is_active: boolean;
+  statistics?: {
+    totalOrders: number;
+    activeOrders: number;
+  };
 }
 
 export interface ManagerState {
@@ -31,23 +35,28 @@ const initialState: ManagerState = {
 interface FetchManagersParams {
   page: number;
   limit: number;
+  sort?: string;
+  order?: 'ASC' | 'DESC';
 }
 
 export const fetchManagers = createAsyncThunk<
   { managers: Manager[]; total: number },
   FetchManagersParams,
   { state: RootState }
->('managers/fetchManagers', async ({ page, limit }, { getState }) => {
-  const { token } = getState().auth;
-  const response = await api.get<{ managers: Manager[]; total: number }>(
-    '/admin/managers',
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { page, limit, sort: 'created_at', order: 'DESC' },
-    },
-  );
-  return response.data;
-});
+>(
+  'managers/fetchManagers',
+  async ({ page, limit, sort, order }, { getState }) => {
+    const { token } = getState().auth;
+    const response = await api.get<{ managers: Manager[]; total: number }>(
+      '/admin/managers',
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { page, limit, sort, order },
+      },
+    );
+    return response.data;
+  },
+);
 
 export const activateManager = createAsyncThunk<
   void,

@@ -6,7 +6,8 @@ export const tableStyles = {
     backgroundColor: '#f7f8fa',
     tableLayout: 'fixed' as const,
     color: '#605f5f',
-    boxShadow: '0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)',
+    boxShadow:
+      '0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)',
   },
   th: {
     border: '1px solid #ddd',
@@ -68,11 +69,21 @@ export const columnWidths = {
 export const columns = [
   { key: 'id', label: 'ID', sortable: true, width: columnWidths.id },
   { key: 'name', label: 'Name', sortable: true, width: columnWidths.name },
-  { key: 'surname', label: 'Surname', sortable: true, width: columnWidths.surname },
+  {
+    key: 'surname',
+    label: 'Surname',
+    sortable: true,
+    width: columnWidths.surname,
+  },
   { key: 'email', label: 'Email', sortable: true, width: columnWidths.email },
   { key: 'phone', label: 'Phone', sortable: true, width: columnWidths.phone },
   { key: 'age', label: 'Age', sortable: true, width: columnWidths.age },
-  { key: 'course', label: 'Course', sortable: false, width: columnWidths.course },
+  {
+    key: 'course',
+    label: 'Course',
+    sortable: false,
+    width: columnWidths.course,
+  },
   {
     key: 'course_format',
     label: 'Course Format',
@@ -85,7 +96,12 @@ export const columns = [
     sortable: false,
     width: columnWidths.course_type,
   },
-  { key: 'status', label: 'Status', sortable: true, width: columnWidths.status },
+  {
+    key: 'status',
+    label: 'Status',
+    sortable: true,
+    width: columnWidths.status,
+  },
   { key: 'sum', label: 'Sum', sortable: false, width: columnWidths.sum },
   {
     key: 'alreadyPaid',
@@ -100,5 +116,10 @@ export const columns = [
     sortable: true,
     width: columnWidths.created_at,
   },
-  { key: 'manager', label: 'Manager', sortable: true, width: columnWidths.manager },
+  {
+    key: 'manager',
+    label: 'Manager',
+    sortable: true,
+    width: columnWidths.manager,
+  },
 ];

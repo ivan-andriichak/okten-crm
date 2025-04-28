@@ -1,2 +1,2 @@
-export * from "./AdminPanel";
-export * from "./AdminPanel.module.css";
+export * from './AdminPanel';
+export * from './AdminPanel.module.css';

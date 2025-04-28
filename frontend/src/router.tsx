@@ -34,10 +34,8 @@ const ProtectedOrdersRoute = () => {
 const ProtectedAdminRoute = () => {
   const { token, role } = useSelector((state: RootState) => state.auth);
 
-
-
   return token && role === 'admin' ? (
-    <AdminPanel token={token} role={role}  />
+    <AdminPanel token={token} role={role} />
   ) : (
     <Navigate to="/login" replace />
   );

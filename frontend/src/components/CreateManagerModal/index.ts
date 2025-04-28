@@ -1,2 +1,2 @@
-export * from  './CreateManagerModal';
-export * from  './CreateManagerModal.module.css';
+export * from './CreateManagerModal';
+export * from './CreateManagerModal.module.css';

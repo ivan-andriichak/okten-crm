@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import debounce from 'lodash/debounce';
-import {
-  AppDispatch,
-  fetchOrders,
-  RootState,
-  setSort,
-} from '../../store';
+import { AppDispatch, fetchOrders, RootState, setSort } from '../../store';
 import { OrdersProps } from '../../interfaces/order';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import { Pagination } from '../Pagination/Pagination';
@@ -17,7 +12,7 @@ import { EditOrderModal } from '../EditOrderModal';
 import { Filters } from '../Filters';
 import Header from '../Header/Header';
 
-const Orders = ({ }: OrdersProps) => {
+const Orders = ({}: OrdersProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -135,7 +130,11 @@ const Orders = ({ }: OrdersProps) => {
       />
 
       {loading && <LoadingSpinner />}
-      {error && <p style={{ color: 'red', display:'flex', justifyContent:'center' }}>{error}</p>}
+      {error && (
+        <p style={{ color: 'red', display: 'flex', justifyContent: 'center' }}>
+          {error}
+        </p>
+      )}
       {orders.length > 0 ? (
         <OrderTable
           orders={orders}
