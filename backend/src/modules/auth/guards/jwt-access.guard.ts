@@ -18,31 +18,43 @@ export class JwtAccessGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Перевіряємо, чи маршрут позначений як публічний через @Public()
+    const request = context.switchToHttp().getRequest();
+    const route = `${request.method} ${request.url}`;
+    console.log(`JwtAccessGuard: Processing route: ${route}`); // Логування маршруту
+
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
+    console.log(`JwtAccessGuard: isPublic: ${isPublic}`); // Логування
 
     if (isPublic) {
-      return true; // Пропускаємо перевірку для публічних маршрутів
-    }
-
-    // Перевіряємо SKIP_AUTH (залишаємо для сумісності з іншими частинами коду)
-    const skipAuth = this.reflector.getAllAndOverride<boolean>('SKIP_AUTH', [context.getHandler(), context.getClass()]);
-    if (skipAuth) {
+      console.log(`JwtAccessGuard: Route is public, allowing access`);
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const skipAuth = this.reflector.getAllAndOverride<boolean>('SKIP_AUTH', [context.getHandler(), context.getClass()]);
+    console.log(`JwtAccessGuard: skipAuth: ${skipAuth}`); // Логування
+
+    if (skipAuth) {
+      console.log(`JwtAccessGuard: Auth skipped, allowing access`);
+      return true;
+    }
+
     const accessToken = request.get('Authorization')?.split('Bearer ')[1];
+    console.log(`JwtAccessGuard: accessToken: ${accessToken ? 'present' : 'missing'}`); // Логування
+
     if (!accessToken) {
-      throw new UnauthorizedException();
+      console.error(`JwtAccessGuard: No access token provided for ${route}`);
+      throw new UnauthorizedException('No access token provided');
     }
 
     const payload = await this.tokenService.verifyToken(accessToken, TokenType.ACCESS);
+    console.log(`JwtAccessGuard: payload: ${JSON.stringify(payload)}`); // Логування
+
     if (!payload) {
-      throw new UnauthorizedException();
+      console.error(`JwtAccessGuard: Invalid token for ${route}`);
+      throw new UnauthorizedException('Invalid token');
     }
 
     const isAccessTokenExist = await this.authCacheService.isAccessTokenExist(
@@ -50,23 +62,30 @@ export class JwtAccessGuard implements CanActivate {
       payload.deviceId,
       accessToken,
     );
+    console.log(`JwtAccessGuard: isAccessTokenExist: ${isAccessTokenExist}`); // Логування
+
     if (!isAccessTokenExist) {
-      throw new UnauthorizedException();
+      console.error(`JwtAccessGuard: Access token not found in cache for ${route}`, {
+        userId: payload.userId,
+        deviceId: payload.deviceId,
+      });
+      throw new UnauthorizedException('Access token not found in cache');
     }
 
-    const user = await this.userRepository.findOneBy({
-      id: payload.userId,
-    });
+    const user = await this.userRepository.findOneBy({ id: payload.userId });
+    console.log(
+      `JwtAccessGuard: user: ${
+        user ? JSON.stringify({ id: user.id, email: user.email, role: user.role }) : 'not found'
+      }`,
+    );
+
     if (!user) {
-      throw new UnauthorizedException();
+      console.error(`JwtAccessGuard: User not found for ID: ${payload.userId} for ${route}`);
+      throw new UnauthorizedException('User not found');
     }
 
     request.user = UserMapper.toIUserData(user, payload);
+    console.log(`JwtAccessGuard: request.user set: ${JSON.stringify(request.user)}`); // Логування
     return true;
-  }
-
-  async validate(payload: any): Promise<any> {
-    console.log('JWT payload:', payload);
-    return payload;
   }
 }

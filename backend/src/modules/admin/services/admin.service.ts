@@ -4,8 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Role } from '../../../common/enums/role.enum';
 import { UserEntity } from '../../../database/entities/user.entity';
-import { RegisterReqDto } from '../../auth/dto/req/register.req.dto'; // Додаємо DTO
-import { AuthService } from '../../auth/services/auth.service'; // Додаємо AuthService
+import { RegisterReqDto } from '../../auth/dto/req/register.req.dto';
+import { AuthService } from '../../auth/services/auth.service';
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { RegisterAdminReqDto } from '../dto/req/register-admin.req.dto';
@@ -20,7 +20,7 @@ export class AdminService {
 
   async createManager(dto: RegisterAdminReqDto): Promise<UserEntity> {
     const token = uuidv4();
-    const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 години
+    const tokenExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 хвилин (згідно з фронтендом)
 
     const existingUser = await this.userRepository.findOne({ where: { email: dto.email } });
     if (existingUser) {
@@ -31,14 +31,13 @@ export class AdminService {
       email: dto.email,
       name: dto.name,
       surname: dto.surname,
-      password: token, // Тимчасовий пароль = token, буде замінений при set-password
-      deviceId: `manager-${token}`, // Унікальний deviceId
+      password: token, // Тимчасовий пароль = token
+      deviceId: `manager-${token}`,
       role: Role.MANAGER,
     };
 
     const authResult = await this.authService.register(registerDto);
 
-    // Оновлюємо користувача з passwordResetToken і is_active: false
     const user = await this.userRepository.findOne({ where: { id: authResult.user.id } });
     user.is_active = false;
     user.passwordResetToken = token;
@@ -46,6 +45,41 @@ export class AdminService {
     await this.userRepository.save(user);
 
     return user;
+  }
+
+  async generateActivationOrRecoveryLink(id: string, type: 'activate' | 'recover'): Promise<{ link: string }> {
+    const manager = await this.userRepository.findOne({ where: { id, role: Role.MANAGER } });
+    if (!manager) {
+      throw new NotFoundException(`Manager with ID ${id} not found`);
+    }
+
+    const token = uuidv4();
+    const tokenExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 хвилин
+    manager.passwordResetToken = token;
+    manager.passwordResetExpires = tokenExpires;
+    await this.userRepository.save(manager);
+
+    const baseUrl = type === 'activate' ? 'https://bigbird.space/activate/' : 'http://bigbird.space/recover/';
+    const link = `${baseUrl}${token}`;
+    return { link };
+  }
+
+  async banManager(id: string): Promise<UserEntity> {
+    const manager = await this.userRepository.findOne({ where: { id, role: Role.MANAGER } });
+    if (!manager) {
+      throw new NotFoundException(`Manager with ID ${id} not found`);
+    }
+    manager.is_active = false;
+    return await this.userRepository.save(manager);
+  }
+
+  async unbanManager(id: string): Promise<UserEntity> {
+    const manager = await this.userRepository.findOne({ where: { id, role: Role.MANAGER } });
+    if (!manager) {
+      throw new NotFoundException(`Manager with ID ${id} not found`);
+    }
+    manager.is_active = true;
+    return await this.userRepository.save(manager);
   }
 
   async setPassword(token: string, password: string): Promise<void> {
@@ -63,32 +97,39 @@ export class AdminService {
     await this.userRepository.save(manager);
   }
 
-  async getManagers(page: number = 1, limit: number = 2): Promise<[UserEntity[], number]> {
-    return await this.userRepository.findAndCount({
+  async getManagers(
+    page: number = 1,
+    limit: number = 2,
+    sort: string = 'created_at',
+    order: 'ASC' | 'DESC' = 'DESC',
+  ): Promise<{ managers: UserEntity[]; total: number }> {
+    const [managers, total] = await this.userRepository.findAndCount({
       where: { role: Role.MANAGER },
-      select: ['id', 'email', 'name', 'surname', 'is_active', 'last_login'],
+      select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at'],
+      order: { [sort]: order },
       skip: (page - 1) * limit,
       take: limit,
     });
-  }
 
-  async toggleManagerStatus(id: string): Promise<UserEntity> {
-    const manager = await this.userRepository.findOne({ where: { id, role: Role.MANAGER } });
-    if (!manager) {
-      throw new NotFoundException(`Manager with ID ${id} not found`);
-    }
-    manager.is_active = !manager.is_active;
-    return await this.userRepository.save(manager);
+    // Додаємо статистику для кожного менеджера
+    const managersWithStats = await Promise.all(
+      managers.map(async (manager) => {
+        const stats = await this.getManagerStatistics(manager.id);
+        return {
+          ...manager,
+          statistics: {
+            totalOrders: Object.values(stats).reduce((sum, count) => sum + count, 0),
+            activeOrders: stats['New'] + stats['In Work'],
+          },
+        };
+      }),
+    );
+
+    return { managers: managersWithStats, total };
   }
 
   async getOrderStatistics(): Promise<Record<string, number>> {
-    const statuses = ['New', 'In Work', 'Completed', 'Cancelled'];
-    const stats: Record<string, number> = {};
-    for (const status of statuses) {
-      const count = await this.ordersRepository.count({ where: { status } });
-      stats[status] = count;
-    }
-    return stats;
+    return await this.getStatistics();
   }
 
   async getManagerStatistics(managerId: string): Promise<Record<string, number>> {
@@ -96,12 +137,14 @@ export class AdminService {
     if (!manager) {
       throw new NotFoundException(`Manager with ID ${managerId} not found`);
     }
-    const statuses = ['New', 'In Work', 'Completed', 'Cancelled'];
+    return await this.getStatistics({ manager: { id: managerId } });
+  }
+
+  private async getStatistics(whereCondition: Record<string, any> = {}): Promise<Record<string, number>> {
+    const statuses = ['New', 'InWork', 'Agree', 'Disagree', 'Dubbing'];
     const stats: Record<string, number> = {};
     for (const status of statuses) {
-      const count = await this.ordersRepository.count({
-        where: { manager: { id: managerId }, status },
-      });
+      const count = await this.ordersRepository.count({ where: { ...whereCondition, status } });
       stats[status] = count;
     }
     return stats;

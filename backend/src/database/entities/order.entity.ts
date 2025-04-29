@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { CourseEnum, CourseFormatEnum, CourseTypeEnum } from '../../modules/orders/enums/order.enums';
+import { CourseEnum, CourseFormatEnum, CourseTypeEnum, StatusEnum } from '../../modules/orders/enums/order.enums';
 import { CommentEntity } from './comment.entity';
 import { TableNameEnum } from './enums/table-name.enum';
 import { GroupEntity } from './group.entity';
@@ -50,7 +50,7 @@ export class OrderEntity {
   @Column({ type: 'enum', enum: CourseTypeEnum, default: 'minimal' })
   course_type: string;
 
-  @Column({ type: 'varchar', length: 15, nullable: true })
+  @Column({ type: 'enum', enum: StatusEnum, default: 'New' })
   status: string;
 
   @Column('int', { nullable: true })

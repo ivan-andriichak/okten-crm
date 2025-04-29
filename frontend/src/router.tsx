@@ -7,7 +7,7 @@ import { Orders } from './components/Orders';
 import { PublicOrderForm } from './components/PublicOrderForm';
 import { Login } from './components/Login';
 import AdminPanel from './components/AdminPanel/AdminPanel';
-// import { ActivateAccount } from './components/ActivateAccount/ActivateAccount'; // Буде додано пізніше
+import SetPassword from './components/SetPassword/SetPassword';
 
 const ProtectedOrdersRoute = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,6 +33,7 @@ const ProtectedOrdersRoute = () => {
 
 const ProtectedAdminRoute = () => {
   const { token, role } = useSelector((state: RootState) => state.auth);
+  console.log('ProtectedAdminRoute:', { token, role });
 
   return token && role === 'admin' ? (
     <AdminPanel token={token} role={role} />
@@ -58,11 +59,16 @@ const router = createBrowserRouter([
     element: <PublicOrderForm />,
     errorElement: <ErrorPage />,
   },
-  // {
-  //   path: '/activate/:token',
-  //   element: <ActivateAccount />,
-  //   errorElement: <ErrorPage />,
-  // }, // Буде додано пізніше
+  {
+    path: '/activate/:token',
+    element: <SetPassword />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/recover/:token',
+    element: <SetPassword />,
+    errorElement: <ErrorPage />,
+  },
 ]);
 
 export { router };

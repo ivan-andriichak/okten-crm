@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { api } from '../../services/api';
-import { RootState } from '../store';
+import { AppDispatch, RootState } from '../store';
 
 export interface Manager {
   id: string;
@@ -21,6 +21,13 @@ export interface ManagerState {
   error: string | null;
   page: number;
   limit: number;
+  overallStats: {
+    New: number;
+    InWork: number;
+    Agree: number;
+    Disagree: number;
+    Dubbing: number;
+  };
 }
 
 const initialState: ManagerState = {
@@ -30,6 +37,13 @@ const initialState: ManagerState = {
   error: null,
   page: 1,
   limit: 2,
+  overallStats: {
+    New: 0,
+    InWork: 0,
+    Agree: 0,
+    Disagree: 0,
+    Dubbing: 0,
+  },
 };
 
 interface FetchManagersParams {
@@ -39,75 +53,166 @@ interface FetchManagersParams {
   order?: 'ASC' | 'DESC';
 }
 
+interface CreateManagerParams {
+  email: string;
+  name: string;
+  surname: string;
+}
+
 export const fetchManagers = createAsyncThunk<
   { managers: Manager[]; total: number },
   FetchManagersParams,
   { state: RootState }
->(
-  'managers/fetchManagers',
-  async ({ page, limit, sort, order }, { getState }) => {
-    const { token } = getState().auth;
-    const response = await api.get<{ managers: Manager[]; total: number }>(
-      '/admin/managers',
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { page, limit, sort, order },
+>('managers/fetchManagers', async ({ page, limit, sort, order }, { getState }) => {
+  const { token } = getState().auth;
+  console.log('fetchManagers: Token:', token);
+  if (!token) {
+    throw new Error('No token available');
+  }
+  const response = await api.get<{ managers: Manager[]; total: number }>(
+    '/admin/managers',
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
-    return response.data;
-  },
-);
+      params: { page, limit, sort, order },
+    },
+  );
+  return response.data;
+});
+
+export const fetchOverallStats = createAsyncThunk<
+  { New: number; InWork: number; Agree: number; Disagree: number; Dubbing: number },
+  void,
+  { state: RootState }
+>('managers/fetchOverallStats', async (_, { getState }) => {
+  const { token } = getState().auth;
+  console.log('fetchOverallStats: Token:', token);
+  if (!token) {
+    throw new Error('No token available');
+  }
+  const response = await api.get('/admin/orders/stats', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+});
+
+export const createManager = createAsyncThunk<
+  void,
+  CreateManagerParams,
+  { state: RootState; dispatch: AppDispatch }
+>('managers/createManager', async (formData, { getState, dispatch }) => {
+  const { token } = getState().auth;
+  console.log('createManager: Token:', token);
+  if (!token) {
+    throw new Error('No token available');
+  }
+  await api.post('/admin/managers', formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  dispatch(fetchManagers({ page: 1, limit: getState().managers.limit, sort: 'created_at', order: 'DESC' }));
+  dispatch(fetchOverallStats());
+});
 
 export const activateManager = createAsyncThunk<
-  void,
+  { link: string },
   string,
-  { state: RootState }
->('managers/activateManager', async (managerId, { getState }) => {
+  { state: RootState; dispatch: AppDispatch }
+>('managers/activateManager', async (managerId, { getState, dispatch }) => {
   const { token } = getState().auth;
-  await api.post(
+  console.log('activateManager: Token:', token);
+  if (!token) {
+    throw new Error('No token available');
+  }
+  const response = await api.post(
     `/admin/managers/${managerId}/activate`,
     {},
     {
       headers: { Authorization: `Bearer ${token}` },
     },
   );
+  dispatch(
+    fetchManagers({
+      page: getState().managers.page,
+      limit: getState().managers.limit,
+      sort: 'created_at',
+      order: 'DESC',
+    }),
+  );
+  dispatch(fetchOverallStats());
+  return response.data;
 });
 
 export const recoverPassword = createAsyncThunk<
-  void,
+  { link: string },
   string,
-  { state: RootState }
->('managers/recoverPassword', async (managerId, { getState }) => {
+  { state: RootState; dispatch: AppDispatch }
+>('managers/recoverPassword', async (managerId, { getState, dispatch }) => {
   const { token } = getState().auth;
-  await api.post(
+  console.log('recoverPassword: Token:', token);
+  if (!token) {
+    throw new Error('No token available');
+  }
+  const response = await api.post(
     `/admin/managers/${managerId}/recover`,
     {},
     {
       headers: { Authorization: `Bearer ${token}` },
     },
   );
+  dispatch(
+    fetchManagers({
+      page: getState().managers.page,
+      limit: getState().managers.limit,
+      sort: 'created_at',
+      order: 'DESC',
+    }),
+  );
+  dispatch(fetchOverallStats());
+  return response.data;
 });
 
-export const banManager = createAsyncThunk<void, string, { state: RootState }>(
-  'managers/banManager',
-  async (managerId, { getState }) => {
-    const { token } = getState().auth;
-    await api.post(
-      `/admin/managers/${managerId}/ban`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-  },
-);
+export const banManager = createAsyncThunk<
+  void,
+  string,
+  { state: RootState; dispatch: AppDispatch }
+>('managers/banManager', async (managerId, { getState, dispatch }) => {
+  const { token } = getState().auth;
+  console.log('banManager: Token:', token);
+  if (!token) {
+    throw new Error('No token available');
+  }
+  await api.post(
+    `/admin/managers/${managerId}/ban`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  dispatch(
+    fetchManagers({
+      page: getState().managers.page,
+      limit: getState().managers.limit,
+      sort: 'created_at',
+      order: 'DESC',
+    }),
+  );
+  dispatch(fetchOverallStats());
+});
 
 export const unbanManager = createAsyncThunk<
   void,
   string,
-  { state: RootState }
->('managers/unbanManager', async (managerId, { getState }) => {
+  { state: RootState; dispatch: AppDispatch }
+>('managers/unbanManager', async (managerId, { getState, dispatch }) => {
   const { token } = getState().auth;
+  console.log('unbanManager: Token:', token);
+  if (!token) {
+    throw new Error('No token available');
+  }
   await api.post(
     `/admin/managers/${managerId}/unban`,
     {},
@@ -115,6 +220,15 @@ export const unbanManager = createAsyncThunk<
       headers: { Authorization: `Bearer ${token}` },
     },
   );
+  dispatch(
+    fetchManagers({
+      page: getState().managers.page,
+      limit: getState().managers.limit,
+      sort: 'created_at',
+      order: 'DESC',
+    }),
+  );
+  dispatch(fetchOverallStats());
 });
 
 const managerSlice = createSlice({
@@ -137,16 +251,35 @@ const managerSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch managers';
       })
+      .addCase(fetchOverallStats.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchOverallStats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.overallStats = action.payload;
+      })
+      .addCase(fetchOverallStats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch overall stats';
+      })
+      .addCase(createManager.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createManager.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(createManager.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to create manager';
+      })
       .addCase(activateManager.pending, state => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(activateManager.fulfilled, (state, action) => {
+      .addCase(activateManager.fulfilled, state => {
         state.loading = false;
-        const managerId = action.meta.arg;
-        state.managers = state.managers.map(manager =>
-          manager.id === managerId ? { ...manager, is_active: true } : manager,
-        );
       })
       .addCase(activateManager.rejected, (state, action) => {
         state.loading = false;
@@ -167,12 +300,8 @@ const managerSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(banManager.fulfilled, (state, action) => {
+      .addCase(banManager.fulfilled, state => {
         state.loading = false;
-        const managerId = action.meta.arg;
-        state.managers = state.managers.map(manager =>
-          manager.id === managerId ? { ...manager, is_active: false } : manager,
-        );
       })
       .addCase(banManager.rejected, (state, action) => {
         state.loading = false;
@@ -182,12 +311,8 @@ const managerSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(unbanManager.fulfilled, (state, action) => {
+      .addCase(unbanManager.fulfilled, state => {
         state.loading = false;
-        const managerId = action.meta.arg;
-        state.managers = state.managers.map(manager =>
-          manager.id === managerId ? { ...manager, is_active: true } : manager,
-        );
       })
       .addCase(unbanManager.rejected, (state, action) => {
         state.loading = false;

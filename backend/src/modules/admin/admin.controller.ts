@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -13,29 +13,51 @@ import { AdminService } from './services/admin.service';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Roles(Role.ADMIN)
   @Post('managers')
-  // @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'Manager created', type: UserEntity })
   async createManager(@Body() dto: RegisterAdminReqDto): Promise<UserEntity> {
     return await this.adminService.createManager(dto);
   }
 
+  @Roles(Role.ADMIN)
   @Get('managers')
-  // @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'List of managers with pagination' })
   async getManagers(
     @Query('page') page: number = 1,
-    @Query('limit') limit: number = 25,
+    @Query('limit') limit: number = 2,
+    @Query('sort') sort: string = 'created_at',
+    @Query('order') order: 'ASC' | 'DESC' = 'DESC',
   ): Promise<{ managers: UserEntity[]; total: number }> {
-    const [managers, total] = await this.adminService.getManagers(page, limit);
-    return { managers, total };
+    return await this.adminService.getManagers(page, limit, sort, order);
   }
 
-  @Patch('managers/:id')
   @Roles(Role.ADMIN)
-  @ApiOkResponse({ description: 'Manager status toggled', type: UserEntity })
-  async toggleManagerStatus(@Param('id') id: string): Promise<UserEntity> {
-    return await this.adminService.toggleManagerStatus(id);
+  @Post('managers/:id/activate')
+  @ApiOkResponse({ description: 'Activation link generated' })
+  async activateManager(@Param('id') id: string): Promise<{ link: string }> {
+    return await this.adminService.generateActivationLink(id);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('managers/:id/recover')
+  @ApiOkResponse({ description: 'Recovery link generated' })
+  async recoverPassword(@Param('id') id: string): Promise<{ link: string }> {
+    return await this.adminService.generateRecoveryLink(id);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('managers/:id/ban')
+  @ApiOkResponse({ description: 'Manager banned', type: UserEntity })
+  async banManager(@Param('id') id: string): Promise<UserEntity> {
+    return await this.adminService.banManager(id);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('managers/:id/unban')
+  @ApiOkResponse({ description: 'Manager unbanned', type: UserEntity })
+  async unbanManager(@Param('id') id: string): Promise<UserEntity> {
+    return await this.adminService.unbanManager(id);
   }
 
   @Post('set-password/:token')
@@ -44,15 +66,15 @@ export class AdminController {
     await this.adminService.setPassword(token, data.password);
   }
 
-  @Get('statistics')
   @Roles(Role.ADMIN)
+  @Get('orders/stats')
   @ApiOkResponse({ description: 'Order statistics by status' })
   async getOrderStatistics(): Promise<Record<string, number>> {
     return await this.adminService.getOrderStatistics();
   }
 
-  @Get('managers/:id/statistics')
   @Roles(Role.ADMIN)
+  @Get('managers/:id/statistics')
   @ApiOkResponse({ description: 'Manager statistics by status' })
   async getManagerStatistics(@Param('id') id: string): Promise<Record<string, number>> {
     return await this.adminService.getManagerStatistics(id);

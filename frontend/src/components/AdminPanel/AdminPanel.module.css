@@ -42,6 +42,13 @@
   color: #333;
 }
 
+.stats {
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
