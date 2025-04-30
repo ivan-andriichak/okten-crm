@@ -2,7 +2,6 @@ import { forwardRef, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 
-import { RolesGuard } from '../../common/guards/roles.guard';
 import { RedisModule } from '../redis/redis.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
@@ -18,10 +17,6 @@ import { TokenService } from './services/token.service';
     {
       provide: APP_GUARD,
       useClass: JwtAccessGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
     },
     AuthService,
     TokenService,

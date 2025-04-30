@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
+import { MoreThan } from 'typeorm';
 
 import { Role } from '../../../common/enums/role.enum';
 import { UserEntity } from '../../../database/entities/user.entity';
-import { RegisterReqDto } from '../../auth/dto/req/register.req.dto';
-import { AuthService } from '../../auth/services/auth.service';
+import { LoggerService } from '../../logger/logger.service';
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { RegisterAdminReqDto } from '../dto/req/register-admin.req.dto';
@@ -15,94 +16,100 @@ export class AdminService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly ordersRepository: OrdersRepository,
-    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly logger: LoggerService,
   ) {}
 
   async createManager(dto: RegisterAdminReqDto): Promise<UserEntity> {
-    const token = uuidv4();
-    const tokenExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 хвилин (згідно з фронтендом)
+    this.logger.log(`Creating manager with email: ${dto.email}`);
+    try {
+      this.logger.log(`Checking for existing user with email: ${dto.email}`);
+      const existingUser = await this.userRepository.findOne({ where: { email: dto.email } });
+      if (existingUser) {
+        this.logger.warn(`User with email ${dto.email} already exists`);
+        throw new BadRequestException(`Користувач з email ${dto.email} вже існує`);
+      }
 
-    const existingUser = await this.userRepository.findOne({ where: { email: dto.email } });
-    if (existingUser) {
-      throw new NotFoundException(`User with email ${dto.email} already exists`);
+      this.logger.log(`Creating new manager: ${JSON.stringify(dto)}`);
+      const user = await this.userRepository.save(
+        this.userRepository.create({
+          email: dto.email,
+          name: dto.name,
+          surname: dto.surname,
+          role: Role.MANAGER,
+          is_active: false,
+        }),
+      );
+      this.logger.log(`Manager created successfully: ${user.id}`);
+      return user;
+    } catch (error) {
+      this.logger.error(`Failed to create manager: ${error.message}`, error.stack);
+      throw error;
     }
-
-    const registerDto: RegisterReqDto = {
-      email: dto.email,
-      name: dto.name,
-      surname: dto.surname,
-      password: token, // Тимчасовий пароль = token
-      deviceId: `manager-${token}`,
-      role: Role.MANAGER,
-    };
-
-    const authResult = await this.authService.register(registerDto);
-
-    const user = await this.userRepository.findOne({ where: { id: authResult.user.id } });
-    user.is_active = false;
-    user.passwordResetToken = token;
-    user.passwordResetExpires = tokenExpires;
-    await this.userRepository.save(user);
-
-    return user;
   }
 
   async generateActivationOrRecoveryLink(id: string, type: 'activate' | 'recover'): Promise<{ link: string }> {
-    const manager = await this.userRepository.findOne({ where: { id, role: Role.MANAGER } });
-    if (!manager) {
-      throw new NotFoundException(`Manager with ID ${id} not found`);
-    }
-
-    const token = uuidv4();
-    const tokenExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 хвилин
-    manager.passwordResetToken = token;
-    manager.passwordResetExpires = tokenExpires;
-    await this.userRepository.save(manager);
-
-    const baseUrl = type === 'activate' ? 'https://bigbird.space/activate/' : 'http://bigbird.space/recover/';
-    const link = `${baseUrl}${token}`;
+    this.logger.log(`Generating ${type} link for user: ${id}`);
+    const token = this.jwtService.sign({ userId: id, type }, { expiresIn: '30m' });
+    await this.userRepository.update(id, {
+      passwordResetToken: token,
+      passwordResetExpires: new Date(Date.now() + 30 * 60 * 1000), // 30 minutes
+    });
+    const link = `${this.configService.get('APP_URL')}/${type}/${token}`;
+    this.logger.log(`Generated link: ${link}`);
     return { link };
   }
 
-  async banManager(id: string): Promise<UserEntity> {
-    const manager = await this.userRepository.findOne({ where: { id, role: Role.MANAGER } });
-    if (!manager) {
-      throw new NotFoundException(`Manager with ID ${id} not found`);
+  async setPassword(token: string, password: string): Promise<void> {
+    this.logger.log(`Setting password for token: ${token}`);
+    let payload: { userId: any };
+    try {
+      payload = this.jwtService.verify(token);
+    } catch {
+      throw new BadRequestException('Invalid or expired token');
     }
-    manager.is_active = false;
-    return await this.userRepository.save(manager);
+    const user = await this.userRepository.findOneByOrFail({
+      id: payload.userId,
+      passwordResetToken: token,
+      passwordResetExpires: MoreThan(new Date()),
+    });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await this.userRepository.update(user.id, {
+      password: hashedPassword,
+      is_active: true,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    });
+    this.logger.log(`Password set for user: ${user.id}`);
+  }
+
+  async banManager(id: string): Promise<UserEntity> {
+    this.logger.log(`Banning manager: ${id}`);
+    return await this.setActiveStatus(id, false);
   }
 
   async unbanManager(id: string): Promise<UserEntity> {
-    const manager = await this.userRepository.findOne({ where: { id, role: Role.MANAGER } });
-    if (!manager) {
-      throw new NotFoundException(`Manager with ID ${id} not found`);
-    }
-    manager.is_active = true;
-    return await this.userRepository.save(manager);
+    this.logger.log(`Unbanning manager: ${id}`);
+    return await this.setActiveStatus(id, true);
   }
 
-  async setPassword(token: string, password: string): Promise<void> {
-    const manager = await this.userRepository.findOne({
-      where: { passwordResetToken: token },
-    });
-    if (!manager || (manager.passwordResetExpires && manager.passwordResetExpires < new Date())) {
-      throw new NotFoundException('Invalid or expired token');
+  private async setActiveStatus(id: string, isActive: boolean): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({ where: { id, role: Role.MANAGER } });
+    if (!user) {
+      throw new NotFoundException(`Менеджера з ID ${id} не знайдено`);
     }
-
-    manager.password = await bcrypt.hash(password, 10);
-    manager.passwordResetToken = null;
-    manager.passwordResetExpires = null;
-    manager.is_active = true;
-    await this.userRepository.save(manager);
+    user.is_active = isActive;
+    return await this.userRepository.save(user);
   }
 
   async getManagers(
-    page: number = 1,
-    limit: number = 2,
-    sort: string = 'created_at',
+    page = 1,
+    limit = 12, // Змінено на 12 відповідно до вимог
+    sort = 'created_at',
     order: 'ASC' | 'DESC' = 'DESC',
-  ): Promise<{ managers: UserEntity[]; total: number }> {
+  ): Promise<{ managers: any[]; total: number }> {
+    this.logger.log(`Fetching managers: page=${page}, limit=${limit}, sort=${sort}, order=${order}`);
     const [managers, total] = await this.userRepository.findAndCount({
       where: { role: Role.MANAGER },
       select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at'],
@@ -111,15 +118,14 @@ export class AdminService {
       take: limit,
     });
 
-    // Додаємо статистику для кожного менеджера
     const managersWithStats = await Promise.all(
       managers.map(async (manager) => {
         const stats = await this.getManagerStatistics(manager.id);
         return {
           ...manager,
           statistics: {
-            totalOrders: Object.values(stats).reduce((sum, count) => sum + count, 0),
-            activeOrders: stats['New'] + stats['In Work'],
+            totalOrders: Object.values(stats).reduce((a, b) => a + b, 0),
+            activeOrders: (stats['New'] || 0) + (stats['In work'] || 0),
           },
         };
       }),
@@ -129,24 +135,25 @@ export class AdminService {
   }
 
   async getOrderStatistics(): Promise<Record<string, number>> {
+    this.logger.log(`Fetching order statistics`);
     return await this.getStatistics();
   }
 
   async getManagerStatistics(managerId: string): Promise<Record<string, number>> {
+    this.logger.log(`Fetching statistics for manager: ${managerId}`);
     const manager = await this.userRepository.findOne({ where: { id: managerId, role: Role.MANAGER } });
     if (!manager) {
-      throw new NotFoundException(`Manager with ID ${managerId} not found`);
+      throw new NotFoundException(`Менеджера з ID ${managerId} не знайдено`);
     }
     return await this.getStatistics({ manager: { id: managerId } });
   }
 
-  private async getStatistics(whereCondition: Record<string, any> = {}): Promise<Record<string, number>> {
-    const statuses = ['New', 'InWork', 'Agree', 'Disagree', 'Dubbing'];
-    const stats: Record<string, number> = {};
+  private async getStatistics(where: Record<string, any> = {}): Promise<Record<string, number>> {
+    const statuses = ['New', 'In work', 'Agree', 'Disagree', 'Dubbing'];
+    const result: Record<string, number> = {};
     for (const status of statuses) {
-      const count = await this.ordersRepository.count({ where: { ...whereCondition, status } });
-      stats[status] = count;
+      result[status] = await this.ordersRepository.count({ where: { ...where, status } });
     }
-    return stats;
+    return result;
   }
 }

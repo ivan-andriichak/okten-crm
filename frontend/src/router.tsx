@@ -69,6 +69,11 @@ const router = createBrowserRouter([
     element: <SetPassword />,
     errorElement: <ErrorPage />,
   },
+  {
+    path: '/set-password/:token',
+    element: <SetPassword />,
+    errorElement: <ErrorPage />,
+  },
 ]);
 
 export { router };

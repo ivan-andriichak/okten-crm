@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER } from '@nestjs/core';
 import { SentryModule } from '@sentry/nestjs/setup';
 
-import { RolesGuard } from './common/guards/roles.guard';
 import { GlobalExceptionFilter } from './common/http/global-exception.filter';
 import configuration from './config/configuration';
 import { AdminModule } from './modules/admin/admin.module';
@@ -39,10 +38,6 @@ import { UsersModule } from './modules/users/users.module';
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
     },
   ],
 })

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { api } from '../../services/api';
 import Button from '../Button/Button';
 import css from './SetPassword.module.css';
 
-const SetPassword: React.FC = () => {
+const SetPassword: FC = () => {
   const { token } = useParams<{ token: string }>();
   const location = useLocation();
   const [password, setPassword] = useState('');
