@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { OrderEntity } from '../../database/entities/order.entity';
+import { UserEntity } from '../../database/entities/user.entity';
+import { AuthModule } from '../auth/auth.module';
 import { LoggerService } from '../logger/logger.service';
 import { RedisModule } from '../redis/redis.module';
 import { OrdersRepository } from '../repository/services/orders.repository';
@@ -13,6 +16,7 @@ import { AdminService } from './services/admin.service';
 @Module({
   imports: [
     ConfigModule,
+    AuthModule,
     JwtModule.registerAsync({
       imports: [ConfigModule, RedisModule],
       useFactory: async (configService: ConfigService) => ({
@@ -21,7 +25,7 @@ import { AdminService } from './services/admin.service';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([UserRepository, OrdersRepository]),
+    TypeOrmModule.forFeature([UserRepository, OrdersRepository, UserEntity, OrderEntity]),
   ],
   controllers: [AdminController],
   providers: [AdminService, LoggerService],
