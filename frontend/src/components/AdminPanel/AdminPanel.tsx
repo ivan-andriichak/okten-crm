@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch, RootState } from '../../store';
@@ -29,12 +29,11 @@ interface AdminPanelProps {
   role: 'admin' | 'manager';
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
+const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { managers, total, loading, error, page, limit, overallStats } = useSelector(
-    (state: RootState) => state.managers,
-  );
+  const { managers, total, loading, error, page, limit, overallStats } =
+    useSelector((state: RootState) => state.managers);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<ManagerFormData>({
     email: '',
@@ -46,7 +45,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
 
   useEffect(() => {
     if (token && role === 'admin') {
-      dispatch(fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }));
+      dispatch(
+        fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }),
+      );
       dispatch(fetchOverallStats());
     } else {
       navigate('/login');
@@ -80,7 +81,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   const handlePageChange = (newPage: number) => {
-    dispatch(fetchManagers({ page: newPage, limit, sort: 'created_at', order: 'DESC' }));
+    dispatch(
+      fetchManagers({
+        page: newPage,
+        limit,
+        sort: 'created_at',
+        order: 'DESC',
+      }),
+    );
   };
 
   const handleAction = async (action: string, managerId: string) => {
@@ -142,7 +150,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
 
         {loading && <LoadingSpinner />}
         {error && (
-          <p style={{ color: 'red', display: 'flex', justifyContent: 'center' }}>
+          <p
+            style={{ color: 'red', display: 'flex', justifyContent: 'center' }}>
             {error}
           </p>
         )}
@@ -150,59 +159,55 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ token, role }) => {
           <>
             <table className={css.table}>
               <thead>
-              <tr>
-                <th>Email</th>
-                <th>Name</th>
-                <th>Surname</th>
-                <th>Status</th>
-                <th>Statistics</th>
-                <th>Actions</th>
-              </tr>
+                <tr>
+                  <th>Email</th>
+                  <th>Name</th>
+                  <th>Surname</th>
+                  <th>Status</th>
+                  <th>Statistics</th>
+                  <th>Actions</th>
+                </tr>
               </thead>
               <tbody>
-              {managers.map(manager => (
-                <tr key={manager.id}>
-                  <td>{manager.email}</td>
-                  <td>{manager.name}</td>
-                  <td>{manager.surname}</td>
-                  <td>{manager.is_active ? 'Active' : 'Inactive'}</td>
-                  <td>
-                    Total Orders: {manager.statistics?.totalOrders || 0}, Active:{' '}
-                    {manager.statistics?.activeOrders || 0}
-                  </td>
-                  <td>
-                    {manager.is_active ? (
+                {managers.map(manager => (
+                  <tr key={manager.id}>
+                    <td>{manager.email}</td>
+                    <td>{manager.name}</td>
+                    <td>{manager.surname}</td>
+                    <td>{manager.is_active ? 'Active' : 'Inactive'}</td>
+                    <td>
+                      Total Orders: {manager.statistics?.totalOrders || 0},
+                      Active: {manager.statistics?.activeOrders || 0}
+                    </td>
+                    <td>
+                      {manager.is_active ? (
+                        <Button
+                          className={`${css.actionButton} ${css.recoverButton}`}
+                          onClick={() => handleAction('recover', manager.id)}>
+                          Recover Password
+                        </Button>
+                      ) : (
+                        <Button
+                          className={`${css.actionButton} ${css.activateButton}`}
+                          onClick={() => handleAction('activate', manager.id)}>
+                          Activate
+                        </Button>
+                      )}
                       <Button
-                        className={`${css.actionButton} ${css.recoverButton}`}
-                        onClick={() => handleAction('recover', manager.id)}
-                      >
-                        Recover Password
+                        className={`${css.actionButton} ${css.banButton}`}
+                        onClick={() => handleAction('ban', manager.id)}
+                        disabled={!manager.is_active}>
+                        Ban
                       </Button>
-                    ) : (
                       <Button
-                        className={`${css.actionButton} ${css.activateButton}`}
-                        onClick={() => handleAction('activate', manager.id)}
-                      >
-                        Activate
+                        className={`${css.actionButton} ${css.unbanButton}`}
+                        onClick={() => handleAction('unban', manager.id)}
+                        disabled={manager.is_active}>
+                        Unban
                       </Button>
-                    )}
-                    <Button
-                      className={`${css.actionButton} ${css.banButton}`}
-                      onClick={() => handleAction('ban', manager.id)}
-                      disabled={!manager.is_active}
-                    >
-                      Ban
-                    </Button>
-                    <Button
-                      className={`${css.actionButton} ${css.unbanButton}`}
-                      onClick={() => handleAction('unban', manager.id)}
-                      disabled={manager.is_active}
-                    >
-                      Unban
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
             <div className={css.pagination}>

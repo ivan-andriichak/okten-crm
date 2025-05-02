@@ -46,9 +46,15 @@ export class AdminController {
     return await this.adminService.generateRecoveryLink(id);
   }
 
+  @Public()
+  @Get('user-by-token/:token')
+  async getUserByToken(@Param('token') token: string) {
+    return await this.adminService.getUserByToken(token);
+  }
+
   @Roles(Role.ADMIN)
   @Post('managers/:id/ban')
-  async banManager(@Param('id') id: string): Promise<UserEntity> {
+  async banManager(@Param('id') id: string): Promise<void> {
     return await this.adminService.banManager(id);
   }
 

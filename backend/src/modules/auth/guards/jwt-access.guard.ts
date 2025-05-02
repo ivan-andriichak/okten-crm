@@ -76,9 +76,8 @@ export class JwtAccessGuard implements CanActivate {
         }`,
       );
 
-      if (!user) {
-        console.error(`JwtAccessGuard: User not found for ID: ${payload.userId} for ${route}`);
-        throw new UnauthorizedException('User not found');
+      if (user.role === 'manager' && !user.is_active) {
+        throw new UnauthorizedException('User is banned');
       }
 
       request.user = UserMapper.toIUserData(user, payload);

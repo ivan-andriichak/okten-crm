@@ -1,43 +1,33 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { DataSource } from 'typeorm';
+import { DataSource, Equal } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Role } from '../../../common/enums/role.enum';
+import { OrderEntity } from '../../../database/entities/order.entity';
+import { RefreshTokenEntity } from '../../../database/entities/refresh-token.entity';
 import { UserEntity } from '../../../database/entities/user.entity';
-import { RegisterReqDto } from '../../auth/dto/req/register.req.dto';
-import { AuthService } from '../../auth/services/auth.service';
+import { StatusEnum } from '../../orders/enums/order.enums';
 import { RegisterAdminReqDto } from '../dto/req/register-admin.req.dto';
 
 @Injectable()
 export class AdminService {
-  constructor(
-    private readonly dataSource: DataSource,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async createManager(dto: RegisterAdminReqDto): Promise<UserEntity> {
-    const token = uuidv4();
-    const tokenExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 хв
+    const userRepository = this.dataSource.getRepository(UserEntity);
 
-    const registerDto: RegisterReqDto = {
+    const user = userRepository.create({
+      id: uuidv4(),
       email: dto.email,
       name: dto.name,
       surname: dto.surname,
-      password: token,
-      deviceId: `manager-${token}`,
+      password: null,
       role: Role.MANAGER,
-    };
+      is_active: false,
+    });
 
-    const { user } = await this.authService.register(registerDto);
-
-    const userRepository = this.dataSource.getRepository(UserEntity);
-    const entity = await userRepository.findOne({ where: { id: user.id } });
-    entity.is_active = false;
-    entity.passwordResetToken = token;
-    entity.passwordResetExpires = tokenExpires;
-
-    return await userRepository.save(entity);
+    return await userRepository.save(user);
   }
 
   async generateActivationLink(id: string): Promise<{ link: string }> {
@@ -70,22 +60,41 @@ export class AdminService {
     if (!user || user.passwordResetExpires < new Date()) {
       throw new UnauthorizedException('Invalid or expired token');
     }
-    //localhost:3000/activate/7b9ce0fc-4ac5-4983-b29b-11764ae55dc3
 
     user.password = await bcrypt.hash(password, 10);
     user.is_active = true;
     user.passwordResetToken = null;
     user.passwordResetExpires = null;
-
     await userRepository.save(user);
   }
 
-  async banManager(id: string): Promise<UserEntity> {
-    const userRepository = this.dataSource.getRepository(UserEntity); // Використовуйте стандартний репозиторій
-    const user = await userRepository.findOne({ where: { id, role: Role.MANAGER } });
-    if (!user) throw new NotFoundException('Manager not found');
-    user.is_active = false;
-    return await userRepository.save(user);
+  async getUserByToken(token: string): Promise<{ email: string }> {
+    const userRepository = this.dataSource.getRepository(UserEntity);
+    const user = await userRepository.findOne({ where: { passwordResetToken: token } });
+    if (!user || user.passwordResetExpires < new Date()) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+    return { email: user.email };
+  }
+
+  async banManager(managerId: string): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Оновлення статусу менеджера
+      await queryRunner.manager.update(UserEntity, { id: managerId }, { is_active: false });
+
+      await queryRunner.manager.delete(RefreshTokenEntity, { user: { id: managerId } });
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new UnauthorizedException('Failed to ban manager');
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async unbanManager(id: string): Promise<UserEntity> {
@@ -98,7 +107,7 @@ export class AdminService {
 
   async getManagers(
     page = 1,
-    limit = 25,
+    limit = 10,
     sort = 'created_at',
     order: 'ASC' | 'DESC' = 'DESC',
   ): Promise<{ managers: UserEntity[]; total: number }> {
@@ -113,7 +122,7 @@ export class AdminService {
   }
 
   async getOrderStatistics(): Promise<Record<string, number>> {
-    const orderRepository = this.dataSource.getRepository('OrderEntity');
+    const orderRepository = this.dataSource.getRepository(OrderEntity);
     return await this.getStatistics(orderRepository);
   }
 
@@ -121,18 +130,17 @@ export class AdminService {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const manager = await userRepository.findOne({ where: { id, role: Role.MANAGER } });
     if (!manager) throw new NotFoundException('Manager not found');
-    const orderRepository = this.dataSource.getRepository('OrderEntity');
+    const orderRepository = this.dataSource.getRepository(OrderEntity);
     return await this.getStatistics(orderRepository, { manager: { id } });
   }
 
-  private async getStatistics(
-    orderRepository: any, // Тимчасово any, доки не отримаємо OrderEntity
-    where: Record<string, any> = {},
-  ): Promise<Record<string, number>> {
-    const statuses = ['New', 'InWork', 'Agree', 'Disagree', 'Dubbing'];
+  private async getStatistics(orderRepository: any, where: Record<string, any> = {}): Promise<Record<string, number>> {
+    const statuses = [StatusEnum.NEW, StatusEnum.IN_WORK, StatusEnum.AGREED, StatusEnum.DISAGREED, StatusEnum.DUBBING];
     const stats: Record<string, number> = {};
     for (const status of statuses) {
-      stats[status] = await orderRepository.count({ where: { ...where, status } });
+      stats[status] = await orderRepository.count({
+        where: { ...where, status: Equal(status) },
+      });
     }
     return stats;
   }

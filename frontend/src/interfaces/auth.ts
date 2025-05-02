@@ -23,6 +23,7 @@ export interface LoginRequest {
 }
 
 export interface AuthState {
+  refreshToken: any;
   token: string | null;
   role: 'admin' | 'manager' | null;
   currentUserId: string | null;

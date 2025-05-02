@@ -36,7 +36,7 @@ const initialState: ManagerState = {
   loading: false,
   error: null,
   page: 1,
-  limit: 2,
+  limit: 5,
   overallStats: {
     New: 0,
     InWork: 0,
@@ -258,10 +258,12 @@ const managerSlice = createSlice({
       .addCase(fetchOverallStats.fulfilled, (state, action) => {
         state.loading = false;
         state.overallStats = action.payload;
+        console.log('fetchOverallStats fulfilled:', action.payload);
       })
       .addCase(fetchOverallStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch overall stats';
+        console.log('fetchOverallStats rejected:', action.error);
       })
       .addCase(createManager.pending, state => {
         state.loading = true;

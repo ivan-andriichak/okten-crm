@@ -1,10 +1,21 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { AuthResponse, AuthState, LoginRequest } from '../../interfaces/auth';
+import { AuthResponse, LoginRequest } from '../../interfaces/auth';
 import { api } from '../../services/api';
 import storage from '../utils/storage';
+import { RootState } from '../store';
 
-const initialState: AuthState = {
+const initialState: {
+  token: string | null;
+  refreshToken: string | null;
+  role: 'admin' | 'manager' | null;
+  currentUserId: string | null;
+  name: string | null;
+  surname: string | null;
+  loading: boolean;
+  error: string | null;
+} = {
   token: storage.get('token') || null,
+  refreshToken: storage.get('refreshToken') || null,
   role: storage.get('role') as 'admin' | 'manager' | null,
   currentUserId: storage.get('currentUserId') || null,
   name: storage.get('name') || null,
@@ -40,10 +51,29 @@ const login = createAsyncThunk(
   },
 );
 
+export const refreshTokens = createAsyncThunk(
+  'auth/refreshTokens',
+  async (_, { getState }) => {
+    const { auth } = getState() as RootState;
+    const response = await api.post(
+      '/refresh',
+      {},
+      {
+        headers: { Authorization: `Bearer ${auth.refreshToken}` },
+      },
+    );
+    return response.data;
+  },
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    setTokens(state, action) {
+      state.token = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+    },
     logout: state => {
       storage.clearAuth();
       Object.assign(state, initialState);
@@ -64,7 +94,6 @@ const authSlice = createSlice({
         state.name = payload.name;
         state.surname = payload.surname;
 
-        // Зберігаємо в localStorage
         storage.set('token', payload.token);
         storage.set('role', payload.role);
         storage.set('currentUserId', payload.currentUserId);
@@ -79,5 +108,5 @@ const authSlice = createSlice({
 });
 
 export { login };
-export const { logout } = authSlice.actions;
+export const { setTokens,logout } = authSlice.actions;
 export const authReducer = authSlice.reducer;

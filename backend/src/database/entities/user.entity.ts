@@ -18,7 +18,7 @@ export class UserEntity extends CreateUpdateModel {
   @Column({ type: 'varchar', length: 255 })
   surname: string;
 
-  @Column('text', { select: false })
+  @Column('text', { select: false, nullable: true })
   password: string;
 
   @Column('boolean', { default: false, nullable: false })

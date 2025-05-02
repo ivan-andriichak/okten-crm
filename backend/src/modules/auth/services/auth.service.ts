@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { Role } from '../../../common/enums/role.enum';
@@ -52,7 +52,11 @@ export class AuthService {
       this.logger.log(`Registering user with email: ${dto.email}`);
       await this.userService.isEmailExistOrThrow(dto.email);
 
-      const hashedPassword = await bcrypt.hash(dto.password, 10);
+      if (dto.password === '') {
+        throw new BadRequestException('Password cannot be empty');
+      }
+
+      const hashedPassword = dto.password ? await bcrypt.hash(dto.password, 10) : null;
       const user = await this.userRepository.save(
         this.userRepository.create({
           ...dto,
@@ -96,10 +100,10 @@ export class AuthService {
       this.logger.log(`Login attempt for email: ${dto.email}`);
       const user = await this.userRepository.findOne({
         where: { email: dto.email },
-        select: { id: true, password: true },
+        select: { id: true, password: true, passwordResetToken: true, passwordResetExpires: true },
       });
-      if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
+      if (!user || !user.password) {
+        throw new UnauthorizedException('Invalid credentials or inactive user');
       }
 
       const isPasswordValid = await bcrypt.compare(dto.password, user.password);

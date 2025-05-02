@@ -13,6 +13,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "declaration": true
+    "declaration": true,
+    "noUnusedParameters": false
   }
 }
