@@ -3,11 +3,11 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, login } from '../../store';
 
-import { api } from '../../services/api';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../Button/Button';
 import css from './SetPassword.module.css';
 import { addNotification } from '../../store/slices/notificationSlice';
+import { api } from '../../services/api';
 
 const SetPassword: FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -71,7 +71,6 @@ const SetPassword: FC = () => {
     }
 
     try {
-      // Отримання email користувача
       const response = await api.get(`/admin/user-by-token/${token}`);
       const userEmail = response.data.email;
       setEmail(userEmail);
@@ -79,7 +78,6 @@ const SetPassword: FC = () => {
       // Встановлення пароля
       await api.post(`/admin/set-password/${token}`, { password });
 
-      // Автоматичний логін
       let deviceId = localStorage.getItem('deviceId');
       if (!deviceId) {
         deviceId = uuidv4();

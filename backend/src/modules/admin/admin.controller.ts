@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -64,7 +64,7 @@ export class AdminController {
     return await this.adminService.unbanManager(id);
   }
 
-  @Public() // Додайте декоратор
+  @Public()
   @Post('set-password/:token')
   async setPassword(@Param('token') token: string, @Body() body: { password: string }): Promise<void> {
     return await this.adminService.setPassword(token, body.password);
@@ -80,5 +80,27 @@ export class AdminController {
   @Get('managers/:id/statistics')
   async getManagerStatistics(@Param('id') id: string): Promise<Record<string, number>> {
     return await this.adminService.getManagerStatistics(id);
+  }
+
+  @Public()
+  @Get('support')
+  @ApiOperation({ summary: 'Get support contact information' })
+  @ApiResponse({
+    status: 200,
+    description: 'Support contact information',
+    type: Object,
+    example: {
+      supportEmail: 'support@example.com',
+      supportPhone: '+1234567890',
+      supportName: 'Support Team',
+    },
+  })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async getSupportInfo(): Promise<{
+    supportEmail: string;
+    supportPhone: string;
+    supportName: string;
+  }> {
+    return await this.adminService.getSupportInfo();
   }
 }

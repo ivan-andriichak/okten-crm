@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch, login, RootState } from '../../store';
@@ -25,7 +25,7 @@ const Login = () => {
     setDeviceId(storedDeviceId);
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
 
     const result = await dispatch(
@@ -74,7 +74,7 @@ const Login = () => {
             checked={showPassword}
             onChange={() => setShowPassword(!showPassword)}
           />
-          <label htmlFor="showPassword">Show Password</label>
+          <label htmlFor="showPassword">Show password</label>
         </div>
         <div>
           <Button variant="primary" type="submit" disabled={loading}>

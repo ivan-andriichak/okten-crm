@@ -42,7 +42,6 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
     name: '',
     surname: '',
   });
-
   useEffect(() => {
     if (!token || role !== 'admin') {
       navigate('/login');

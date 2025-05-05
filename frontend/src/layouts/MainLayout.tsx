@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import ErrorBoundary from '../components/ErrorBoundary';
+import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
 import { FC } from 'react';
 import Notification from '../components/Notification/Notification';
 

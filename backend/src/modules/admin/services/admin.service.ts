@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { DataSource, Equal } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
@@ -83,7 +83,6 @@ export class AdminService {
     await queryRunner.startTransaction();
 
     try {
-      // Оновлення статусу менеджера
       await queryRunner.manager.update(UserEntity, { id: managerId }, { is_active: false });
 
       await queryRunner.manager.delete(RefreshTokenEntity, { user: { id: managerId } });
@@ -143,5 +142,21 @@ export class AdminService {
       });
     }
     return stats;
+  }
+
+  async getSupportInfo(): Promise<{
+    supportEmail: string;
+    supportPhone: string;
+    supportName: string;
+  }> {
+    try {
+      return {
+        supportEmail: process.env.SUPPORT_EMAIL || 'support@example.com',
+        supportPhone: process.env.SUPPORT_PHONE || '+380951234567',
+        supportName: process.env.SUPPORT_NAME || 'Support Team',
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to fetch support information');
+    }
   }
 }
