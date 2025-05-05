@@ -11,6 +11,7 @@ import {
   recoverPassword,
   unbanManager,
 } from '../../store/slices/managerSlice';
+import { addNotification } from '../../store/slices/notificationSlice';
 import css from './AdminPanel.module.css';
 import Button from '../Button/Button';
 import Header from '../Header/Header';
@@ -32,25 +33,24 @@ interface AdminPanelProps {
 const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { managers, total, loading, error, page, limit, overallStats } =
-    useSelector((state: RootState) => state.managers);
+  const { managers, total, loading, page, limit, overallStats } = useSelector(
+    (state: RootState) => state.managers,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<ManagerFormData>({
     email: '',
     name: '',
     surname: '',
   });
-  const [formError, setFormError] = useState<string | null>(null);
-  const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    if (token && role === 'admin') {
+    if (!token || role !== 'admin') {
+      navigate('/login');
+    } else {
       dispatch(
         fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }),
       );
       dispatch(fetchOverallStats());
-    } else {
-      navigate('/login');
     }
   }, [dispatch, token, role, page, limit, navigate]);
 
@@ -61,23 +61,39 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await dispatch(createManager(formData)).unwrap();
-      setFormSuccess('Manager created successfully!');
-      setFormData({ email: '', name: '', surname: '' });
-      setIsModalOpen(false);
-      setFormError(null);
-    } catch (err: any) {
-      setFormError(err.message || 'Failed to create manager');
-      setFormSuccess(null);
+    if (!formData.email || !formData.name || !formData.surname) {
+      dispatch(
+        addNotification({
+          message: 'Fill in all fields',
+          type: 'error',
+        }),
+      );
+      return;
     }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      dispatch(
+        addNotification({
+          message: 'Invalid email format',
+          type: 'error',
+        }),
+      );
+      return;
+    }
+
+    await dispatch(createManager(formData));
+    dispatch(
+      addNotification({
+        message: 'Manager created successfully!',
+        type: 'success',
+      }),
+    );
+    setFormData({ email: '', name: '', surname: '' });
+    setIsModalOpen(false);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setFormData({ email: '', name: '', surname: '' });
-    setFormError(null);
-    setFormSuccess(null);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -92,33 +108,42 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   const handleAction = async (action: string, managerId: string) => {
-    try {
-      switch (action) {
-        case 'activate': {
-          const result = await dispatch(activateManager(managerId)).unwrap();
-          await navigator.clipboard.writeText(result.link);
-          alert('Activation link copied to clipboard!');
-          break;
-        }
-        case 'recover': {
-          const result = await dispatch(recoverPassword(managerId)).unwrap();
-          await navigator.clipboard.writeText(result.link);
-          alert('Recovery link copied to clipboard!');
-          break;
-        }
-        case 'ban':
-          await dispatch(banManager(managerId)).unwrap();
-          break;
-        case 'unban':
-          await dispatch(unbanManager(managerId)).unwrap();
-          break;
-        default:
-          throw new Error(`Unknown action: ${action}`);
+    switch (action) {
+      case 'activate': {
+        const result = await dispatch(activateManager(managerId)).unwrap();
+        await navigator.clipboard.writeText(result.link);
+        dispatch(
+          addNotification({
+            message: 'Activation link copied!',
+            type: 'success',
+          }),
+        );
+        break;
       }
-    } catch (err: any) {
-      const errorMessage = err.message || `Failed to perform ${action}`;
-      alert(errorMessage);
-      console.error(`Failed to perform ${action}:`, err);
+      case 'recover': {
+        const result = await dispatch(recoverPassword(managerId)).unwrap();
+        await navigator.clipboard.writeText(result.link);
+        dispatch(
+          addNotification({
+            message: 'Recovery link copied!',
+            type: 'success',
+          }),
+        );
+        break;
+      }
+      case 'ban':
+        await dispatch(banManager(managerId));
+        break;
+      case 'unban':
+        await dispatch(unbanManager(managerId));
+        break;
+      default:
+        dispatch(
+          addNotification({
+            message: `Unknown action: ${action}`,
+            type: 'error',
+          }),
+        );
     }
   };
 
@@ -141,20 +166,14 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         <CreateManagerModal
           isOpen={isModalOpen}
           formData={formData}
-          formError={formError}
-          formSuccess={formSuccess}
+          formError={null}
+          formSuccess={null}
           onClose={closeModal}
           onInputChange={handleInputChange}
           onSubmit={handleSubmit}
         />
 
         {loading && <LoadingSpinner />}
-        {error && (
-          <p
-            style={{ color: 'red', display: 'flex', justifyContent: 'center' }}>
-            {error}
-          </p>
-        )}
         {managers.length > 0 ? (
           <>
             <table className={css.table}>

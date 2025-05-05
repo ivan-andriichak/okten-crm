@@ -19,7 +19,6 @@ const Orders = ({}: OrdersProps) => {
     orders,
     total,
     loading,
-    error,
     sort,
     order: sortOrder,
     expandedOrderId,
@@ -130,11 +129,6 @@ const Orders = ({}: OrdersProps) => {
       />
 
       {loading && <LoadingSpinner />}
-      {error && (
-        <p style={{ color: 'red', display: 'flex', justifyContent: 'center' }}>
-          {error}
-        </p>
-      )}
       {orders.length > 0 ? (
         <OrderTable
           orders={orders}
@@ -157,7 +151,13 @@ const Orders = ({}: OrdersProps) => {
       ) : (
         !loading &&
         orders.length === 0 && (
-          <p style={{ textAlign: 'center', fontSize: '1.5rem', color: '#555' }}>
+          <p
+            style={{
+              textAlign: 'center',
+              fontSize: '1.5rem',
+              color: '#555',
+              marginTop: '20px',
+            }}>
             No orders found.
           </p>
         )

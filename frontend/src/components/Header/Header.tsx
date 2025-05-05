@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppDispatch, RootState, logout } from '../../store';
+import { addNotification } from '../../store/slices/notificationSlice';
 import oktenLogo from '../../images/okten.jpg';
 import Logout from '../../images/Logout.png';
 import admin from '../../images/admin.png';
@@ -18,6 +19,19 @@ const Header: React.FC = () => {
   const handleLogout = () => {
     dispatch(logout());
     navigate('/login');
+  };
+
+  const handleAdminClick = () => {
+    if (role === 'manager') {
+      dispatch(
+        addNotification({
+          message: 'Access restricted to administrators only',
+          type: 'error',
+        }),
+      );
+    } else if (role === 'admin') {
+      navigate('/admin');
+    }
   };
 
   return (
@@ -44,11 +58,9 @@ const Header: React.FC = () => {
             </Button>
           </Link>
         ) : (
-          <Link to="/admin">
-            <Button>
-              <img src={admin} alt="admin" className={css.resetButton} />
-            </Button>
-          </Link>
+          <Button onClick={handleAdminClick}>
+            <img src={admin} alt="admin" className={css.resetButton} />
+          </Button>
         )}
         <Button>
           <img

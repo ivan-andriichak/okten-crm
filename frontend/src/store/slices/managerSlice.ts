@@ -63,26 +63,35 @@ export const fetchManagers = createAsyncThunk<
   { managers: Manager[]; total: number },
   FetchManagersParams,
   { state: RootState }
->('managers/fetchManagers', async ({ page, limit, sort, order }, { getState }) => {
-  const { token } = getState().auth;
-  console.log('fetchManagers: Token:', token);
-  if (!token) {
-    throw new Error('No token available');
-  }
-  const response = await api.get<{ managers: Manager[]; total: number }>(
-    '/admin/managers',
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
+>(
+  'managers/fetchManagers',
+  async ({ page, limit, sort, order }, { getState }) => {
+    const { token } = getState().auth;
+    console.log('fetchManagers: Token:', token);
+    if (!token) {
+      throw new Error('No token available');
+    }
+    const response = await api.get<{ managers: Manager[]; total: number }>(
+      '/admin/managers',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: { page, limit, sort, order },
       },
-      params: { page, limit, sort, order },
-    },
-  );
-  return response.data;
-});
+    );
+    return response.data;
+  },
+);
 
 export const fetchOverallStats = createAsyncThunk<
-  { New: number; InWork: number; Agree: number; Disagree: number; Dubbing: number },
+  {
+    New: number;
+    InWork: number;
+    Agree: number;
+    Disagree: number;
+    Dubbing: number;
+  },
   void,
   { state: RootState }
 >('managers/fetchOverallStats', async (_, { getState }) => {
@@ -113,7 +122,14 @@ export const createManager = createAsyncThunk<
       'Content-Type': 'application/json',
     },
   });
-  dispatch(fetchManagers({ page: 1, limit: getState().managers.limit, sort: 'created_at', order: 'DESC' }));
+  dispatch(
+    fetchManagers({
+      page: 1,
+      limit: getState().managers.limit,
+      sort: 'created_at',
+      order: 'DESC',
+    }),
+  );
   dispatch(fetchOverallStats());
 });
 

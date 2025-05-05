@@ -1,4 +1,3 @@
-// OrderDetails.tsx
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addComment,

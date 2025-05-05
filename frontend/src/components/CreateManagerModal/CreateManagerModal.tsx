@@ -31,12 +31,13 @@ const CreateManagerModal: React.FC<CreateManagerModalProps> = ({
 
   return (
     <div className={css.modalOverlay}>
-      <div className={css.modal}>
+      <div className={css.modalContainer}>
         <h2 className={css.modalTitle}>Create New Manager</h2>
         <form className={css.form} onSubmit={onSubmit}>
           <div>
             <label>Email</label>
             <input
+              className={css.input}
               type="email"
               name="email"
               value={formData.email}
@@ -47,6 +48,7 @@ const CreateManagerModal: React.FC<CreateManagerModalProps> = ({
           <div>
             <label>Name</label>
             <input
+              className={css.input}
               type="text"
               name="name"
               value={formData.name}
@@ -57,6 +59,7 @@ const CreateManagerModal: React.FC<CreateManagerModalProps> = ({
           <div>
             <label>Surname</label>
             <input
+              className={css.input}
               type="text"
               name="surname"
               value={formData.surname}
@@ -66,11 +69,11 @@ const CreateManagerModal: React.FC<CreateManagerModalProps> = ({
           </div>
           {formError && <p className={css.error}>{formError}</p>}
           {formSuccess && <p className={css.success}>{formSuccess}</p>}
-          <div>
+          <div className={css.buttonGroup}>
             <Button type="button" onClick={onClose}>
               Cancel
             </Button>
-            <button type="submit">Create</button>
+            <Button type="submit">Create</Button>
           </div>
         </form>
       </div>

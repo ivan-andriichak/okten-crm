@@ -8,6 +8,7 @@ import {
   updateEditForm,
   updateOrder,
 } from '../../store';
+import { addNotification } from '../../store/slices/notificationSlice';
 import { EditOrderModalProps } from '../../interfaces/editForm';
 import { Order, OrderState } from '../../interfaces/order';
 import Button from '../Button/Button';
@@ -26,7 +27,6 @@ const EditOrderModal = ({
   const dispatch = useDispatch<AppDispatch>();
   const groups = useSelector((state: RootState) => state.orders.groups) || [];
   const loading = useSelector((state: RootState) => state.orders.loading);
-  const error = useSelector((state: RootState) => state.orders.error);
   const [newGroupName, setNewGroupName] = useState('');
   const [isAddingGroup, setIsAddingGroup] = useState(false);
 
@@ -46,17 +46,38 @@ const EditOrderModal = ({
 
   const handleAddGroup = () => {
     if (!newGroupName) {
-      alert('Please enter a group name');
+      dispatch(
+        addNotification({
+          message: 'Please enter a group name',
+          type: 'error',
+          duration: 5000,
+        }),
+      );
       return;
     }
     if (groups.includes(newGroupName)) {
-      alert('Group name must be unique');
+      dispatch(
+        addNotification({
+          message: 'Group name must be unique',
+          type: 'error',
+          duration: 5000,
+        }),
+      );
       return;
     }
-    dispatch(addGroup(newGroupName)).then(() => {
-      dispatch(updateEditForm({ group: newGroupName }));
-      setNewGroupName('');
-      setIsAddingGroup(false);
+    dispatch(addGroup(newGroupName)).then(result => {
+      if (addGroup.fulfilled.match(result)) {
+        dispatch(
+          addNotification({
+            message: `Group "${newGroupName}" added successfully`,
+            type: 'success',
+            duration: 5000,
+          }),
+        );
+        dispatch(updateEditForm({ group: newGroupName }));
+        setNewGroupName('');
+        setIsAddingGroup(false);
+      }
     });
   };
 
@@ -67,7 +88,16 @@ const EditOrderModal = ({
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingOrder || !token) return;
+    if (!editingOrder || !token) {
+      dispatch(
+        addNotification({
+          message: 'Invalid order or missing token',
+          type: 'error',
+          duration: 5000,
+        }),
+      );
+      return;
+    }
 
     const updates: Partial<Order> = {
       name: editForm.name,
@@ -99,11 +129,23 @@ const EditOrderModal = ({
       group: editForm.group,
     };
 
-    await dispatch(updateOrder({ id: editingOrder.id, updates }));
+    const result = await dispatch(
+      updateOrder({ id: editingOrder.id, updates }),
+    );
+    if (updateOrder.fulfilled.match(result)) {
+      dispatch(
+        addNotification({
+          message: 'Order updated successfully',
+          type: 'success',
+          duration: 5000,
+        }),
+      );
+      dispatch(closeEditModal());
+    }
   };
 
   return (
-    <div className={css.overlay}>
+    <div className={css.modalOverlay}>
       <div className={css.container}>
         <h3>Edit Order</h3>
         <div className={css.content}>
@@ -166,7 +208,6 @@ const EditOrderModal = ({
                   </div>
                 </div>
               )}
-              {error && <span className={css.error}>{error}</span>}
             </div>
             <div>
               <label>Name:</label>
@@ -230,8 +271,8 @@ const EditOrderModal = ({
                 <option value="">Select Status</option>
                 <option value="In work">In work</option>
                 <option value="New">New</option>
-                <option value="Aggre"> Agree</option>
-                <option value="Disaggre">Disaggre</option>
+                <option value="Agree">Agree</option>
+                <option value="Disagree">Disagree</option>
                 <option value="Dubbing">Dubbing</option>
               </select>
             </div>
@@ -313,7 +354,7 @@ const EditOrderModal = ({
             type="button"
             onClick={() => dispatch(closeEditModal())}
             disabled={loading}>
-            Close
+            Cancel
           </Button>
         </div>
       </div>

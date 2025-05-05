@@ -10,9 +10,10 @@ const Login = () => {
   const [email, setEmail] = useState<string>('admin@gmail.com');
   const [password, setPassword] = useState<string>('admin');
   const [deviceId, setDeviceId] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const { loading } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,19 +53,29 @@ const Login = () => {
             onChange={e => setEmail(e.target.value)}
             required
             disabled={loading}
+            className={css.input}
           />
         </div>
         <div>
           <label>Password:</label>
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
             disabled={loading}
+            className={css.input}
           />
         </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <div className={css.checkboxContainer}>
+          <input
+            type="checkbox"
+            id="showPassword"
+            checked={showPassword}
+            onChange={() => setShowPassword(!showPassword)}
+          />
+          <label htmlFor="showPassword">Show Password</label>
+        </div>
         <div>
           <Button variant="primary" type="submit" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
