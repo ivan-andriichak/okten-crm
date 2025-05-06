@@ -9,4 +9,5 @@ export class RegisterReqDto extends PickType(BaseAuthReqDto, [
   'surname',
   'role',
   'deviceId',
+  'is_active',
 ]) {}

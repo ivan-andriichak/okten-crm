@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 
 import getter from './src/config/configuration';
 
-dotenv.config({ path: './environments/local.env' });
+dotenv.config({ path: './environments/config.ts' });
 
 const databaseConfig = getter().mysql;
 

@@ -1,0 +1,26 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.button {
+    margin-bottom: 8px;
+}
+
+.link {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.phone,
+.name {
+    font-size: 14px;
+    color: #333;
+}

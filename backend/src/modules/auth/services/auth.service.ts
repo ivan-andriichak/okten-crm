@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { Role } from '../../../common/enums/role.enum';
@@ -42,6 +48,7 @@ export class AuthService {
       name: 'Admin',
       surname: 'Default',
       role: Role.ADMIN,
+      is_active: true,
     };
 
     return await this.register(defaultAdminDto);
@@ -100,12 +107,15 @@ export class AuthService {
       this.logger.log(`Login attempt for email: ${dto.email}`);
       const user = await this.userRepository.findOne({
         where: { email: dto.email },
-        select: { id: true, password: true, passwordResetToken: true, passwordResetExpires: true },
+        select: { id: true, password: true, passwordResetToken: true, passwordResetExpires: true, is_active: true },
       });
       if (!user || !user.password) {
         throw new UnauthorizedException('Invalid credentials or inactive user');
       }
 
+      if (!user.is_active && user.role !== Role.ADMIN) {
+        throw new ForbiddenException('User is banned');
+      }
       const isPasswordValid = await bcrypt.compare(dto.password, user.password);
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid credentials');

@@ -1,8 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { authReducer, managerReducer, notificationReducer, orderReducer } from './slices';
 
-import { authReducer, orderReducer } from './slices';
-import { managerReducer } from './slices/managerSlice';
-import { notificationReducer } from './slices/notificationSlice';
 
 export const store = configureStore({
   reducer: {

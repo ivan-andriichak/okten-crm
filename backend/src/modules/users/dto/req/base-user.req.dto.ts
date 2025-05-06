@@ -69,6 +69,12 @@ export class BaseUserReqDto {
   readonly deviceId?: string;
 
   @ApiProperty({
+    description: 'Indicates whether the user is active.',
+    example: true,
+  })
+  is_active?: boolean;
+
+  @ApiProperty({
     enum: Role,
     description: 'The role of the user.',
     example: 'manager',

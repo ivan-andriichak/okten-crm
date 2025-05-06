@@ -8,6 +8,7 @@ export interface Manager {
   name: string;
   surname: string;
   is_active: boolean;
+  last_login: string;
   statistics?: {
     totalOrders: number;
     activeOrders: number;
@@ -22,8 +23,9 @@ export interface ManagerState {
   page: number;
   limit: number;
   overallStats: {
+    Total: number;
     New: number;
-    InWork: number;
+    'In work': number;
     Agree: number;
     Disagree: number;
     Dubbing: number;
@@ -38,8 +40,9 @@ const initialState: ManagerState = {
   page: 1,
   limit: 5,
   overallStats: {
+    Total: 0,
     New: 0,
-    InWork: 0,
+    'In work': 0,
     Agree: 0,
     Disagree: 0,
     Dubbing: 0,
@@ -86,8 +89,9 @@ export const fetchManagers = createAsyncThunk<
 
 export const fetchOverallStats = createAsyncThunk<
   {
+    Total: number;
     New: number;
-    InWork: number;
+    'In work': number;
     Agree: number;
     Disagree: number;
     Dubbing: number;
@@ -103,6 +107,7 @@ export const fetchOverallStats = createAsyncThunk<
   const response = await api.get('/admin/orders/stats', {
     headers: { Authorization: `Bearer ${token}` },
   });
+  console.log('fetchOverallStats response:', response.data);
   return response.data;
 });
 

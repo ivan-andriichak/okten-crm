@@ -1,23 +1,25 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../store';
+import css from './AdminPanel.module.css';
 import {
   activateManager,
+  addNotification,
+  AppDispatch,
   banManager,
   createManager,
   fetchManagers,
   fetchOverallStats,
   recoverPassword,
+  RootState,
   unbanManager,
-} from '../../store/slices/managerSlice';
-import { addNotification } from '../../store/slices/notificationSlice';
-import css from './AdminPanel.module.css';
+} from '../../store';
 import Button from '../Button/Button';
-import Header from '../Header/Header';
 import CreateManagerModal from '../CreateManagerModal/CreateManagerModal';
-import { Pagination } from '../Pagination/Pagination';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
+import Header from '../Header/Header';
+import { Pagination } from '../Pagination/Pagination';
+import { formatCell } from '../../utils/timeUtils';
 
 interface ManagerFormData {
   email: string;
@@ -42,6 +44,8 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
     name: '',
     surname: '',
   });
+
+
   useEffect(() => {
     if (!token || role !== 'admin') {
       navigate('/login');
@@ -52,6 +56,10 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
       dispatch(fetchOverallStats());
     }
   }, [dispatch, token, role, page, limit, navigate]);
+
+  useEffect(() => {
+    console.log('AdminPanel overallStats:', overallStats);
+  }, [overallStats]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -79,15 +87,24 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
       return;
     }
 
-    await dispatch(createManager(formData));
-    dispatch(
-      addNotification({
-        message: 'Manager created successfully!',
-        type: 'success',
-      }),
-    );
-    setFormData({ email: '', name: '', surname: '' });
-    setIsModalOpen(false);
+    try {
+      await dispatch(createManager(formData)).unwrap();
+      dispatch(
+        addNotification({
+          message: 'Manager created successfully!',
+          type: 'success',
+        }),
+      );
+      setFormData({ email: '', name: '', surname: '' });
+      setIsModalOpen(false);
+    } catch (error) {
+      dispatch(
+        addNotification({
+          message: 'Failed to create manager. Please contact support: support@example.com',
+          type: 'error',
+        }),
+      );
+    }
   };
 
   const closeModal = () => {
@@ -107,42 +124,66 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   const handleAction = async (action: string, managerId: string) => {
-    switch (action) {
-      case 'activate': {
-        const result = await dispatch(activateManager(managerId)).unwrap();
-        await navigator.clipboard.writeText(result.link);
-        dispatch(
-          addNotification({
-            message: 'Activation link copied!',
-            type: 'success',
-          }),
-        );
-        break;
+    try {
+      switch (action) {
+        case 'activate': {
+          const result = await dispatch(activateManager(managerId)).unwrap();
+          await navigator.clipboard.writeText(result.link);
+          dispatch(
+            addNotification({
+              message: 'Activation link copied!',
+              type: 'success',
+            }),
+          );
+          break;
+        }
+        case 'recover': {
+          const result = await dispatch(recoverPassword(managerId)).unwrap();
+          await navigator.clipboard.writeText(result.link);
+          dispatch(
+            addNotification({
+              message: 'Recovery link copied!',
+              type: 'success',
+            }),
+          );
+          break;
+        }
+        case 'ban': {
+          await dispatch(banManager(managerId)).unwrap();
+          dispatch(
+            addNotification({
+              message: 'Manager banned successfully!',
+              type: 'success',
+            }),
+          );
+          break;
+        }
+        case 'unban': {
+          await dispatch(unbanManager(managerId)).unwrap();
+          dispatch(
+            addNotification({
+              message: 'Manager unbanned successfully!',
+              type: 'success',
+            }),
+          );
+          break;
+        }
+        default:
+          dispatch(
+            addNotification({
+              message: `Unknown action: ${action}`,
+              type: 'error',
+            }),
+          );
       }
-      case 'recover': {
-        const result = await dispatch(recoverPassword(managerId)).unwrap();
-        await navigator.clipboard.writeText(result.link);
-        dispatch(
-          addNotification({
-            message: 'Recovery link copied!',
-            type: 'success',
-          }),
-        );
-        break;
-      }
-      case 'ban':
-        await dispatch(banManager(managerId));
-        break;
-      case 'unban':
-        await dispatch(unbanManager(managerId));
-        break;
-      default:
-        dispatch(
-          addNotification({
-            message: `Unknown action: ${action}`,
-            type: 'error',
-          }),
-        );
+    } catch (error: any) {
+      const errorMessage = error.message || 'Action failed';
+      dispatch(
+        addNotification({
+          message: `${errorMessage}. Please contact support: support@example.com`,
+          type: 'error',
+        }),
+      );
     }
   };
 
@@ -150,13 +191,16 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
     <>
       <Header />
       <div className={css.container}>
-        <div className={css.stats}>
+        <div className={css.statsContainer}>
           <h3>Overall Order Statistics</h3>
-          <p>New: {overallStats.New}</p>
-          <p>In Work: {overallStats.InWork}</p>
-          <p>Agree: {overallStats.Agree}</p>
-          <p>Disagree: {overallStats.Disagree}</p>
-          <p>Dubbing: {overallStats.Dubbing}</p>
+          <div className={css.stats}>
+            <p style={{ fontWeight: 'bolder' }}>Total: {overallStats.Total ?? 0}</p>
+          <p>New: <span style={{ color: 'green', fontWeight: 'bold' }}>{overallStats.New ?? 0}</span></p>
+           <p>In Work: <span style={{ color: 'blue', fontWeight: 'bold' }}>{overallStats['In work'] ?? 0}</span></p>
+            <p>Agree: <span style={{ color: 'green', fontWeight: 'bold' }}>{overallStats.Agree ?? 0}</span></p>
+            <p>Disagree: <span style={{ color: 'red', fontWeight: 'bold' }}>{overallStats.Disagree ?? 0}</span></p>
+            <p>Dubbing: <span style={{ color: 'purple', fontWeight: 'bold' }}>{overallStats.Dubbing ?? 0}</span></p>
+          </div>
         </div>
         <div className={css.createButton}>
           <Button onClick={() => setIsModalOpen(true)}>CREATE</Button>
@@ -177,55 +221,63 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           <>
             <table className={css.table}>
               <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Surname</th>
-                  <th>Status</th>
-                  <th>Statistics</th>
-                  <th>Actions</th>
-                </tr>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Status</th>
+                <th>Statistics</th>
+                <th>Last login</th>
+                <th>Actions</th>
+              </tr>
               </thead>
               <tbody>
-                {managers.map(manager => (
-                  <tr key={manager.id}>
-                    <td>{manager.email}</td>
-                    <td>{manager.name}</td>
-                    <td>{manager.surname}</td>
-                    <td>{manager.is_active ? 'Active' : 'Inactive'}</td>
-                    <td>
-                      Total Orders: {manager.statistics?.totalOrders || 0},
-                      Active: {manager.statistics?.activeOrders || 0}
-                    </td>
-                    <td>
-                      {manager.is_active ? (
-                        <Button
-                          className={`${css.actionButton} ${css.recoverButton}`}
-                          onClick={() => handleAction('recover', manager.id)}>
-                          Recover Password
-                        </Button>
-                      ) : (
-                        <Button
-                          className={`${css.actionButton} ${css.activateButton}`}
-                          onClick={() => handleAction('activate', manager.id)}>
-                          Activate
-                        </Button>
-                      )}
+              {managers.map(manager => (
+                <tr key={manager.id}>
+                  <td>{manager.email}</td>
+                  <td>{manager.name}</td>
+                  <td>{manager.surname}</td>
+                 <td style={{ color: manager.is_active ? 'green' : 'red' }}>
+                    {manager.is_active ? 'Active' : 'Inactive'}
+                  </td>
+                  <td>
+                    Total Orders: {manager.statistics?.totalOrders || 0},
+                    Active: {manager.statistics?.activeOrders || 0}
+                  </td>
+                  <td>{formatCell('last_login', manager.last_login)}</td>
+                  <td>
+                    {manager.is_active ? (
                       <Button
-                        className={`${css.actionButton} ${css.banButton}`}
-                        onClick={() => handleAction('ban', manager.id)}
-                        disabled={!manager.is_active}>
-                        Ban
+                        className={`${css.actionButton} ${css.recoverButton}`}
+                        onClick={() => handleAction('recover', manager.id)}
+                      >
+                        Recover Password
                       </Button>
+                    ) : (
                       <Button
-                        className={`${css.actionButton} ${css.unbanButton}`}
-                        onClick={() => handleAction('unban', manager.id)}
-                        disabled={manager.is_active}>
-                        Unban
+                        className={`${css.actionButton} ${css.activateButton}`}
+                        onClick={() => handleAction('activate', manager.id)}
+                      >
+                        Activate
                       </Button>
-                    </td>
-                  </tr>
-                ))}
+                    )}
+                    <Button
+                      className={`${css.actionButton} ${css.banButton}`}
+                      onClick={() => handleAction('ban', manager.id)}
+                      disabled={!manager.is_active}
+                    >
+                      Ban
+                    </Button>
+                    <Button
+                      className={`${css.actionButton} ${css.unbanButton}`}
+                      onClick={() => handleAction('unban', manager.id)}
+                      disabled={manager.is_active}
+                    >
+                      Unban
+                    </Button>
+                  </td>
+                </tr>
+              ))}
               </tbody>
             </table>
             <div className={css.pagination}>

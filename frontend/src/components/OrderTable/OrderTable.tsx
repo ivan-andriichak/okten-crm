@@ -4,6 +4,7 @@ import { AppDispatch, toggleExpand } from '../../store';
 import { OrderTableProps } from '../../interfaces/order';
 import { columns, tableStyles } from './constants';
 import { OrderDetails } from '../OrderDetails/OrderDetails';
+import { formatCell } from '../../utils/timeUtils';
 
 const OrderTable = ({
   orders,
@@ -22,20 +23,6 @@ const OrderTable = ({
     if (onSortChange) {
       onSortChange(field, newOrder);
     }
-  };
-
-  const formatCell = (key: string, value: any) => {
-    if (key === 'created_at' && value) {
-      return new Date(value).toLocaleString('uk-UA', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      });
-    }
-    if (key === 'manager' && value) {
-      return `${value.name || ''} ${value.surname || ''}`.trim() || 'None';
-    }
-    return value ?? 'null';
   };
 
   const getRowStyle = (orderId: string) => ({

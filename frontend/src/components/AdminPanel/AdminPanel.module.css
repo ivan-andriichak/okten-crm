@@ -4,7 +4,7 @@
   position: relative;
   max-height: 100vh;
   overflow-y: auto;
-  color: #333;
+  color: #595757;
 }
 
 .table {
@@ -42,11 +42,21 @@
   color: #545252;
 }
 
-.stats {
-  margin-bottom: 20px;
+.statsContainer {
+  margin: 10px 0;
+  display: flex;
+    align-items: center;
+  gap: 10px;
+  flex-direction: column;
   padding: 10px;
   background: #f8f9fa;
   border-radius: 8px;
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
 }
 
 .pagination {

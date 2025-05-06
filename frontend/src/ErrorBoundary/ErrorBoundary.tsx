@@ -1,9 +1,9 @@
 import { Component, ErrorInfo, FC, ReactNode, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { addNotification } from '../store/slices/notificationSlice';
 import Button from '../components/Button/Button';
 import css from './ErrorBoundary.module.css';
 import SupportEmail from '../components/SupportEmail/SupportEmail';
+import { addNotification } from '../store';
 
 const NotifyError: FC<{ error: Error }> = ({ error }) => {
   const dispatch = useDispatch();

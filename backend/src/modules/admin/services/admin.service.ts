@@ -134,13 +134,22 @@ export class AdminService {
   }
 
   private async getStatistics(orderRepository: any, where: Record<string, any> = {}): Promise<Record<string, number>> {
-    const statuses = [StatusEnum.NEW, StatusEnum.IN_WORK, StatusEnum.AGREED, StatusEnum.DISAGREED, StatusEnum.DUBBING];
+    const statuses = [StatusEnum.NEW, StatusEnum.IN_WORK, StatusEnum.AGREE, StatusEnum.DISAGREE, StatusEnum.DUBBING];
     const stats: Record<string, number> = {};
+
+    // Count orders for each status
     for (const status of statuses) {
       stats[status] = await orderRepository.count({
         where: { ...where, status: Equal(status) },
       });
     }
+
+    // Count total orders
+    stats['Total'] = await orderRepository.count({
+      where: { ...where },
+    });
+
+    console.log('getStatistics result:', stats);
     return stats;
   }
 
