@@ -58,7 +58,7 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   }, [dispatch, token, role, page, limit, navigate]);
 
   useEffect(() => {
-    console.log('AdminPanel overallStats:', overallStats);
+    console.log('AdminPanel overallStats:', overallStats.Total);
   }, [overallStats]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

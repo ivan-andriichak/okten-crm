@@ -109,7 +109,10 @@ export class AdminService {
     limit = 10,
     sort = 'created_at',
     order: 'ASC' | 'DESC' = 'DESC',
-  ): Promise<{ managers: UserEntity[]; total: number }> {
+  ): Promise<{
+    managers: (UserEntity & { statistics: { totalOrders: number; activeOrders: number } })[];
+    total: number;
+  }> {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const [managers, total] = await userRepository.findAndCount({
       where: { role: Role.MANAGER },
@@ -117,12 +120,30 @@ export class AdminService {
       skip: (page - 1) * limit,
       take: limit,
     });
-    return { managers, total };
+
+    // Fetch statistics for each manager
+    const managersWithStats = await Promise.all(
+      managers.map(async (manager) => {
+        const stats = await this.getManagerStatistics(manager.id);
+        return {
+          ...manager,
+          statistics: {
+            totalOrders: stats.Total || 0,
+            activeOrders: stats[StatusEnum.IN_WORK] || 0,
+          },
+        };
+      }),
+    );
+
+    console.log('getManagers result:', { managers: managersWithStats, total });
+    return { managers: managersWithStats, total };
   }
 
   async getOrderStatistics(): Promise<Record<string, number>> {
     const orderRepository = this.dataSource.getRepository(OrderEntity);
-    return await this.getStatistics(orderRepository);
+    const stats = await this.getStatistics(orderRepository);
+    console.log('getOrderStatistics result:', stats);
+    return stats;
   }
 
   async getManagerStatistics(id: string): Promise<Record<string, number>> {
@@ -130,7 +151,9 @@ export class AdminService {
     const manager = await userRepository.findOne({ where: { id, role: Role.MANAGER } });
     if (!manager) throw new NotFoundException('Manager not found');
     const orderRepository = this.dataSource.getRepository(OrderEntity);
-    return await this.getStatistics(orderRepository, { manager: { id } });
+    const stats = await this.getStatistics(orderRepository, { manager: { id } });
+    console.log('getManagerStatistics result:', stats);
+    return stats;
   }
 
   private async getStatistics(orderRepository: any, where: Record<string, any> = {}): Promise<Record<string, number>> {
@@ -139,6 +162,7 @@ export class AdminService {
 
     // Count orders for each status
     for (const status of statuses) {
+      console.log(`Counting orders for status: ${status}`);
       stats[status] = await orderRepository.count({
         where: { ...where, status: Equal(status) },
       });
