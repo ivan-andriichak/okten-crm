@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  addGroup,
+  addGroup, addNotification,
   AppDispatch,
   closeEditModal,
   fetchGroups,
   updateEditForm,
   updateOrder,
 } from '../../store';
-import { addNotification } from '../../store/slices/notificationSlice';
 import { EditOrderModalProps } from '../../interfaces/editForm';
 import { Order, OrderState } from '../../interfaces/order';
 import Button from '../Button/Button';

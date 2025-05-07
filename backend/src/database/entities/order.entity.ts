@@ -44,10 +44,10 @@ export class OrderEntity {
   @Column({ nullable: true, type: 'enum', enum: CourseEnum })
   course: string;
 
-  @Column({ type: 'enum', enum: CourseFormatEnum, default: 'static' })
+  @Column({ type: 'enum', enum: CourseFormatEnum, default: 'STATIC' })
   course_format: string;
 
-  @Column({ type: 'enum', enum: CourseTypeEnum, default: 'minimal' })
+  @Column({ type: 'enum', enum: CourseTypeEnum, default: 'MINIMAL' })
   course_type: string;
 
   @Column({ type: 'enum', enum: StatusEnum, default: 'New' })
