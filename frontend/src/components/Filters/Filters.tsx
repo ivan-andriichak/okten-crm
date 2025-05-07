@@ -1,4 +1,6 @@
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, fetchGroups } from '../../store';
 import css from './Filters.module.css';
 import resetImage from '../../images/reset.png';
 import excel from '../../images/excel.png';
@@ -11,14 +13,31 @@ interface FiltersProps {
   resetFilters: () => void;
 }
 
+interface RootState {
+  orders: { groups: string[] };
+  auth: { token: string | null };
+}
+
 const Filters = ({
-  filters,
-  setFilters,
-  myOrdersOnly,
-  setMyOrdersOnly,
-  resetFilters,
-}: FiltersProps) => {
-  const handleFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
+                   filters,
+                   setFilters,
+                   myOrdersOnly,
+                   setMyOrdersOnly,
+                   resetFilters,
+                 }: FiltersProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const groups = useSelector((state: RootState) => state.orders.groups) || [];
+  const token = useSelector((state: RootState) => state.auth.token);
+
+  useEffect(() => {
+    if (token && groups.length === 0) {
+      dispatch(fetchGroups());
+    }
+  }, [dispatch, token, groups.length]);
+
+  const handleFilterChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
   };
@@ -26,6 +45,12 @@ const Filters = ({
   const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     setMyOrdersOnly(e.target.checked);
   };
+
+  // Фіксовані списки для випадаючих меню
+  const courseOptions = ['FS', 'QACX', 'JCX', 'JSCX', 'FE', 'PCX'];
+  const courseFormatOptions = ['static', 'online'];
+  const courseTypeOptions = ['pro', 'minimal', 'premium', 'incubator', 'vip'];
+  const statusOptions = ['In work', 'New', 'Agree', 'Disagree', 'Dubbing'];
 
   return (
     <div className={css.filtersContainer}>
@@ -70,54 +95,71 @@ const Filters = ({
           placeholder="Filter by age"
           className={css.filterInput}
         />
-        <input
-          type="text"
+        <select
           name="course"
           value={filters.course || ''}
           onChange={handleFilterChange}
-          placeholder="Filter by course"
           className={css.filterInput}
-        />
-        <input
-          type="text"
+        >
+          <option value="">Filter by course</option>
+          {courseOptions.map(option => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <select
           name="course_format"
           value={filters.course_format || ''}
           onChange={handleFilterChange}
-          placeholder="Filter by course format"
           className={css.filterInput}
-        />
-        <input
-          type="text"
+        >
+          <option value="">Filter by course format</option>
+          {courseFormatOptions.map(option => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <select
           name="course_type"
           value={filters.course_type || ''}
           onChange={handleFilterChange}
-          placeholder="Filter by course type"
           className={css.filterInput}
-        />
-        <input
-          type="text"
+        >
+          <option value="">Filter by course type</option>
+          {courseTypeOptions.map(option => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <select
           name="status"
           value={filters.status || ''}
           onChange={handleFilterChange}
-          placeholder="Filter by status"
           className={css.filterInput}
-        />
-        <input
-          type="text"
-          name="sum"
-          value={filters.sum || ''}
-          onChange={handleFilterChange}
-          placeholder="Filter by sum"
-          className={css.filterInput}
-        />
-        <input
-          type="text"
+        >
+          <option value="">Filter by status</option>
+          {statusOptions.map(option => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <select
           name="group"
           value={filters.group || ''}
           onChange={handleFilterChange}
-          placeholder="Filter by group"
           className={css.filterInput}
-        />
+        >
+          <option value="">Filter by group</option>
+          {groups.map(group => (
+            <option key={group} value={group}>
+              {group}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           name="created_at"

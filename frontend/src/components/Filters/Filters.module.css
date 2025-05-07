@@ -23,11 +23,6 @@
   width: 150px;
 }
 
-.filterInput:focus {
-  border-color: #488ff1;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
-}
-
 .checkboxContainer {
   max-height: 35px;
   display: flex;
@@ -62,4 +57,17 @@
   border-radius: 50%;
   background-color: transparent;
   transition: opacity 0.2s;
+}
+
+.filterInput:focus {
+  border-color: #b0c4de;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.filterInput option:hover,
+.filterInput option:active,
+.filterInput option:checked {
+  background: #a9c6ff !important;
+  border: 1px solid  coral;
+  color: white;
 }
