@@ -37,7 +37,6 @@
     "@nestjs/typeorm": "^10.0.2",
     "@sentry/nestjs": "^8.55.0",
     "@sentry/node": "^9.4.0",
-    "@sentry/profiling-node": "^8.55.0",
     "@typescript-eslint/utils": "^8.15.0",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",

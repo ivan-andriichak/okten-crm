@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { SkipAuth } from './decorators/skip-auth.decorator';
 import { LoginReqDto } from './dto/req/login.req.dto';
+import { RefreshTokenReqDto } from './dto/req/refresh-token.req.dto';
 import { RegisterReqDto } from './dto/req/register.req.dto';
 import { AuthResDto } from './dto/res/auth.res.dto';
 import { TokenPairResDto } from './dto/res/token-pair.res.dto';
@@ -42,6 +43,12 @@ export class AuthController {
     return await this.authService.register(dto);
   }
 
+  @Get('/debug-sentry')
+  @SkipAuth()
+  getError(): void {
+    throw new Error('My first Sentry error!');
+  }
+
   @SkipAuth()
   @Post('login')
   public async login(@Body() dto: LoginReqDto): Promise<AuthResDto> {
@@ -52,8 +59,8 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @SkipAuth()
   @Post('refresh')
-  public async refresh(@CurrentUser() userData: IUserData): Promise<TokenPairResDto> {
-    return await this.authService.refresh(userData);
+  public async refresh(@CurrentUser() userData: IUserData, @Body() body: RefreshTokenReqDto): Promise<TokenPairResDto> {
+    return await this.authService.refresh(userData, body.refreshToken);
   }
 
   @ApiBearerAuth()
