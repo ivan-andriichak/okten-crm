@@ -10,26 +10,37 @@ const Notification: FC = () => {
   );
 
   useEffect(() => {
+    console.log('Notifications updated:', notifications);
     const timers = notifications.map((notification) =>
       setTimeout(() => {
+        console.log(`Removing notification: ${notification.id}`);
         dispatch(removeNotification(notification.id));
-      }, notification.duration || 6000)
+      }, notification.duration || 6000),
     );
 
     return () => {
+      console.log('Cleaning up timers for notifications:', notifications);
       timers.forEach(clearTimeout);
     };
   }, [notifications, dispatch]);
 
-  if (!notifications.length) return null;
+  if (!notifications.length) {
+    console.log('No notifications to render');
+    return null;
+  }
 
   return (
-    <div className={css.notificationContainer}>
+    <div
+      className={css.notificationContainer}
+    >
       {notifications.map((notification: { id: string; type: string; message: React.ReactNode }) => (
         <div
           key={notification.id}
           className={`${css.notification} ${css[notification.type]}`}
-          onClick={() => dispatch(removeNotification(notification.id))}
+          onClick={() => {
+            console.log(`Manually removing notification: ${notification.id}`);
+            dispatch(removeNotification(notification.id));
+          }}
         >
           {notification.message}
         </div>
@@ -37,6 +48,5 @@ const Notification: FC = () => {
     </div>
   );
 };
-
 
 export default Notification;

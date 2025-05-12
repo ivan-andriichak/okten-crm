@@ -1,5 +1,11 @@
 import { AxiosError } from 'axios';
-import { addNotification, logout, refreshTokens, store } from '../store';
+import {
+  addNotification,
+  clearNotifications,
+  logout,
+  refreshTokens,
+  store,
+} from '../store';
 import { AxiosRequestConfigWithRetry } from './types';
 import SupportEmail from '../components/SupportEmail/SupportEmail';
 import React from 'react';
@@ -13,10 +19,11 @@ const handleSessionError = async (
   store.dispatch(logout());
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('deviceId');
-  store.dispatch(addNotification({ message, type: 'error' }));
+  store.dispatch(clearNotifications());
+  store.dispatch(addNotification({ message, type: 'error', duration: 5000 }));
 
   // Delay redirect to allow the notification to be visible
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  await new Promise(resolve => setTimeout(resolve, 5000));
   window.location.href = '/login';
   throw new Error(isBanned ? 'BannedError' : 'SessionError');
 };
@@ -28,7 +35,12 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
   const isRefreshRequest = config?.url?.includes('/refresh');
 
   // Handle 401 Unauthorized errors that are not from login or refresh requests
-  if (error.response?.status === 401 && !config?._retry && !isLoginRequest && !isRefreshRequest) {
+  if (
+    error.response?.status === 401 &&
+    !config?._retry &&
+    !isLoginRequest &&
+    !isRefreshRequest
+  ) {
     if (!config) return Promise.reject(error);
     config._retry = true;
 
@@ -51,7 +63,8 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       } else if (errorMessage.includes('User has been banned')) {
         message = (
           <>
-            Your account has been banned. Please contact support: <SupportEmail />
+            Your account has been banned. Please contact support:{' '}
+            <SupportEmail />
           </>
         );
         await handleSessionError(message, true);
@@ -77,7 +90,8 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
     ) {
       message = (
         <>
-          Your account has been banned or deactivated. Please contact support: <SupportEmail />
+          Your account has been banned or deactivated. Please contact support:{' '}
+          <SupportEmail />
         </>
       );
       await handleSessionError(message, true);
@@ -87,14 +101,18 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       } else if (resData.message === 'User has been banned') {
         message = (
           <>
-            Your account has been banned. Please contact support: <SupportEmail />
+            Your account has been banned. Please contact support:{' '}
+            <SupportEmail />
           </>
         );
         await handleSessionError(message, true);
       } else {
         message = 'You do not have permission to perform this action.';
       }
-      store.dispatch(addNotification({ message, type: 'error' }));
+      store.dispatch(clearNotifications());
+      store.dispatch(
+        addNotification({ message, type: 'error', duration: 5000 }),
+      );
       return Promise.reject(error);
     } else {
       message =
@@ -108,6 +126,7 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
     message = error.message || 'Request configuration error.';
   }
 
-  store.dispatch(addNotification({ message, type: 'error' }));
+  store.dispatch(clearNotifications());
+  store.dispatch(addNotification({ message, type: 'error', duration: 5000 }));
   return Promise.reject(error);
 };

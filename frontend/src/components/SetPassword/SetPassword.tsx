@@ -1,9 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { addNotification, AppDispatch, login } from '../../store';
-
 import { v4 as uuidv4 } from 'uuid';
+import {
+  addNotification,
+  AppDispatch,
+  login,
+  clearNotifications,
+} from '../../store';
 import Button from '../Button/Button';
 import css from './SetPassword.module.css';
 import { api } from '../../services/api';
@@ -16,60 +20,61 @@ const SetPassword: FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [_email, setEmail] = useState('');
+  const [, setEmail] = useState('');
 
   const isActivation = location.pathname.includes('/activate');
   const title = isActivation ? 'Activate Account' : 'Recover Password';
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (_email) {
-        navigate('/orders');
-      }
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [_email, dispatch, navigate]);
-
+    // Очистити сповіщення при завантаженні компонента
+    dispatch(clearNotifications());
+    console.log('SetPassword mounted');
+  }, [dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password.length < 8) {
       console.log('Dispatching error notification: Password is too short');
-      dispatch(addNotification({
+      const action = addNotification({
         message: 'Password must be at least 8 characters long',
         type: 'error',
-        duration: 5000,
-      }));
-
+        duration: 8000,
+      });
+      dispatch(action);
+      console.log('Dispatched action:', action);
       return;
     }
 
     if (password !== confirmPassword) {
-      dispatch(
-        addNotification({
-          message: 'Passwords do not match',
-          type: 'error',
-          duration: 5000,
-        }),
-      );
+      console.log('Dispatching error notification: Passwords do not match');
+      const action = addNotification({
+        message: 'Passwords do not match',
+        type: 'error',
+        duration: 10000,
+      });
+      dispatch(action);
+      console.log('Dispatched action:', action);
       return;
     }
 
     if (!token) {
-      dispatch(
-        addNotification({
-          message: 'Invalid or missing token',
-          type: 'error',
-          duration: 5000,
-        }),
-      );
+      console.log('Dispatching error notification: Invalid or missing token');
+      const action = addNotification({
+        message: 'Invalid or missing token',
+        type: 'error',
+        duration: 8000,
+      });
+      dispatch(action);
+      console.log('Dispatched action:', action);
       setTimeout(() => {
         navigate('/login');
-      }, 2000);
+      }, 8000);
       return;
     }
+
+    // Очистити сповіщення перед асинхронним запитом
+    dispatch(clearNotifications());
 
     try {
       const response = await api.get(`/admin/user-by-token/${token}`);
@@ -93,32 +98,39 @@ const SetPassword: FC = () => {
       );
 
       if (login.fulfilled.match(result)) {
-        dispatch(
-          addNotification({
-            message: 'Password set successfully! Redirecting to orders...',
-            type: 'success',
-            duration: 5000,
-          }),
-        );
+        console.log('Dispatching success notification');
+        const action = addNotification({
+          message: 'Password set successfully! Redirecting to orders...',
+          type: 'success',
+          duration: 8000,
+        });
+        dispatch(action);
+        console.log('Dispatched action:', action);
         setPassword('');
         setConfirmPassword('');
+        setTimeout(() => {
+          console.log('Navigating to /orders');
+          dispatch(clearNotifications()); // Очистити сповіщення перед редиректом
+          navigate('/orders', { replace: true });
+        }, 8000);
       } else {
         throw new Error('Login failed after setting password');
       }
     } catch (err: any) {
-      dispatch(
-        addNotification({
-          message:
-            err.response?.data?.message ||
-            err.message ||
-            'Failed to set password',
-          type: 'error',
-          duration: 5000,
-        }),
-      );
+      console.log('Dispatching error notification: Failed to set password');
+      const action = addNotification({
+        message:
+          err.response?.data?.message ||
+          err.message ||
+          'Failed to set password',
+        type: 'error',
+        duration: 8000,
+      });
+      dispatch(action);
+      console.log('Dispatched action:', action);
       setTimeout(() => {
         navigate('/login');
-      }, 2000);
+      }, 8000);
     }
   };
 

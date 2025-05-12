@@ -51,26 +51,14 @@ const router = createBrowserRouter([
       { path: '/login', element: <Login /> },
       { path: '/orders', element: <ProtectedOrdersRoute /> },
       { path: '/admin', element: <ProtectedAdminRoute /> },
+      { path: '/activate/:token', element: <SetPassword /> },
+      { path: '/recover/:token', element: <SetPassword /> },
+      { path: '/set-password/:token', element: <SetPassword /> },
     ],
   },
   {
     path: '/register',
     element: <PublicOrderForm />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/activate/:token',
-    element: <SetPassword />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/recover/:token',
-    element: <SetPassword />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/set-password/:token',
-    element: <SetPassword />,
     errorElement: <ErrorPage />,
   },
 ]);

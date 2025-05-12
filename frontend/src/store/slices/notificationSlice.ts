@@ -24,28 +24,42 @@ const notificationSlice = createSlice({
       state,
       action: PayloadAction<Omit<Notification, 'id'>>,
     ) => {
-      const existingNotification = state.notifications.find(
-        n =>
-          n.message === action.payload.message &&
-          n.type === action.payload.type,
-      );
-      if (existingNotification) {
-        return;
-      }
+      console.log('Adding notification:', action.payload);
+      console.log('Message type:', typeof action.payload.message);
+      // Конвертуємо message в рядок для порівняння, якщо це можливо
+      const payloadMessage =
+        typeof action.payload.message === 'string'
+          ? action.payload.message
+          : String(action.payload.message);
+
+      // Видаляємо старе сповіщення, якщо воно існує
+      state.notifications = state.notifications.filter(n => {
+        const existingMessage =
+          typeof n.message === 'string' ? n.message : String(n.message);
+        return !(
+          existingMessage === payloadMessage && n.type === action.payload.type
+        );
+      });
+
       const id = crypto.randomUUID();
       state.notifications.push({
         ...action.payload,
         id,
-        duration: action.payload.duration ?? 5000,
+        duration: action.payload.duration ?? 6000,
       });
+      console.log('Current notifications:', state.notifications);
     },
     removeNotification: (state, action: PayloadAction<string>) => {
       state.notifications = state.notifications.filter(
         n => n.id !== action.payload,
       );
     },
+    clearNotifications: state => {
+      state.notifications = [];
+    },
   },
 });
 
-export const { addNotification, removeNotification } = notificationSlice.actions;
+export const { addNotification, removeNotification, clearNotifications } =
+  notificationSlice.actions;
 export const notificationReducer = notificationSlice.reducer;
