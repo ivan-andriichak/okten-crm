@@ -155,6 +155,7 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
               type: 'success',
             }),
           );
+          dispatch(fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }));
           break;
         }
         case 'unban': {
