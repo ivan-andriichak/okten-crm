@@ -6,44 +6,38 @@ import { Config, SentryConfig } from '../../config/config.type';
 
 @Injectable()
 export class LoggerService {
-  private readonly isLocal: boolean;
   private readonly logger = new Logger();
 
   constructor(private readonly configService: ConfigService<Config>) {
     const sentryConfig = this.configService.get<SentryConfig>('sentry');
-    this.isLocal = sentryConfig.env === 'local';
+
+    if (sentryConfig?.dsn) {
+      Sentry.init({
+        dsn: sentryConfig.dsn,
+        environment: sentryConfig.env,
+        debug: sentryConfig.debug === true,
+      });
+    }
   }
 
   public log(message: string): void {
-    if (this.isLocal) {
-      this.logger.log(message);
-    } else {
-      Sentry.captureMessage(message, 'log');
-    }
+    this.logger.log(message);
+    Sentry.captureMessage(message, 'log');
   }
 
   public info(message: string): void {
-    if (this.isLocal) {
-      this.logger.log(message);
-    } else {
-      Sentry.captureMessage(message, 'info');
-    }
+    this.logger.log(message);
+    Sentry.captureMessage(message, 'info');
   }
 
   public warn(message: string): void {
-    if (this.isLocal) {
-      this.logger.warn(message);
-    } else {
-      Sentry.captureMessage(message, 'warning');
-    }
+    this.logger.warn(message);
+    Sentry.captureMessage(message, 'warning');
   }
 
   public error(error: any, trace: string = ''): void {
     const finalTrace = trace || (error && error.stack ? error.stack : '');
-    if (this.isLocal) {
-      this.logger.error(error, finalTrace);
-    } else {
-      Sentry.captureException(error, { level: 'error' });
-    }
+    this.logger.error(error, finalTrace);
+    Sentry.captureException(error, { level: 'error' });
   }
 }

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -18,12 +18,6 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Roles(Role.ADMIN)
-  @Post('managers')
-  async createManager(@Body() dto: RegisterAdminReqDto): Promise<UserEntity> {
-    return await this.adminService.createManager(dto);
-  }
-
-  @Roles(Role.ADMIN)
   @Get('managers')
   async getManagers(
     @Query('page') page = 1,
@@ -32,6 +26,30 @@ export class AdminController {
     @Query('order') order: 'ASC' | 'DESC' = 'DESC',
   ): Promise<{ managers: UserEntity[]; total: number }> {
     return await this.adminService.getManagers(page, limit, sort, order);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('orders/stats')
+  async getOrderStatistics(): Promise<Record<string, number>> {
+    return await this.adminService.getOrderStatistics();
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('managers/:id/statistics')
+  async getManagerStatistics(@Param('id') id: string): Promise<Record<string, number>> {
+    return await this.adminService.getManagerStatistics(id);
+  }
+
+  @Public()
+  @Get('user-by-token/:token')
+  async getUserByToken(@Param('token') token: string) {
+    return await this.adminService.getUserByToken(token);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('managers')
+  async createManager(@Body() dto: RegisterAdminReqDto): Promise<UserEntity> {
+    return await this.adminService.createManager(dto);
   }
 
   @Roles(Role.ADMIN)
@@ -44,12 +62,6 @@ export class AdminController {
   @Post('managers/:id/recover')
   async recoverPassword(@Param('id') id: string): Promise<{ link: string }> {
     return await this.adminService.generateRecoveryLink(id);
-  }
-
-  @Public()
-  @Get('user-by-token/:token')
-  async getUserByToken(@Param('token') token: string) {
-    return await this.adminService.getUserByToken(token);
   }
 
   @Roles(Role.ADMIN)
@@ -68,39 +80,5 @@ export class AdminController {
   @Post('set-password/:token')
   async setPassword(@Param('token') token: string, @Body() body: { password: string }): Promise<void> {
     return await this.adminService.setPassword(token, body.password);
-  }
-
-  @Roles(Role.ADMIN)
-  @Get('orders/stats')
-  async getOrderStatistics(): Promise<Record<string, number>> {
-    return await this.adminService.getOrderStatistics();
-  }
-
-  @Roles(Role.ADMIN)
-  @Get('managers/:id/statistics')
-  async getManagerStatistics(@Param('id') id: string): Promise<Record<string, number>> {
-    return await this.adminService.getManagerStatistics(id);
-  }
-
-  @Public()
-  @Get('support')
-  @ApiOperation({ summary: 'Get support contact information' })
-  @ApiResponse({
-    status: 200,
-    description: 'Support contact information',
-    type: Object,
-    example: {
-      supportEmail: 'support@example.com',
-      supportPhone: '+1234567890',
-      supportName: 'Support Team',
-    },
-  })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
-  async getSupportInfo(): Promise<{
-    supportEmail: string;
-    supportPhone: string;
-    supportName: string;
-  }> {
-    return await this.adminService.getSupportInfo();
   }
 }

@@ -10,28 +10,33 @@ const Notification: FC = () => {
   );
 
   useEffect(() => {
-    notifications.forEach((notification: { id: string }) => {
-      const timer = setTimeout(() => {
+    const timers = notifications.map((notification) =>
+      setTimeout(() => {
         dispatch(removeNotification(notification.id));
-      }, 6000);
-      return () => clearTimeout(timer);
-    });
+      }, notification.duration || 6000)
+    );
+
+    return () => {
+      timers.forEach(clearTimeout);
+    };
   }, [notifications, dispatch]);
+
+  if (!notifications.length) return null;
 
   return (
     <div className={css.notificationContainer}>
-      {notifications.map(
-        (notification: { id: string; type: string; message: React.ReactNode }) => (
-          <div
-            key={notification.id}
-            className={`${css.notification} ${css[notification.type]}`}
-            onClick={() => dispatch(removeNotification(notification.id))}>
-            {notification.message}
-          </div>
-        ),
-      )}
+      {notifications.map((notification: { id: string; type: string; message: React.ReactNode }) => (
+        <div
+          key={notification.id}
+          className={`${css.notification} ${css[notification.type]}`}
+          onClick={() => dispatch(removeNotification(notification.id))}
+        >
+          {notification.message}
+        </div>
+      ))}
     </div>
   );
 };
+
 
 export default Notification;

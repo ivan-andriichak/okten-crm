@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { DataSource, Equal } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
@@ -121,7 +121,6 @@ export class AdminService {
       take: limit,
     });
 
-    // Fetch statistics for each manager
     const managersWithStats = await Promise.all(
       managers.map(async (manager) => {
         const stats = await this.getManagerStatistics(manager.id);
@@ -135,14 +134,12 @@ export class AdminService {
       }),
     );
 
-    console.log('getManagers result:', { managers: managersWithStats, total });
     return { managers: managersWithStats, total };
   }
 
   async getOrderStatistics(): Promise<Record<string, number>> {
     const orderRepository = this.dataSource.getRepository(OrderEntity);
     const stats = await this.getStatistics(orderRepository);
-    console.log('getOrderStatistics result:', stats);
     return stats;
   }
 
@@ -152,7 +149,6 @@ export class AdminService {
     if (!manager) throw new NotFoundException('Manager not found');
     const orderRepository = this.dataSource.getRepository(OrderEntity);
     const stats = await this.getStatistics(orderRepository, { manager: { id } });
-    console.log('getManagerStatistics result:', stats);
     return stats;
   }
 
@@ -160,36 +156,16 @@ export class AdminService {
     const statuses = [StatusEnum.NEW, StatusEnum.IN_WORK, StatusEnum.AGREE, StatusEnum.DISAGREE, StatusEnum.DUBBING];
     const stats: Record<string, number> = {};
 
-    // Count orders for each status
     for (const status of statuses) {
-      console.log(`Counting orders for status: ${status}`);
       stats[status] = await orderRepository.count({
         where: { ...where, status: Equal(status) },
       });
     }
 
-    // Count total orders
     stats['Total'] = await orderRepository.count({
       where: { ...where },
     });
 
-    console.log('getStatistics result:', stats);
     return stats;
-  }
-
-  async getSupportInfo(): Promise<{
-    supportEmail: string;
-    supportPhone: string;
-    supportName: string;
-  }> {
-    try {
-      return {
-        supportEmail: process.env.SUPPORT_EMAIL || 'support@example.com',
-        supportPhone: process.env.SUPPORT_PHONE || '+380951234567',
-        supportName: process.env.SUPPORT_NAME || 'Support Team',
-      };
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to fetch support information');
-    }
   }
 }

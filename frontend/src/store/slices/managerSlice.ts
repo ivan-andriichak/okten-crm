@@ -70,7 +70,6 @@ export const fetchManagers = createAsyncThunk<
   'managers/fetchManagers',
   async ({ page, limit, sort, order }, { getState }) => {
     const { token } = getState().auth;
-    console.log('fetchManagers: Token:', token);
     if (!token) {
       throw new Error('No token available');
     }
@@ -100,14 +99,12 @@ export const fetchOverallStats = createAsyncThunk<
   { state: RootState }
 >('managers/fetchOverallStats', async (_, { getState }) => {
   const { token } = getState().auth;
-  console.log('fetchOverallStats: Token:', token);
   if (!token) {
     throw new Error('No token available');
   }
   const response = await api.get('/admin/orders/stats', {
     headers: { Authorization: `Bearer ${token}` },
   });
-  console.log('fetchOverallStats response:', response.data);
   return response.data;
 });
 
@@ -279,12 +276,10 @@ const managerSlice = createSlice({
       .addCase(fetchOverallStats.fulfilled, (state, action) => {
         state.loading = false;
         state.overallStats = action.payload;
-        console.log('fetchOverallStats fulfilled:', action.payload);
       })
       .addCase(fetchOverallStats.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch overall stats';
-        console.log('fetchOverallStats rejected:', action.error);
       })
       .addCase(createManager.pending, state => {
         state.loading = true;

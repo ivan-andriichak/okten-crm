@@ -33,7 +33,6 @@ const ProtectedOrdersRoute = () => {
 
 const ProtectedAdminRoute = () => {
   const { token, role } = useSelector((state: RootState) => state.auth);
-  console.log('ProtectedAdminRoute:', { token, role });
 
   return token && role === 'admin' ? (
     <AdminPanel token={token} role={role} />

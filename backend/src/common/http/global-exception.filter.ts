@@ -9,6 +9,7 @@ import { DbQueryFailedFilter } from './db-query-failed.filter';
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   constructor(private readonly logger: LoggerService) {}
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();

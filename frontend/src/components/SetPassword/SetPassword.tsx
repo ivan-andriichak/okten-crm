@@ -1,12 +1,11 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { AppDispatch, login } from '../../store';
+import { addNotification, AppDispatch, login } from '../../store';
 
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../Button/Button';
 import css from './SetPassword.module.css';
-import { addNotification } from '../../store/slices/notificationSlice';
 import { api } from '../../services/api';
 
 const SetPassword: FC = () => {
@@ -27,21 +26,23 @@ const SetPassword: FC = () => {
       if (_email) {
         navigate('/orders');
       }
-    }, 2000);
+    }, 5000);
+
     return () => clearTimeout(timer);
-  }, [_email, navigate]);
+  }, [_email, dispatch, navigate]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password.length < 8) {
-      dispatch(
-        addNotification({
-          message: 'Password must be at least 8 characters long',
-          type: 'error',
-          duration: 5000,
-        }),
-      );
+      console.log('Dispatching error notification: Password is too short');
+      dispatch(addNotification({
+        message: 'Password must be at least 8 characters long',
+        type: 'error',
+        duration: 5000,
+      }));
+
       return;
     }
 

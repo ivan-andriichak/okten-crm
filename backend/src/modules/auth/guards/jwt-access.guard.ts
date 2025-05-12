@@ -21,45 +21,36 @@ export class JwtAccessGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const route = `${request.method} ${request.url}`;
-    console.log(`JwtAccessGuard: Processing route: ${route}`);
 
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    console.log(`JwtAccessGuard: isPublic: ${isPublic}`);
 
     if (isPublic) {
-      console.log(`JwtAccessGuard: Route is public, allowing access`);
       return true;
     }
 
     const skipAuth = this.reflector.getAllAndOverride<boolean>('SKIP_AUTH', [context.getHandler(), context.getClass()]);
-    console.log(`JwtAccessGuard: skipAuth: ${skipAuth}`);
 
     if (skipAuth) {
-      console.log(`JwtAccessGuard: Auth skipped, allowing access`);
       return true;
     }
 
     const accessToken = request.get('Authorization')?.split('Bearer ')[1];
-    console.log(`JwtAccessGuard: accessToken: ${accessToken ? accessToken : 'missing'}`);
 
     if (!accessToken) {
-      console.error(`JwtAccessGuard: No access token provided for ${route}`);
       throw new UnauthorizedException('No access token provided');
     }
 
     try {
       const payload = await this.tokenService.verifyToken(accessToken, TokenType.ACCESS);
-      console.log(`JwtAccessGuard: payload: ${JSON.stringify(payload)}`);
 
       const isAccessTokenExist = await this.authCacheService.isAccessTokenExist(
         payload.userId,
         payload.deviceId,
         accessToken,
       );
-      console.log(`JwtAccessGuard: isAccessTokenExist: ${isAccessTokenExist}`);
 
       if (!isAccessTokenExist) {
         console.error(`JwtAccessGuard: Access token not found in cache for ${route}`, {
@@ -70,21 +61,14 @@ export class JwtAccessGuard implements CanActivate {
       }
 
       const user = await this.userRepository.findOneBy({ id: payload.userId });
-      console.log(
-        `JwtAccessGuard: user: ${
-          user ? JSON.stringify({ id: user.id, email: user.email, role: user.role }) : 'not found'
-        }`,
-      );
 
       if (user.role === 'manager' && !user.is_active) {
         throw new UnauthorizedException('User is banned');
       }
 
       request.user = UserMapper.toIUserData(user, payload);
-      console.log(`JwtAccessGuard: request.user set: ${JSON.stringify(request.user)}`);
       return true;
     } catch (error) {
-      console.error(`JwtAccessGuard: Помилка валідації для ${route}: ${error.message}`);
       throw new UnauthorizedException('Invalid access token');
     }
   }

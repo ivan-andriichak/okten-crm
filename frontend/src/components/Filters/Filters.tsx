@@ -46,7 +46,6 @@ const Filters = ({
     setMyOrdersOnly(e.target.checked);
   };
 
-  // Фіксовані списки для випадаючих меню
   const courseOptions = ['FS', 'QACX', 'JCX', 'JSCX', 'FE', 'PCX'];
   const courseFormatOptions = ['static', 'online'];
   const courseTypeOptions = ['pro', 'minimal', 'premium', 'incubator', 'vip'];

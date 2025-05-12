@@ -70,7 +70,6 @@ const fetchOrders = createAsyncThunk<
     },
   );
 
-  console.log('Fetched orders:', response.data);
   return { orders: response.data.orders, total: response.data.total };
 });
 
@@ -104,7 +103,7 @@ const createOrder = createAsyncThunk<Order, Partial<Order>, ThunkConfig>(
   'orders/createOrder',
   async (orderData, { getState }) => {
     const { token } = getState().auth;
-    const response = await api.post<Order>('/orders/public', orderData, {
+    const response = await api.post<Order>('/orders/register', orderData, {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
     return response.data;
@@ -141,7 +140,6 @@ const addComment = createAsyncThunk<
       headers: { Authorization: `Bearer ${token}` },
     },
   );
-  console.log('addComment response:', response.data);
   return response.data;
 });
 

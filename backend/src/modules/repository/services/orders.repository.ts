@@ -8,8 +8,6 @@ import { OrderListQueryDto } from '../../orders/dto/req/order-list.query.dto';
 export class OrdersRepository extends Repository<OrderEntity> {
   constructor(private readonly dataSource: DataSource) {
     super(OrderEntity, dataSource.manager);
-    console.log('OrdersRepository initialized');
-    console.log('DataSource initialized:', dataSource.isInitialized);
   }
 
   public async getListOrders(userId: string, query: OrderListQueryDto): Promise<[OrderEntity[], number]> {
@@ -36,31 +34,20 @@ export class OrdersRepository extends Repository<OrderEntity> {
       myOrders,
     } = query;
 
-    console.log('Query received:', query);
-    console.log('UserId received:', userId);
-    console.log('myOrders value:', myOrders, 'typeof myOrders:', typeof myOrders);
-
     const qb = this.createQueryBuilder('order')
       .leftJoinAndSelect('order.manager', 'manager')
       .leftJoinAndSelect('order.groupEntity', 'groupEntity')
       .leftJoinAndSelect('order.comments', 'comments')
       .leftJoinAndSelect('comments.user', 'commentUser');
 
-    // Фільтр за userId, якщо myOrders === true
     if (myOrders === true && userId) {
-      console.log('Applying filter for myOrders with userId:', userId);
       qb.andWhere('order.manager_id = :userId', { userId });
-    } else {
-      console.log('No myOrders filter applied. myOrders:', myOrders, 'userId:', userId);
     }
 
-    // Фільтр за manager_id, якщо передано явно
     if (manager_id) {
-      console.log('Applying filter for manager_id:', manager_id);
       qb.andWhere('order.manager_id = :manager_id', { manager_id });
     }
 
-    // Решта фільтрів
     if (name) qb.andWhere('order.name LIKE :name', { name: `%${name}%` });
     if (surname) qb.andWhere('order.surname LIKE :surname', { surname: `%${surname}%` });
     if (email) qb.andWhere('order.email LIKE :email', { email: `%${email}%` });
@@ -74,16 +61,25 @@ export class OrdersRepository extends Repository<OrderEntity> {
     if (alreadyPaid) qb.andWhere('order.alreadyPaid LIKE :alreadyPaid', { alreadyPaid: `%${alreadyPaid}%` });
     if (group) qb.andWhere('order.group LIKE :group', { group: `%${group}%` });
     if (created_at) qb.andWhere('DATE(order.created_at) = :created_at', { created_at });
-    if (manager)
-      qb.andWhere('manager.name LIKE :manager OR manager.surname LIKE :manager', { manager: `%${manager}%` });
+    if (manager) {
+      const parts = manager.trim().toLowerCase().split(/\s+/);
+      if (parts.length === 1) {
+        qb.andWhere(`(LOWER(manager.name) LIKE :part OR LOWER(manager.surname) LIKE :part)`, { part: `%${parts[0]}%` });
+      } else if (parts.length >= 2) {
+        qb.andWhere(
+          `(
+        (LOWER(manager.name) LIKE :part1 AND LOWER(manager.surname) LIKE :part2) OR
+        (LOWER(manager.name) LIKE :part2 AND LOWER(manager.surname) LIKE :part1)
+      )`,
+          { part1: `%${parts[0]}%`, part2: `%${parts[1]}%` },
+        );
+      }
+    }
 
-    // Сортування
     qb.orderBy(`order.${sort}`, order);
 
-    // Пагінація
     qb.skip((page - 1) * limit).take(limit);
 
-    // Вибираємо потрібні поля
     qb.select([
       'order.id',
       'order.name',
@@ -116,7 +112,6 @@ export class OrdersRepository extends Repository<OrderEntity> {
     ]);
 
     const [orders, total] = await qb.getManyAndCount();
-    console.log('Orders fetched:', orders.length, 'Total:', total);
     return [orders, total];
   }
 }

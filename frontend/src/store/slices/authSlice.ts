@@ -36,16 +36,16 @@ const login = createAsyncThunk(
 
       return {
         token: data.tokens.accessToken,
+        refreshToken: data.tokens.refreshToken,
         role: data.user.role,
         currentUserId: data.user.id,
         name: data.user.name,
         surname: data.user.surname,
       };
     } catch (error: any) {
-      console.error('Login failed:', error);
       const errorMessage =
         error.response?.data?.message ||
-        'Помилка входу до системи. Перевірте дані та спробуйте ще раз.';
+        'Login failed. Please check your credentials and try again.';
       return rejectWithValue(errorMessage);
     }
   },
@@ -53,16 +53,30 @@ const login = createAsyncThunk(
 
 export const refreshTokens = createAsyncThunk(
   'auth/refreshTokens',
-  async (_, { getState }) => {
-    const { auth } = getState() as RootState;
-    const response = await api.post(
-      '/refresh',
-      {},
-      {
-        headers: { Authorization: `Bearer ${auth.refreshToken}` },
-      },
-    );
-    return response.data;
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState() as RootState;
+      const deviceId =
+        localStorage.getItem('deviceId') ||
+        '550e8400-e29b-41d4-a716-446655440001';
+      const refreshToken = auth.refreshToken;
+
+
+      if (!refreshToken || !deviceId) {
+        return rejectWithValue('Missing refresh token or deviceId');
+      }
+
+      const response = await api.post('/refresh', {
+        refreshToken,
+        deviceId,
+      });
+
+      return response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || 'Failed to refresh tokens.';
+      return rejectWithValue(errorMessage);
+    }
   },
 );
 
@@ -73,6 +87,8 @@ const authSlice = createSlice({
     setTokens(state, action) {
       state.token = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
+      storage.set('token', action.payload.accessToken);
+      storage.set('refreshToken', action.payload.refreshToken);
     },
     logout: state => {
       storage.clearAuth();
@@ -89,12 +105,14 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.token = payload.token;
+        state.refreshToken = payload.refreshToken;
         state.role = payload.role;
         state.currentUserId = payload.currentUserId;
         state.name = payload.name;
         state.surname = payload.surname;
 
         storage.set('token', payload.token);
+        storage.set('refreshToken', payload.refreshToken);
         storage.set('role', payload.role);
         storage.set('currentUserId', payload.currentUserId);
         storage.set('name', payload.name);
@@ -102,7 +120,26 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = payload ? String(payload) : 'Login failed.';
+        state.error = payload ? String(payload) : 'Login error.';
+      })
+      .addCase(refreshTokens.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(refreshTokens.fulfilled, (state, { payload }) => {
+        state.loading = false;
+        state.error = null;
+        state.token = payload.accessToken;
+        state.refreshToken = payload.refreshToken;
+        storage.set('token', payload.accessToken);
+        storage.set('refreshToken', payload.refreshToken);
+      })
+      .addCase(refreshTokens.rejected, (state, { payload }) => {
+        state.loading = false;
+        state.error = payload ? String(payload) : 'Token refresh error.';
+        state.token = null;
+        state.refreshToken = null;
+        storage.clearAuth();
       });
   },
 });

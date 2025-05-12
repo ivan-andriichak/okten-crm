@@ -33,12 +33,12 @@ export class AuthService {
   ) {}
 
   public async createDefaultAdmin(): Promise<AuthResDto> {
-    this.logger.info('Attempting to create default admin');
+    this.logger.info('Attempting to create default administrator');
     const existingAdmin = await this.userRepository.findOne({
       where: { email: 'admin@gmail.com', role: Role.ADMIN },
     });
     if (existingAdmin) {
-      throw new ConflictException('Admin already exists');
+      throw new ConflictException('Administrator already exists');
     }
 
     const defaultAdminDto: RegisterReqDto = {
@@ -74,6 +74,7 @@ export class AuthService {
       const tokens = await this.tokenService.generateAuthTokens({
         userId: user.id,
         deviceId: dto.deviceId,
+        role: user.role,
       });
 
       await Promise.all([
@@ -83,7 +84,7 @@ export class AuthService {
         }),
         this.authCacheService.deleteToken(user.id, dto.deviceId),
       ]);
-      this.logger.log(`Old tokens removed for user ${user.id} and device ${dto.deviceId}`);
+      this.logger.log(`Old tokens deleted for user ${user.id} and device ${dto.deviceId}`);
 
       await Promise.all([
         this.refreshTokenRepository.save({
@@ -107,7 +108,14 @@ export class AuthService {
       this.logger.log(`Login attempt for email: ${dto.email}`);
       const user = await this.userRepository.findOne({
         where: { email: dto.email },
-        select: { id: true, password: true, passwordResetToken: true, passwordResetExpires: true, is_active: true },
+        select: {
+          id: true,
+          password: true,
+          passwordResetToken: true,
+          passwordResetExpires: true,
+          is_active: true,
+          role: true,
+        },
       });
       if (!user || !user.password) {
         throw new UnauthorizedException('Invalid credentials or inactive user');
@@ -116,6 +124,7 @@ export class AuthService {
       if (!user.is_active && user.role !== Role.ADMIN) {
         throw new ForbiddenException('User is banned');
       }
+
       const isPasswordValid = await bcrypt.compare(dto.password, user.password);
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid credentials');
@@ -124,6 +133,7 @@ export class AuthService {
       const tokens = await this.tokenService.generateAuthTokens({
         userId: user.id,
         deviceId: dto.deviceId,
+        role: user.role,
       });
 
       await Promise.all([
@@ -133,7 +143,7 @@ export class AuthService {
         }),
         this.authCacheService.deleteToken(user.id, dto.deviceId),
       ]);
-      this.logger.log(`Old tokens removed for user ${user.id}`);
+      this.logger.log(`Old tokens deleted for user ${user.id}`);
 
       await Promise.all([
         this.refreshTokenRepository.save({
@@ -157,35 +167,30 @@ export class AuthService {
     }
   }
 
-  public async refresh(userData: IUserData): Promise<TokenPairResDto> {
+  public async refresh(userData: IUserData, refreshToken: string): Promise<TokenPairResDto> {
     try {
-      this.logger.log(`Refreshing tokens for user ${userData.userId}`);
-      await Promise.all([
-        this.refreshTokenRepository.delete({
-          deviceId: userData.deviceId,
-          user_id: userData.userId,
-        }),
-        this.authCacheService.deleteToken(userData.userId, userData.deviceId),
-      ]);
+      this.logger.log(`Refreshing tokens for user ${userData.userId}, deviceId: ${userData.deviceId}`);
 
       const tokens = await this.tokenService.generateAuthTokens({
         userId: userData.userId,
         deviceId: userData.deviceId,
+        role: userData.role,
       });
 
+      this.logger.log(`New tokens generated for user ${userData.userId}`);
+
       await Promise.all([
-        this.refreshTokenRepository.save({
-          deviceId: userData.deviceId,
-          refreshToken: tokens.refreshToken,
-          user_id: userData.userId,
-        }),
+        this.refreshTokenRepository.update(
+          { refreshToken, deviceId: userData.deviceId, user_id: userData.userId },
+          { refreshToken: tokens.refreshToken },
+        ),
         this.authCacheService.saveToken(tokens.accessToken, userData.userId, userData.deviceId),
       ]);
 
-      this.logger.log(`Tokens refreshed for user ${userData.userId}`);
+      this.logger.log(`Tokens updated for user ${userData.userId}`);
       return tokens;
     } catch (error) {
-      this.logger.error(error.message, error.stack);
+      this.logger.error(`Token refresh error: ${error.message}`, error.stack);
       throw error;
     }
   }
@@ -200,7 +205,7 @@ export class AuthService {
         }),
         this.authCacheService.deleteToken(userData.userId, userData.deviceId),
       ]);
-      this.logger.log(`User ${userData.userId} logged out successfully`);
+      this.logger.log(`User ${userData.userId} successfully logged out`);
     } catch (error) {
       this.logger.error(error.message, error.stack);
       throw error;

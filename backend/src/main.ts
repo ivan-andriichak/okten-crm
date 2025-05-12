@@ -2,6 +2,7 @@ import { BadRequestException, Logger, ValidationError, ValidationPipe } from '@n
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as Sentry from '@sentry/node';
 
 import { AppModule } from './app.module';
 import { AppConfig } from './config/config.type';
@@ -10,6 +11,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
+
+  Sentry.init({
+    dsn: configService.get<string>('SENTRY_DSN'),
+    environment: configService.get<string>('SENTRY_ENV'),
+    debug: configService.get<string>('SENTRY_DEBUG') === 'true',
+    release: 'okten-crm',
+    tracesSampleRate: 1.0,
+  });
+
   const appConfig = configService.get<AppConfig>('app');
 
   const config = new DocumentBuilder()

@@ -51,11 +51,15 @@ export class OrderController {
     @CurrentUser() userData: IUserData,
     @Query() query: OrderListQueryDto,
   ): Promise<OrderListDto> {
-    console.log('Controller - UserData:', userData);
-    console.log('Controller - Query:', query);
-    console.log('Calling service with userId:', userData.userId);
     const [entities, total] = await this.ordersService.getListOrders(userData, query);
     return OrderMapper.toResponseListDTO(entities, total, query);
+  }
+
+  @Post('register')
+  @Public()
+  @ApiOkResponse({ description: 'Public order created', type: OrderEntity })
+  async createPublicOrder(@Body() createOrderDto: CreateOrderReqDto): Promise<OrderEntity> {
+    return await this.ordersService.createPublicOrder(createOrderDto);
   }
 
   @Post(':orderId/comment')
@@ -71,11 +75,13 @@ export class OrderController {
     return await this.ordersService.addComment(id, commentDto, userData);
   }
 
-  @Delete('comments/:commentId')
-  @ApiOkResponse({ description: 'Comment deleted successfully' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async deleteComment(@Param('commentId') commentId: string, @CurrentUser() userData: IUserData): Promise<void> {
-    await this.ordersService.deleteComment(commentId, userData);
+  @Post('excel')
+  @ApiOkResponse({
+    description: 'Excel file buffer',
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+  async generateExcel(@Query() query: ExcelQueryDto): Promise<Buffer> {
+    return await this.ordersService.generateExcel(query);
   }
 
   @Patch(':id/edit')
@@ -84,19 +90,10 @@ export class OrderController {
     return await this.ordersService.editOrder(id, editOrderDto);
   }
 
-  @Post('public')
-  @Public()
-  @ApiOkResponse({ description: 'Public order created', type: OrderEntity })
-  async createPublicOrder(@Body() createOrderDto: CreateOrderReqDto): Promise<OrderEntity> {
-    return await this.ordersService.createPublicOrder(createOrderDto);
-  }
-
-  @Post('excel')
-  @ApiOkResponse({
-    description: 'Excel file buffer',
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  })
-  async generateExcel(@Query() query: ExcelQueryDto): Promise<Buffer> {
-    return await this.ordersService.generateExcel(query);
+  @Delete('comments/:commentId')
+  @ApiOkResponse({ description: 'Comment deleted successfully' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async deleteComment(@Param('commentId') commentId: string, @CurrentUser() userData: IUserData): Promise<void> {
+    await this.ordersService.deleteComment(commentId, userData);
   }
 }

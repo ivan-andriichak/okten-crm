@@ -12,7 +12,6 @@ const CommentList = ({ comments, order }: CommentListProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleDelete = (commentId: string) => {
-    console.log('Deleting comment with ID:', commentId);
     dispatch(deleteComment(commentId));
   };
 

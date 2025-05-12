@@ -2,13 +2,17 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { Reflector } from '@nestjs/core';
 
 import { IUserData } from '../../modules/auth/interfaces/user-data.interface';
+import { LoggerService } from '../../modules/logger/logger.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { Role } from '../enums/role.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly logger: LoggerService,
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -17,6 +21,7 @@ export class RolesGuard implements CanActivate {
     ]);
 
     if (isPublic) {
+      this.logger.log('RolesGuard: Public route, access granted');
       return true;
     }
 
@@ -31,9 +36,9 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const user: IUserData = request.user;
-    console.log('RolesGuard:', { user, requiredRoles });
 
     if (!user) {
+      this.logger.error('RolesGuard: User not authenticated');
       throw new UnauthorizedException();
     }
 

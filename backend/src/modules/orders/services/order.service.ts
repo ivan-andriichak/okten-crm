@@ -28,10 +28,7 @@ export class OrderService {
   ) {}
 
   public async getListOrders(userData: IUserData, query: OrderListQueryDto): Promise<[OrderEntity[], number]> {
-    this.logger.log(`getListOrders called for user ${userData.userId}`);
     const userId = userData.role === Role.MANAGER || userData.role === Role.ADMIN ? userData.userId : undefined;
-    console.log('Service - UserId:', userId);
-    console.log('Service - Query:', query);
     return await this.ordersRepository.getListOrders(userId, query);
   }
 
@@ -141,7 +138,7 @@ export class OrderService {
   async createPublicOrder(createOrderDto: CreateOrderReqDto): Promise<OrderEntity> {
     const order = this.ordersRepository.create({
       ...createOrderDto,
-      utm: createOrderDto.utm || null,
+      utm: createOrderDto.utm || 'utm_source=google&utm_medium=cpc&utm_campaign=spring_sale\n',
       msg: createOrderDto.utm ? 'Заявка з реклами' : null,
       status: createOrderDto.status || 'New',
       manager: null,
