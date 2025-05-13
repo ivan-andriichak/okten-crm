@@ -61,7 +61,6 @@ export const refreshTokens = createAsyncThunk(
         '550e8400-e29b-41d4-a716-446655440001';
       const refreshToken = auth.refreshToken;
 
-
       if (!refreshToken || !deviceId) {
         return rejectWithValue('Missing refresh token or deviceId');
       }
@@ -137,9 +136,7 @@ const authSlice = createSlice({
       .addCase(refreshTokens.rejected, (state, { payload }) => {
         state.loading = false;
         state.error = payload ? String(payload) : 'Token refresh error.';
-        state.token = null;
-        state.refreshToken = null;
-        storage.clearAuth();
+        // Не очищаємо localStorage автоматично
       });
   },
 });

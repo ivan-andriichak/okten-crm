@@ -17,12 +17,9 @@ const handleSessionError = async (
   isBanned: boolean = false,
 ): Promise<void> => {
   store.dispatch(logout());
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('deviceId');
   store.dispatch(clearNotifications());
   store.dispatch(addNotification({ message, type: 'error', duration: 5000 }));
 
-  // Delay redirect to allow the notification to be visible
   await new Promise(resolve => setTimeout(resolve, 5000));
   window.location.href = '/login';
   throw new Error(isBanned ? 'BannedError' : 'SessionError');
@@ -44,35 +41,58 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
     if (!config) return Promise.reject(error);
     config._retry = true;
 
-    try {
-      const result = await store.dispatch(refreshTokens());
-      if (refreshTokens.fulfilled.match(result)) {
-        const { accessToken } = result.payload;
-        if (config.headers) {
-          config.headers.Authorization = `Bearer ${accessToken}`;
+    // Try refreshing tokens up to 3 times
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    while (retryCount < maxRetries) {
+      try {
+        const result = await store.dispatch(refreshTokens());
+        if (refreshTokens.fulfilled.match(result)) {
+          const { accessToken } = result.payload;
+          if (config.headers) {
+            config.headers.Authorization = `Bearer ${accessToken}`;
+          }
+          return api(config);
         }
-        return api(config);
-      }
-      throw new Error('Failed to refresh tokens');
-    } catch (refreshError: any) {
-      const errorMessage = refreshError.message || 'Token refresh error';
+        throw new Error('Failed to refresh tokens');
+      } catch (refreshError: any) {
+        retryCount++;
+        if (retryCount >= maxRetries) {
+          const errorMessage = refreshError.message || 'Token refresh error';
 
-      let message: React.ReactNode;
-      if (errorMessage.includes('Missing refresh token or deviceId')) {
-        message = 'Session error. Please log in again.';
-      } else if (errorMessage.includes('User has been banned')) {
-        message = (
-          <>
-            Your account has been banned. Please contact support:{' '}
-            <SupportEmail />
-          </>
-        );
-        await handleSessionError(message, true);
-      } else {
-        message = 'Session expired. Please log in again.';
+          let message: React.ReactNode;
+          if (errorMessage.includes('Missing refresh token or deviceId')) {
+            message = 'Session error. Please log in again.';
+            await handleSessionError(message);
+          } else if (errorMessage.includes('User has been banned')) {
+            message = (
+              <>
+                Your account has been banned. Please contact support:{' '}
+                <SupportEmail />
+              </>
+            );
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('deviceId');
+            await handleSessionError(message, true);
+          } else if (errorMessage.includes('Invalid refresh token')) {
+            message = 'Session expired. Please log in again.';
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('deviceId');
+            await handleSessionError(message);
+          } else {
+            // Temporary error, show notification but don't clear session
+            message = 'Failed to connect to server. Please try again later.';
+            store.dispatch(clearNotifications());
+            store.dispatch(
+              addNotification({ message, type: 'error', duration: 5000 }),
+            );
+            return Promise.reject(error);
+          }
+        }
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
       }
-
-      await handleSessionError(message);
     }
   }
 
@@ -94,6 +114,8 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
           <SupportEmail />
         </>
       );
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('deviceId');
       await handleSessionError(message, true);
     } else if (error.response.status === 403) {
       if (resData.message?.includes('You can only delete comments')) {
@@ -105,6 +127,8 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
             <SupportEmail />
           </>
         );
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('deviceId');
         await handleSessionError(message, true);
       } else {
         message = 'You do not have permission to perform this action.';
