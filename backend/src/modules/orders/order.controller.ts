@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiQuery, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Response } from 'express';
 
 import { Public } from '../../common/decorators/public.decorator';
 import { OrderEntity } from '../../database/entities/order.entity';
@@ -76,14 +77,19 @@ export class OrderController {
   }
 
   @Post('excel')
-  @ApiOkResponse({
-    description: 'Excel file buffer',
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  })
-  async generateExcel(@Query() query: ExcelQueryDto): Promise<Buffer> {
-    return await this.ordersService.generateExcel(query);
-  }
+  async generateExcel(@CurrentUser() userData: IUserData, @Body() query: ExcelQueryDto, @Res() res: Response) {
+    const buffer = await this.ordersService.generateExcel(userData, query);
 
+    // Встановлюємо заголовки для завантаження файлу
+    res.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename=orders_${new Date().toISOString().split('T')[0]}.xlsx`,
+      'Content-Length': buffer.length,
+    });
+
+    // Відправляємо бінарні дані
+    res.end(buffer);
+  }
   @Patch(':id/edit')
   @ApiOkResponse({ description: 'Updated order', type: OrderEntity })
   async editOrder(@Param('id') id: number, @Body() editOrderDto: EditOrderDto): Promise<OrderEntity> {

@@ -147,34 +147,60 @@ export class OrderService {
     return await this.ordersRepository.save(order);
   }
 
-  async generateExcel(query: ExcelQueryDto): Promise<Buffer> {
-    const orders = await this.ordersRepository.find({
-      where: { ...query },
-    });
+  async generateExcel(userData: IUserData, query: ExcelQueryDto): Promise<Buffer> {
+    this.logger.log(`Generating Excel for user ${userData.userId} with query: ${JSON.stringify(query)}`);
+
+    // Використовуємо getListOrders для отримання відфільтрованих заявок
+    const [orders] = await this.getListOrders(userData, query as OrderListQueryDto);
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Orders');
 
+    // Визначаємо колонки для Excel
     worksheet.columns = [
-      { header: 'ID', key: 'id' },
-      { header: 'Name', key: 'name' },
-      { header: 'Surname', key: 'surname' },
-      { header: 'Email', key: 'email' },
-      { header: 'Phone', key: 'phone' },
-      { header: 'Age', key: 'age' },
-      { header: 'Course', key: 'course' },
-      { header: 'Course Format', key: 'courseFormat' },
-      { header: 'Course Type', key: 'courseType' },
-      { header: 'Status', key: 'status' },
-      { header: 'Sum', key: 'sum' },
-      { header: 'Already Paid', key: 'alreadyPaid' },
-      { header: 'Created At', key: 'createdAt' },
+      { header: 'ID', key: 'id', width: 10 },
+      { header: 'Name', key: 'name', width: 20 },
+      { header: 'Surname', key: 'surname', width: 20 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Phone', key: 'phone', width: 20 },
+      { header: 'Age', key: 'age', width: 10 },
+      { header: 'Course', key: 'course', width: 15 },
+      { header: 'Course Format', key: 'course_format', width: 15 },
+      { header: 'Course Type', key: 'course_type', width: 15 },
+      { header: 'Status', key: 'status', width: 15 },
+      { header: 'Sum', key: 'sum', width: 10 },
+      { header: 'Already Paid', key: 'alreadyPaid', width: 15 },
+      { header: 'Group', key: 'group', width: 20 },
+      { header: 'Created At', key: 'created_at', width: 20 },
+      { header: 'Manager', key: 'manager', width: 20 },
     ];
 
+    // Додаємо рядки з даними
     orders.forEach((order) => {
-      worksheet.addRow(order);
+      worksheet.addRow({
+        id: order.id,
+        name: order.name,
+        surname: order.surname,
+        email: order.email,
+        phone: order.phone,
+        age: order.age,
+        course: order.course,
+        course_format: order.course_format,
+        course_type: order.course_type,
+        status: order.status,
+        sum: order.sum,
+        alreadyPaid: order.alreadyPaid,
+        group: order.groupEntity?.name || order.group,
+        created_at: order.created_at.toISOString().split('T')[0],
+        manager: order.manager ? `${order.manager.name} ${order.manager.surname}` : '',
+      });
     });
 
+    // Форматуємо заголовки
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+    // Генеруємо буфер
     const buffer = await workbook.xlsx.writeBuffer();
     return buffer as Buffer;
   }

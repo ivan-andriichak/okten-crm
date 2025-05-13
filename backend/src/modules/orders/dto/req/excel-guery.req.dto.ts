@@ -1,23 +1,63 @@
-import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class ExcelQueryDto {
   @IsOptional()
-  @IsEnum(['ASC', 'DESC'])
-  order?: 'ASC' | 'DESC' = 'DESC';
+  @IsString()
+  name?: string;
 
   @IsOptional()
-  @IsEnum(['pending', 'confirmed', 'completed'])
+  @IsString()
+  surname?: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  age?: string;
+
+  @IsOptional()
+  @IsString()
+  course?: string;
+
+  @IsOptional()
+  @IsString()
+  course_format?: string;
+
+  @IsOptional()
+  @IsString()
+  course_type?: string;
+
+  @IsOptional()
+  @IsString()
   status?: string;
 
   @IsOptional()
   @IsString()
-  startDate?: string;
+  sum?: string;
 
   @IsOptional()
   @IsString()
-  endDate?: string;
+  alreadyPaid?: string;
+
+  @IsOptional()
+  @IsString()
+  group?: string;
+
+  @IsOptional()
+  @IsString()
+  created_at?: string;
+
+  @IsOptional()
+  @IsString()
+  manager?: string;
 
   @IsOptional()
   @IsBoolean()
-  myOrdersOnly?: boolean;
+  myOrders?: boolean;
 }

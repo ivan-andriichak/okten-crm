@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, fetchGroups } from '../../store';
+import { AppDispatch, fetchGroups, generateExcel } from '../../store';
 import css from './Filters.module.css';
 import resetImage from '../../images/reset.png';
 import excel from '../../images/excel.png';
@@ -36,7 +36,7 @@ const Filters = ({
   }, [dispatch, token, groups.length]);
 
   const handleFilterChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
@@ -44,6 +44,32 @@ const Filters = ({
 
   const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     setMyOrdersOnly(e.target.checked);
+  };
+
+  const handleGenerateExcel = async () => {
+    try {
+      const result = await dispatch(
+        generateExcel({
+          filters: {
+            ...filters,
+            myOrders: myOrdersOnly ? 'true' : undefined,
+          },
+        }),
+      ).unwrap();
+
+      // Створюємо Blob із отриманих даних
+      const blob = result;
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to generate Excel:', error);
+    }
   };
 
   const courseOptions = ['FS', 'QACX', 'JCX', 'JSCX', 'FE', 'PCX'];
@@ -193,11 +219,11 @@ const Filters = ({
             className={css.resetButton}
           />
         </a>
-        <a>
+        <a onClick={handleGenerateExcel}>
           <img
             src={excel}
-            alt="excel file"
-            style={{ width: '25px', borderRadius: '10px' }}
+            alt="Generate Excel"
+            style={{ width: '25px', borderRadius: '10px', cursor: 'pointer' }}
           />
         </a>
       </div>

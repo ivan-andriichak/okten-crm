@@ -31,6 +31,10 @@ interface FetchOrdersParams {
   filters: Record<string, string | undefined>;
 }
 
+interface GenerateExcelParams {
+  filters: Record<string, string | undefined>;
+}
+
 const fetchOrders = createAsyncThunk<
   { orders: Order[]; total: number },
   FetchOrdersParams,
@@ -151,6 +155,48 @@ const deleteComment = createAsyncThunk<string, string, ThunkConfig>(
       headers: { Authorization: `Bearer ${token}` },
     });
     return commentId;
+  },
+);
+
+const generateExcel = createAsyncThunk<Blob, GenerateExcelParams, ThunkConfig>(
+  'orders/generateExcel',
+  async ({ filters }, { getState, rejectWithValue }) => {
+    try {
+      const state = getState();
+      const { token } = state.auth;
+
+      const params: any = {
+        ...(filters?.myOrders && { myOrders: filters.myOrders }),
+        ...(filters?.name && { name: filters.name }),
+        ...(filters?.surname && { surname: filters.surname }),
+        ...(filters?.email && { email: filters.email }),
+        ...(filters?.phone && { phone: filters.phone }),
+        ...(filters?.age && { age: filters.age }),
+        ...(filters?.course && { course: filters.course }),
+        ...(filters?.course_format && { course_format: filters.course_format }),
+        ...(filters?.course_type && { course_type: filters.course_type }),
+        ...(filters?.status && { status: filters.status }),
+        ...(filters?.sum && { sum: filters.sum }),
+        ...(filters?.alreadyPaid && { alreadyPaid: filters.alreadyPaid }),
+        ...(filters?.group && { group: filters.group }),
+        ...(filters?.created_at && { created_at: filters.created_at }),
+        ...(filters?.manager && { manager: filters.manager }),
+      };
+
+      const response = await api.post(
+        '/orders/excel',
+        params,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: 'blob', // Важливо для отримання бінарних даних
+        },
+      );
+
+      return new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Failed to generate Excel file';
+      return rejectWithValue(errorMessage);
+    }
   },
 );
 
@@ -296,6 +342,17 @@ const orderSlice = createSlice({
       .addCase(deleteComment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to delete comment';
+      })
+      .addCase(generateExcel.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(generateExcel.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(generateExcel.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload ? String(action.payload) : 'Failed to generate Excel';
       });
   },
 });
@@ -308,6 +365,7 @@ export {
   updateOrder,
   addComment,
   deleteComment,
+  generateExcel,
 };
 
 export const {
