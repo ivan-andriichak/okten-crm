@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -170,28 +171,40 @@ export class AuthService {
   public async refresh(userData: IUserData, refreshToken: string): Promise<TokenPairResDto> {
     try {
       this.logger.log(`Refreshing tokens for user ${userData.userId}, deviceId: ${userData.deviceId}`);
+      this.logger.log(`Received refresh token: ${refreshToken}`);
 
+      // Перевірка запису в refresh_tokens
+      const tokenRecord = await this.refreshTokenRepository.findOne({
+        where: { refreshToken, deviceId: userData.deviceId, user_id: userData.userId },
+      });
+      if (!tokenRecord) {
+        this.logger.error('Refresh token not found in database');
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      this.logger.log('Generating new tokens');
       const tokens = await this.tokenService.generateAuthTokens({
         userId: userData.userId,
         deviceId: userData.deviceId,
         role: userData.role,
       });
 
-      this.logger.log(`New tokens generated for user ${userData.userId}`);
+      this.logger.log(`New tokens generated: ${JSON.stringify(tokens)}`);
 
-      await Promise.all([
-        this.refreshTokenRepository.update(
-          { refreshToken, deviceId: userData.deviceId, user_id: userData.userId },
-          { refreshToken: tokens.refreshToken },
-        ),
-        this.authCacheService.saveToken(tokens.accessToken, userData.userId, userData.deviceId),
-      ]);
+      this.logger.log('Updating refresh token in database');
+      await this.refreshTokenRepository.update(
+        { refreshToken, deviceId: userData.deviceId, user_id: userData.userId },
+        { refreshToken: tokens.refreshToken },
+      );
+
+      this.logger.log('Saving access token to cache');
+      await this.authCacheService.saveToken(tokens.accessToken, userData.userId, userData.deviceId);
 
       this.logger.log(`Tokens updated for user ${userData.userId}`);
       return tokens;
     } catch (error) {
       this.logger.error(`Token refresh error: ${error.message}`, error.stack);
-      throw error;
+      throw new InternalServerErrorException(`Failed to refresh token: ${error.message}`);
     }
   }
 

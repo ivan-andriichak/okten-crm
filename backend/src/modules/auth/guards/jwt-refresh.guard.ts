@@ -9,9 +9,8 @@ import { TokenService } from '../services/token.service';
 
 @Injectable()
 export class JwtRefreshGuard implements CanActivate {
-  private readonly logger: LoggerService;
-
   constructor(
+    private readonly logger: LoggerService,
     private readonly tokenService: TokenService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}

@@ -26,13 +26,11 @@ const notificationSlice = createSlice({
     ) => {
       console.log('Adding notification:', action.payload);
       console.log('Message type:', typeof action.payload.message);
-      // Конвертуємо message в рядок для порівняння, якщо це можливо
       const payloadMessage =
         typeof action.payload.message === 'string'
           ? action.payload.message
           : String(action.payload.message);
 
-      // Видаляємо старе сповіщення, якщо воно існує
       state.notifications = state.notifications.filter(n => {
         const existingMessage =
           typeof n.message === 'string' ? n.message : String(n.message);
@@ -45,7 +43,7 @@ const notificationSlice = createSlice({
       state.notifications.push({
         ...action.payload,
         id,
-        duration: action.payload.duration ?? 6000,
+        duration: action.payload.duration ?? 3000,
       });
       console.log('Current notifications:', state.notifications);
     },

@@ -1,4 +1,11 @@
-import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  BadRequestException,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
@@ -15,14 +22,19 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     let status: number;
-    let messages: string[] | string;
+    let messages: string | string[];
 
     if (exception instanceof BadRequestException) {
       status = exception.getStatus();
-      messages = (exception.getResponse() as any).message;
+      const responseObj = exception.getResponse() as any;
+      messages = responseObj.message || 'Bad request';
+    } else if (exception instanceof UnauthorizedException) {
+      status = 401;
+      messages = exception.message || 'Unauthorized';
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
-      messages = exception.message;
+      const responseObj = exception.getResponse() as any;
+      messages = responseObj.message || exception.message;
     } else if (exception instanceof QueryFailedError) {
       const error = DbQueryFailedFilter.filter(exception);
       status = error.status;
@@ -31,9 +43,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       status = 500;
       messages = 'Internal server error';
     }
-    this.logger.error(exception, exception instanceof Error ? exception.stack : '');
-    Sentry.captureException(exception);
+
     messages = Array.isArray(messages) ? messages : [messages];
+
+    this.logger.error(
+      `Error: ${exception instanceof Error ? exception.message : 'Unknown error'}`,
+      exception instanceof Error ? exception.stack : '',
+    );
+    Sentry.captureException(exception);
+
     response.status(status).json({
       statusCode: status,
       messages,

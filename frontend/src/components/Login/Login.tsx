@@ -1,29 +1,28 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch, login, RootState } from '../../store';
-import { v4 as uuidv4 } from 'uuid';
 import Button from '../Button/Button';
 import css from './Login.module.css';
 
 const Login = () => {
   const [email, setEmail] = useState<string>('admin@gmail.com');
   const [password, setPassword] = useState<string>('admin');
-  const [deviceId, setDeviceId] = useState<string>('');
+  // const [deviceId, setDeviceId] = useState<string>('');
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let storedDeviceId = localStorage.getItem('deviceId');
-    if (!storedDeviceId) {
-      storedDeviceId = uuidv4();
-      localStorage.setItem('deviceId', storedDeviceId);
-    }
-    setDeviceId(storedDeviceId);
-  }, []);
+  // useEffect(() => {
+  //   let storedDeviceId = localStorage.getItem('deviceId');
+  //   if (!storedDeviceId) {
+  //     storedDeviceId = uuidv4();
+  //     localStorage.setItem('deviceId', storedDeviceId);
+  //   }
+  //   setDeviceId(storedDeviceId);
+  // }, []);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -32,7 +31,7 @@ const Login = () => {
       login({
         email,
         password,
-        deviceId,
+        deviceId: localStorage.getItem('deviceId') || undefined,
       }),
     );
 

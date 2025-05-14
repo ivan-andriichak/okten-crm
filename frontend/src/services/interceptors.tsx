@@ -20,7 +20,7 @@ const handleSessionError = async (
   store.dispatch(clearNotifications());
   store.dispatch(addNotification({ message, type: 'error', duration: 5000 }));
 
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  await new Promise(resolve => setTimeout(resolve, 3000));
   window.location.href = '/login';
   throw new Error(isBanned ? 'BannedError' : 'SessionError');
 };
@@ -85,7 +85,7 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
             message = 'Failed to connect to server. Please try again later.';
             store.dispatch(clearNotifications());
             store.dispatch(
-              addNotification({ message, type: 'error', duration: 5000 }),
+              addNotification({ message, type: 'error', duration: 3000 }),
             );
             return Promise.reject(error);
           }
@@ -135,7 +135,7 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       }
       store.dispatch(clearNotifications());
       store.dispatch(
-        addNotification({ message, type: 'error', duration: 5000 }),
+        addNotification({ message, type: 'error', duration: 3000 }),
       );
       return Promise.reject(error);
     } else {
@@ -151,6 +151,6 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
   }
 
   store.dispatch(clearNotifications());
-  store.dispatch(addNotification({ message, type: 'error', duration: 5000 }));
+  store.dispatch(addNotification({ message, type: 'error', duration: 3000 }));
   return Promise.reject(error);
 };

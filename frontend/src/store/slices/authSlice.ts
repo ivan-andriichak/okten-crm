@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 import { AuthResponse, LoginRequest } from '../../interfaces/auth';
 import { api } from '../../services/api';
 import storage from '../utils/storage';
@@ -28,12 +29,14 @@ const login = createAsyncThunk(
   'auth/login',
   async ({ email, password, deviceId }: LoginRequest, { rejectWithValue }) => {
     try {
+      const finalDeviceId = deviceId || uuidv4();
       const { data } = await api.post<AuthResponse>('/login', {
         email,
         password,
-        deviceId,
+        deviceId: finalDeviceId,
       });
 
+      localStorage.setItem('deviceId', finalDeviceId);
       return {
         token: data.tokens.accessToken,
         refreshToken: data.tokens.refreshToken,
@@ -56,11 +59,9 @@ export const refreshTokens = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState() as RootState;
-      const deviceId =
-        localStorage.getItem('deviceId') ||
-        '550e8400-e29b-41d4-a716-446655440001';
+      const deviceId = localStorage.getItem('deviceId');
       const refreshToken = auth.refreshToken;
-
+      console.log('Refreshing with:', { refreshToken, deviceId });
       if (!refreshToken || !deviceId) {
         return rejectWithValue('Missing refresh token or deviceId');
       }
@@ -70,10 +71,12 @@ export const refreshTokens = createAsyncThunk(
         deviceId,
       });
 
+      console.log('New tokens:', response.data);
       return response.data;
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || 'Failed to refresh tokens.';
+      console.error('Refresh failed:', errorMessage, error.response?.data);
       return rejectWithValue(errorMessage);
     }
   },

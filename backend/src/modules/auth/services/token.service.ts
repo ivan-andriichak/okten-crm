@@ -23,27 +23,35 @@ export class TokenService {
 
   public async generateAuthTokens(payload: { userId: string; deviceId: string; role: string }): Promise<ITokenPair> {
     this.logger.log(`Generating tokens for user: ${payload.userId}, device: ${payload.deviceId}`);
+    try {
+      const accessToken = await this.jwtService.signAsync(payload, {
+        secret: this.jwtConfig.accessSecret,
+        expiresIn: this.jwtConfig.accessExpiresIn,
+      });
+      this.logger.log('Access token generated');
 
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.jwtConfig.accessSecret,
-      expiresIn: this.jwtConfig.accessExpiresIn,
-    });
+      const refreshToken = await this.jwtService.signAsync(payload, {
+        secret: this.jwtConfig.refreshSecret,
+        expiresIn: this.jwtConfig.refreshExpiresIn,
+      });
+      this.logger.log('Refresh token generated');
 
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.jwtConfig.refreshSecret,
-      expiresIn: this.jwtConfig.refreshExpiresIn,
-    });
-
-    return { accessToken, refreshToken };
+      return { accessToken, refreshToken };
+    } catch (error) {
+      this.logger.error(`Token generation error: ${error.message}`);
+      throw error;
+    }
   }
 
   public async verifyToken(token: string, type: TokenType): Promise<IJwtPayload> {
     try {
       const secret = this.getSecret(type);
+      this.logger.log(`Verifying ${type} token with secret: ${secret}`);
       const payload = await this.jwtService.verifyAsync(token, { secret });
       this.logger.log(`Token verified. Payload: ${JSON.stringify(payload)}`);
       return payload;
     } catch (error) {
+      this.logger.error(`Token verification error: ${error.message}`);
       throw new UnauthorizedException('Invalid token');
     }
   }

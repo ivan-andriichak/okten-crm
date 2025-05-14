@@ -15,7 +15,7 @@ const Notification: FC = () => {
       setTimeout(() => {
         console.log(`Removing notification: ${notification.id}`);
         dispatch(removeNotification(notification.id));
-      }, notification.duration || 6000),
+      }, notification.duration || 3000),
     );
 
     return () => {
