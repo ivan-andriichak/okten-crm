@@ -57,6 +57,7 @@ const OrderDetails = ({
               padding: '5px',
               marginRight: '10px',
               borderRadius: '5px',
+              border: '1px solid #ccc',
             }}
           />
           <Button variant="primary" onClick={handleCommentSubmit}>

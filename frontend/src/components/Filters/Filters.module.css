@@ -68,6 +68,10 @@
 .filterInput option:active,
 .filterInput option:checked {
   background: #a9c6ff !important;
-  border: 1px solid  coral;
   color: white;
+}
+
+.selectedInput {
+  color: coral !important;
+  font-weight: 500;
 }

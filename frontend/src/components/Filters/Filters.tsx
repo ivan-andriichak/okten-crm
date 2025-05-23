@@ -57,7 +57,6 @@ const Filters = ({
         }),
       ).unwrap();
 
-      // Створюємо Blob із отриманих даних
       const blob = result;
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -124,7 +123,7 @@ const Filters = ({
           name="course"
           value={filters.course || ''}
           onChange={handleFilterChange}
-          className={css.filterInput}
+          className={`${css.filterInput} ${filters.course ? css.selectedInput : ''}`}
         >
           <option value="">Filter by course</option>
           {courseOptions.map(option => (
@@ -137,7 +136,7 @@ const Filters = ({
           name="course_format"
           value={filters.course_format || ''}
           onChange={handleFilterChange}
-          className={css.filterInput}
+          className={`${css.filterInput} ${filters.course_format ? css.selectedInput : ''}`}
         >
           <option value="">Filter by course format</option>
           {courseFormatOptions.map(option => (
@@ -150,7 +149,7 @@ const Filters = ({
           name="course_type"
           value={filters.course_type || ''}
           onChange={handleFilterChange}
-          className={css.filterInput}
+          className={`${css.filterInput} ${filters.course_type ? css.selectedInput : ''}`}
         >
           <option value="">Filter by course type</option>
           {courseTypeOptions.map(option => (
@@ -163,7 +162,7 @@ const Filters = ({
           name="status"
           value={filters.status || ''}
           onChange={handleFilterChange}
-          className={css.filterInput}
+          className={`${css.filterInput} ${filters.status ? css.selectedInput : ''}`}
         >
           <option value="">Filter by status</option>
           {statusOptions.map(option => (
@@ -176,7 +175,7 @@ const Filters = ({
           name="group"
           value={filters.group || ''}
           onChange={handleFilterChange}
-          className={css.filterInput}
+          className={`${css.filterInput} ${filters.group ? css.selectedInput : ''}`}
         >
           <option value="">Filter by group</option>
           {groups.map(group => (

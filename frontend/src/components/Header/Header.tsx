@@ -1,8 +1,9 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AppDispatch, RootState, logout } from '../../store';
-import { addNotification } from '../../store/slices/notificationSlice';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import { addNotification, AppDispatch, logout, RootState } from '../../store';
+
 import oktenLogo from '../../images/okten.jpg';
 import Logout from '../../images/Logout.png';
 import admin from '../../images/admin.png';
@@ -37,7 +38,17 @@ const Header: React.FC = () => {
   return (
     <div className={css.orders_container}>
       <div className={css.logo}>
-        <img className={css.logoImage} src={oktenLogo} alt="okten-logo" />
+        <img
+          className={css.logoImage}
+          src={oktenLogo}
+          alt="okten-logo"
+          style={{ cursor: 'pointer' }}
+          onClick={() =>
+            window.open('http://localhost:3000/register', '_blank')
+          }
+          data-tooltip-id="logo-tooltip"
+          data-tooltip-content="Go to registration page"
+        />
       </div>
       <div className={css.user_info}>
         <div style={{ display: 'flex', gap: '5px', marginRight: '20px' }}>
@@ -46,9 +57,12 @@ const Header: React.FC = () => {
             {name && surname ? `${name} ${surname}` : 'Not available'}
           </p>
         </div>
+
         {pathname === '/admin' ? (
           <Link to="/orders">
-            <Button>
+            <Button
+              data-tooltip-id="back-tooltip"
+              data-tooltip-content="Back to orders">
               <img
                 src={back}
                 alt="back"
@@ -58,11 +72,17 @@ const Header: React.FC = () => {
             </Button>
           </Link>
         ) : (
-          <Button onClick={handleAdminClick}>
+          <Button
+            onClick={handleAdminClick}
+            data-tooltip-id="admin-tooltip"
+            data-tooltip-content="Go to admin panel">
             <img src={admin} alt="admin" className={css.resetButton} />
           </Button>
         )}
-        <Button>
+
+        <Button
+          data-tooltip-id="logout-tooltip"
+          data-tooltip-content="Logout">
           <img
             src={Logout}
             alt="logout"
@@ -71,6 +91,23 @@ const Header: React.FC = () => {
           />
         </Button>
       </div>
+
+      <ReactTooltip
+        id="back-tooltip"
+        style={{ backgroundColor: '#222', color: '#fff', borderRadius: '8px', zIndex: 9999 }}
+      />
+      <ReactTooltip
+        id="admin-tooltip"
+        style={{ backgroundColor: '#007bff', color: '#fff', borderRadius: '8px', zIndex: 9999 }}
+      />
+      <ReactTooltip
+        id="logout-tooltip"
+        style={{ backgroundColor: '#dc3545', color: '#fff', borderRadius: '8px', zIndex: 9999 }}
+      />
+      <ReactTooltip
+        id="logo-tooltip"
+        style={{ backgroundColor: '#343a40', color: '#fff', borderRadius: '8px', zIndex: 9999 }}
+      />
     </div>
   );
 };

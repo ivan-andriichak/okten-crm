@@ -44,9 +44,12 @@ export default class ErrorBoundary extends Component<
           <h1>Oops! Something went wrong.</h1>
           <p>
             Please try reloading the page or contact support at{' '}.
-            <Button>
+            <div>
+            <br />
+              <Button>
               <SupportEmail />
             </Button>
+            </div>
           </p>
           <Button variant="primary" onClick={this.handleReload}>
             Reload Page

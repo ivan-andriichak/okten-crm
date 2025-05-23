@@ -22,6 +22,7 @@
     "react-hook-form": "^7.54.2",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.3.0",
+    "react-tooltip": "^5.28.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

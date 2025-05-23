@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsInt, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 
 import { CourseEnum, CourseFormatEnum, CourseTypeEnum, StatusEnum } from '../../enums/order.enums';
 
@@ -8,16 +8,12 @@ export class EditOrderDto {
   @IsString()
   name?: string;
 
+  @IsEmail({}, { message: 'Invalid email format' })
   @IsOptional()
-  @IsString()
-  surname?: string;
-
-  @IsOptional()
-  @IsString()
   email?: string;
 
+  @IsPhoneNumber('UA', { message: 'Invalid phone format' })
   @IsOptional()
-  @IsString()
   phone?: string;
 
   @IsOptional()

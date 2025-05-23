@@ -1,6 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
 import css from './AdminPanel.module.css';
 import {
   activateManager,
@@ -45,7 +46,6 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
     surname: '',
   });
 
-
   useEffect(() => {
     if (!token || role !== 'admin') {
       navigate('/login');
@@ -57,8 +57,7 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
     }
   }, [dispatch, token, role, page, limit, navigate]);
 
-  useEffect(() => {
-  }, [overallStats]);
+  useEffect(() => {}, [overallStats]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -99,7 +98,8 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
     } catch (error) {
       dispatch(
         addNotification({
-          message: 'Failed to create manager. Please contact support: support@example.com',
+          message:
+            'Failed to create manager. Please contact support: support@example.com',
           type: 'error',
         }),
       );
@@ -107,9 +107,16 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   const closeModal = () => {
+    localStorage.setItem('managerFormDraft', JSON.stringify(formData));
     setIsModalOpen(false);
     setFormData({ email: '', name: '', surname: '' });
   };
+  useEffect(() => {
+    const draft = localStorage.getItem('managerFormDraft');
+    if (draft) {
+      setFormData(JSON.parse(draft));
+    }
+  }, []);
 
   const handlePageChange = (newPage: number) => {
     dispatch(
@@ -155,7 +162,9 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
               type: 'success',
             }),
           );
-          dispatch(fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }));
+          dispatch(
+            fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }),
+          );
           break;
         }
         case 'unban': {
@@ -194,16 +203,56 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         <div className={css.statsContainer}>
           <h3>Overall Order Statistics</h3>
           <div className={css.stats}>
-            <p style={{ fontWeight: 'bolder' }}>Total: {overallStats.Total ?? 0}</p>
-          <p>New: <span style={{ color: 'green', fontWeight: 'bold' }}>{overallStats.New ?? 0}</span></p>
-           <p>In Work: <span style={{ color: 'blue', fontWeight: 'bold' }}>{overallStats['In work'] ?? 0}</span></p>
-            <p>Agree: <span style={{ color: 'green', fontWeight: 'bold' }}>{overallStats.Agree ?? 0}</span></p>
-            <p>Disagree: <span style={{ color: 'red', fontWeight: 'bold' }}>{overallStats.Disagree ?? 0}</span></p>
-            <p>Dubbing: <span style={{ color: 'purple', fontWeight: 'bold' }}>{overallStats.Dubbing ?? 0}</span></p>
+            <p style={{ fontWeight: 'bolder' }}>
+              Total: {overallStats.Total ?? 0}
+            </p>
+            <p>
+              New:{' '}
+              <span style={{ color: 'green', fontWeight: 'bold' }}>
+                {overallStats.New ?? 0}
+              </span>
+            </p>
+            <p>
+              In Work:{' '}
+              <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                {overallStats['In work'] ?? 0}
+              </span>
+            </p>
+            <p>
+              Agree:{' '}
+              <span style={{ color: 'green', fontWeight: 'bold' }}>
+                {overallStats.Agree ?? 0}
+              </span>
+            </p>
+            <p>
+              Disagree:{' '}
+              <span style={{ color: 'red', fontWeight: 'bold' }}>
+                {overallStats.Disagree ?? 0}
+              </span>
+            </p>
+            <p>
+              Dubbing:{' '}
+              <span style={{ color: 'purple', fontWeight: 'bold' }}>
+                {overallStats.Dubbing ?? 0}
+              </span>
+            </p>
           </div>
         </div>
         <div className={css.createButton}>
-          <Button onClick={() => setIsModalOpen(true)}>CREATE</Button>
+          <Button
+            data-tooltip-id="create-tooltip"
+            data-tooltip-content="Create a new manager"
+            onClick={() => setIsModalOpen(true)}>
+            CREATE
+          </Button>
+          <ReactTooltip
+            id="create-tooltip"
+            style={{
+              backgroundColor: 'green',
+              color: '#fff',
+              borderRadius: '8px',
+            }}
+          />
         </div>
 
         <CreateManagerModal
@@ -221,63 +270,59 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           <>
             <table className={css.table}>
               <thead>
-              <tr>
-                <th>Email</th>
-                <th>Name</th>
-                <th>Surname</th>
-                <th>Status</th>
-                <th>Statistics</th>
-                <th>Last login</th>
-                <th>Actions</th>
-              </tr>
+                <tr>
+                  <th>Email</th>
+                  <th>Name</th>
+                  <th>Surname</th>
+                  <th>Status</th>
+                  <th>Statistics</th>
+                  <th>Last login</th>
+                  <th>Actions</th>
+                </tr>
               </thead>
               <tbody>
-              {managers.map(manager => (
-                <tr key={manager.id}>
-                  <td>{manager.email}</td>
-                  <td>{manager.name}</td>
-                  <td>{manager.surname}</td>
-                 <td style={{ color: manager.is_active ? 'green' : 'red' }}>
-                    {manager.is_active ? 'Active' : 'Inactive'}
-                  </td>
-                  <td>
-                    Total Orders: {manager.statistics?.totalOrders || 0},
-                    Active: {manager.statistics?.activeOrders || 0}
-                  </td>
-                  <td>{formatCell('last_login', manager.last_login)}</td>
-                  <td>
-                    {manager.is_active ? (
+                {managers.map(manager => (
+                  <tr key={manager.id}>
+                    <td>{manager.email}</td>
+                    <td>{manager.name}</td>
+                    <td>{manager.surname}</td>
+                    <td style={{ color: manager.is_active ? 'green' : 'red' }}>
+                      {manager.is_active ? 'Active' : 'Inactive'}
+                    </td>
+                    <td>
+                      Total Orders: {manager.statistics?.totalOrders || 0},
+                      Active: {manager.statistics?.activeOrders || 0}
+                    </td>
+                    <td>{formatCell('last_login', manager.last_login)}</td>
+                    <td>
+                      {manager.is_active ? (
+                        <Button
+                          className={`${css.actionButton} ${css.recoverButton}`}
+                          onClick={() => handleAction('recover', manager.id)}>
+                          Recover Password
+                        </Button>
+                      ) : (
+                        <Button
+                          className={`${css.actionButton} ${css.activateButton}`}
+                          onClick={() => handleAction('activate', manager.id)}>
+                          Activate
+                        </Button>
+                      )}
                       <Button
-                        className={`${css.actionButton} ${css.recoverButton}`}
-                        onClick={() => handleAction('recover', manager.id)}
-                      >
-                        Recover Password
+                        className={`${css.actionButton} ${css.banButton}`}
+                        onClick={() => handleAction('ban', manager.id)}
+                        disabled={!manager.is_active}>
+                        Ban
                       </Button>
-                    ) : (
                       <Button
-                        className={`${css.actionButton} ${css.activateButton}`}
-                        onClick={() => handleAction('activate', manager.id)}
-                      >
-                        Activate
+                        className={`${css.actionButton} ${css.unbanButton}`}
+                        onClick={() => handleAction('unban', manager.id)}
+                        disabled={manager.is_active}>
+                        Unban
                       </Button>
-                    )}
-                    <Button
-                      className={`${css.actionButton} ${css.banButton}`}
-                      onClick={() => handleAction('ban', manager.id)}
-                      disabled={!manager.is_active}
-                    >
-                      Ban
-                    </Button>
-                    <Button
-                      className={`${css.actionButton} ${css.unbanButton}`}
-                      onClick={() => handleAction('unban', manager.id)}
-                      disabled={manager.is_active}
-                    >
-                      Unban
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
             <div className={css.pagination}>

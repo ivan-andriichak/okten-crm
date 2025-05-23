@@ -80,16 +80,15 @@ export class OrderController {
   async generateExcel(@CurrentUser() userData: IUserData, @Body() query: ExcelQueryDto, @Res() res: Response) {
     const buffer = await this.ordersService.generateExcel(userData, query);
 
-    // Встановлюємо заголовки для завантаження файлу
     res.set({
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': `attachment; filename=orders_${new Date().toISOString().split('T')[0]}.xlsx`,
       'Content-Length': buffer.length,
     });
 
-    // Відправляємо бінарні дані
     res.end(buffer);
   }
+
   @Patch(':id/edit')
   @ApiOkResponse({ description: 'Updated order', type: OrderEntity })
   async editOrder(@Param('id') id: number, @Body() editOrderDto: EditOrderDto): Promise<OrderEntity> {
