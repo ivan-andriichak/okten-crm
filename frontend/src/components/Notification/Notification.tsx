@@ -11,7 +11,7 @@ const Notification: FC = () => {
 
   useEffect(() => {
     console.log('Notifications updated:', notifications);
-    const timers = notifications.map((notification) =>
+    const timers = notifications.map(notification =>
       setTimeout(() => {
         console.log(`Removing notification: ${notification.id}`);
         dispatch(removeNotification(notification.id));
@@ -30,21 +30,24 @@ const Notification: FC = () => {
   }
 
   return (
-    <div
-      className={css.notificationContainer}
-    >
-      {notifications.map((notification: { id: string; type: string; message: React.ReactNode }) => (
-        <div
-          key={notification.id}
-          className={`${css.notification} ${css[notification.type]}`}
-          onClick={() => {
-            console.log(`Manually removing notification: ${notification.id}`);
-            dispatch(removeNotification(notification.id));
-          }}
-        >
-          {notification.message}
-        </div>
-      ))}
+    <div className={css.notificationContainer}>
+      {notifications.map(
+        (notification: {
+          id: string;
+          type: string;
+          message: React.ReactNode;
+        }) => (
+          <div
+            key={notification.id}
+            className={`${css.notification} ${css[notification.type]}`}
+            onClick={() => {
+              console.log(`Manually removing notification: ${notification.id}`);
+              dispatch(removeNotification(notification.id));
+            }}>
+            {notification.message}
+          </div>
+        ),
+      )}
     </div>
   );
 };

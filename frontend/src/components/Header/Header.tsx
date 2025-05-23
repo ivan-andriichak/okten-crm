@@ -80,9 +80,7 @@ const Header: React.FC = () => {
           </Button>
         )}
 
-        <Button
-          data-tooltip-id="logout-tooltip"
-          data-tooltip-content="Logout">
+        <Button data-tooltip-id="logout-tooltip" data-tooltip-content="Logout">
           <img
             src={Logout}
             alt="logout"
@@ -94,19 +92,39 @@ const Header: React.FC = () => {
 
       <ReactTooltip
         id="back-tooltip"
-        style={{ backgroundColor: '#222', color: '#fff', borderRadius: '8px', zIndex: 9999 }}
+        style={{
+          backgroundColor: '#222',
+          color: '#fff',
+          borderRadius: '8px',
+          zIndex: 9999,
+        }}
       />
       <ReactTooltip
         id="admin-tooltip"
-        style={{ backgroundColor: '#007bff', color: '#fff', borderRadius: '8px', zIndex: 9999 }}
+        style={{
+          backgroundColor: '#007bff',
+          color: '#fff',
+          borderRadius: '8px',
+          zIndex: 9999,
+        }}
       />
       <ReactTooltip
         id="logout-tooltip"
-        style={{ backgroundColor: '#dc3545', color: '#fff', borderRadius: '8px', zIndex: 9999 }}
+        style={{
+          backgroundColor: '#dc3545',
+          color: '#fff',
+          borderRadius: '8px',
+          zIndex: 9999,
+        }}
       />
       <ReactTooltip
         id="logo-tooltip"
-        style={{ backgroundColor: '#343a40', color: '#fff', borderRadius: '8px', zIndex: 9999 }}
+        style={{
+          backgroundColor: '#343a40',
+          color: '#fff',
+          borderRadius: '8px',
+          zIndex: 9999,
+        }}
       />
     </div>
   );

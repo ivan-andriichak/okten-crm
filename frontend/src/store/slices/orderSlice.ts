@@ -183,18 +183,17 @@ const generateExcel = createAsyncThunk<Blob, GenerateExcelParams, ThunkConfig>(
         ...(filters?.manager && { manager: filters.manager }),
       };
 
-      const response = await api.post(
-        '/orders/excel',
-        params,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          responseType: 'blob', // Важливо для отримання бінарних даних
-        },
-      );
+      const response = await api.post('/orders/excel', params, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob', // Важливо для отримання бінарних даних
+      });
 
-      return new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      return new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to generate Excel file';
+      const errorMessage =
+        error.response?.data?.message || 'Failed to generate Excel file';
       return rejectWithValue(errorMessage);
     }
   },
@@ -352,7 +351,9 @@ const orderSlice = createSlice({
       })
       .addCase(generateExcel.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ? String(action.payload) : 'Failed to generate Excel';
+        state.error = action.payload
+          ? String(action.payload)
+          : 'Failed to generate Excel';
       });
   },
 });

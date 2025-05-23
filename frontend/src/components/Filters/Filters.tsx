@@ -19,12 +19,12 @@ interface RootState {
 }
 
 const Filters = ({
-                   filters,
-                   setFilters,
-                   myOrdersOnly,
-                   setMyOrdersOnly,
-                   resetFilters,
-                 }: FiltersProps) => {
+  filters,
+  setFilters,
+  myOrdersOnly,
+  setMyOrdersOnly,
+  resetFilters,
+}: FiltersProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const groups = useSelector((state: RootState) => state.orders.groups) || [];
   const token = useSelector((state: RootState) => state.auth.token);
@@ -52,13 +52,12 @@ const Filters = ({
         generateExcel({
           filters: {
             ...filters,
-          myOrders: myOrdersOnly.toString(),
+            myOrders: myOrdersOnly.toString(),
           },
         }),
       ).unwrap();
 
-      const blob = result;
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(result);
       const link = document.createElement('a');
       link.href = url;
       link.download = `orders_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -123,8 +122,7 @@ const Filters = ({
           name="course"
           value={filters.course || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course ? css.selectedInput : ''}`}>
           <option value="">Filter by course</option>
           {courseOptions.map(option => (
             <option key={option} value={option}>
@@ -136,8 +134,7 @@ const Filters = ({
           name="course_format"
           value={filters.course_format || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course_format ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course_format ? css.selectedInput : ''}`}>
           <option value="">Filter by course format</option>
           {courseFormatOptions.map(option => (
             <option key={option} value={option}>
@@ -149,8 +146,7 @@ const Filters = ({
           name="course_type"
           value={filters.course_type || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course_type ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course_type ? css.selectedInput : ''}`}>
           <option value="">Filter by course type</option>
           {courseTypeOptions.map(option => (
             <option key={option} value={option}>
@@ -162,8 +158,7 @@ const Filters = ({
           name="status"
           value={filters.status || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.status ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.status ? css.selectedInput : ''}`}>
           <option value="">Filter by status</option>
           {statusOptions.map(option => (
             <option key={option} value={option}>
@@ -175,8 +170,7 @@ const Filters = ({
           name="group"
           value={filters.group || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.group ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.group ? css.selectedInput : ''}`}>
           <option value="">Filter by group</option>
           {groups.map(group => (
             <option key={group} value={group}>

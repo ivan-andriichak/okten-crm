@@ -60,7 +60,7 @@ export class AdminService {
     try {
       payload = this.jwtService.verify(token);
       if (payload.token_type !== 'activate' && payload.token_type !== 'recover') {
-        throw new UnauthorizedException('Invalid token type');
+        throw new UnauthorizedException('Invalid or expired token type');
       }
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired token');

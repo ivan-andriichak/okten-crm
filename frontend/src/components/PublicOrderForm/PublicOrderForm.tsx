@@ -164,10 +164,10 @@ const PublicOrderForm = () => {
           <option value="incubator">Incubator</option>
           <option value="vip">VIP</option>
         </select>
-        <div style={{display: 'flex', justifyContent: 'center'}}>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Button type="submit" variant="primary">
-          Відправити заявку
-        </Button>
+            Відправити заявку
+          </Button>
         </div>
       </form>
     </div>

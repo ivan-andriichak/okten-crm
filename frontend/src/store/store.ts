@@ -1,6 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { authReducer, managerReducer, notificationReducer, orderReducer } from './slices';
-
+import {
+  authReducer,
+  managerReducer,
+  notificationReducer,
+  orderReducer,
+} from './slices';
 
 export const store = configureStore({
   reducer: {

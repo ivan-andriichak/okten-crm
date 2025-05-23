@@ -1,2 +1,2 @@
-export * from './ErrorBoundary'
-export * from './ErrorBoundary.module.css'
+export * from './ErrorBoundary';
+export * from './ErrorBoundary.module.css';

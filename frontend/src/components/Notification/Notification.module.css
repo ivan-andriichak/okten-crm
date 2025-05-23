@@ -9,8 +9,12 @@
   gap: 10px;
 }
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 .notification {
@@ -22,7 +26,9 @@
   max-width: 300px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: opacity 0.3s ease-in-out;
-  animation: slideIn 0.3s ease-in, fadeOut 0.3s ease-out 5.7s forwards;
+  animation:
+    slideIn 0.3s ease-in,
+    fadeOut 0.3s ease-out 5.7s forwards;
 }
 
 .notification:hover {
