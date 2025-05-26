@@ -47,8 +47,12 @@ export class AdminService {
     const manager = await userRepository.findOne({ where: { id, role: Role.MANAGER } });
     if (!manager) throw new NotFoundException('Manager not found');
 
-    const token = this.jwtService.sign({ user_id: id, token_type: type, jti: uuidv4() }, { expiresIn: '30m' });
+    const token = uuidv4();
+    const expires = new Date(Date.now() + 30 * 60 * 1000);
 
+    manager.passwordResetToken = token;
+    manager.passwordResetExpires = expires;
+    await userRepository.save(manager);
     const baseUrl = type === 'activate' ? 'http://localhost:3000/activate/' : 'http://localhost:3000/recover/';
     return { link: `${baseUrl}${token}` };
   }
@@ -56,46 +60,26 @@ export class AdminService {
   async setPassword(token: string, password: string): Promise<void> {
     const userRepository = this.dataSource.getRepository(UserEntity);
 
-    let payload: { user_id: string; token_type: string };
-    try {
-      payload = this.jwtService.verify(token);
-      if (payload.token_type !== 'activate' && payload.token_type !== 'recover') {
-        throw new UnauthorizedException('Invalid or expired token type');
-      }
-    } catch (error) {
+    const user = await userRepository.findOne({ where: { passwordResetToken: token } });
+    if (!user || user.passwordResetExpires < new Date()) {
       throw new UnauthorizedException('Invalid or expired token');
-    }
-
-    const user = await userRepository.findOne({ where: { id: payload.user_id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
-      throw new UnauthorizedException('Password must be at least 8 characters with letters and numbers');
     }
 
     user.password = await bcrypt.hash(password, 10);
     user.is_active = true;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
     await userRepository.save(user);
   }
 
   async getUserByToken(token: string): Promise<{ email: string }> {
-    let payload: { user_id: string; token_type: string };
-    try {
-      payload = this.jwtService.verify(token);
-      if (payload.token_type !== 'activate' && payload.token_type !== 'recover') {
-        throw new UnauthorizedException('Invalid token type');
-      }
-    } catch (error) {
+    const userRepository = this.dataSource.getRepository(UserEntity);
+    const user = await userRepository.findOne({ where: { passwordResetToken: token } });
+    if (!user || user.passwordResetExpires < new Date()) {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    const userRepository = this.dataSource.getRepository(UserEntity);
-    const user = await userRepository.findOne({ where: { id: payload.user_id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    user.passwordResetToken = null;
     return { email: user.email };
   }
 
