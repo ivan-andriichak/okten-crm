@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, toggleExpand } from '../../store';
-import { OrderTableProps } from '../../interfaces/order';
+import { OrderTableProps } from '../../store/slices/interfaces/order';
 import { columns, tableStyles } from './constants';
 import { OrderDetails } from '../OrderDetails/OrderDetails';
 import { formatCell } from '../../utils/timeUtils';

@@ -1,36 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { api } from '../../services/api';
 import { AppDispatch, RootState } from '../store';
-
-export interface Manager {
-  id: string;
-  email: string;
-  name: string;
-  surname: string;
-  is_active: boolean;
-  last_login: string;
-  statistics?: {
-    totalOrders: number;
-    activeOrders: number;
-  };
-}
-
-export interface ManagerState {
-  managers: Manager[];
-  total: number;
-  loading: boolean;
-  error: string | null;
-  page: number;
-  limit: number;
-  overallStats: {
-    Total: number;
-    New: number;
-    'In work': number;
-    Agree: number;
-    Disagree: number;
-    Dubbing: number;
-  };
-}
+import { Manager, ManagerState } from './interfaces/manager';
 
 const initialState: ManagerState = {
   managers: [],
@@ -38,7 +9,7 @@ const initialState: ManagerState = {
   loading: false,
   error: null,
   page: 1,
-  limit: 5,
+  limit: 15,
   overallStats: {
     Total: 0,
     New: 0,

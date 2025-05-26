@@ -4,7 +4,6 @@ import { LoggerService } from '../../logger/logger.service';
 import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { UserMapper } from '../../users/user.maper';
 import { TokenType } from '../enums/token-type.enum';
-import { IJwtPayload } from '../interfaces/jwt-payload.interface';
 import { TokenService } from '../services/token.service';
 
 @Injectable()
@@ -26,13 +25,14 @@ export class JwtRefreshGuard implements CanActivate {
       throw new UnauthorizedException('Missing refresh token or deviceId');
     }
 
-    let payload: IJwtPayload;
-    try {
-      payload = await this.tokenService.verifyToken(refreshToken, TokenType.REFRESH);
-      this.logger.log(`Token verified, payload: ${JSON.stringify(payload)}`);
-    } catch (error) {
-      this.logger.error(`Token verification error: ${error.message}`);
-      throw new UnauthorizedException('Invalid refresh token');
+    const payload = await this.tokenService.verifyToken(refreshToken, TokenType.REFRESH);
+    if (!payload) {
+      throw new UnauthorizedException();
+    }
+
+    const isRefreshTokenExist = await this.refreshTokenRepository.isRefreshTokenExist(refreshToken);
+    if (!isRefreshTokenExist) {
+      throw new UnauthorizedException();
     }
 
     const tokenEntity = await this.refreshTokenRepository.findOne({

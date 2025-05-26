@@ -70,7 +70,7 @@ export class BaseUserReqDto {
 
   @ApiProperty({
     description: 'Indicates whether the user is active.',
-    example: true,
+    example: false,
   })
   is_active?: boolean;
 

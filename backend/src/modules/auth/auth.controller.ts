@@ -26,6 +26,12 @@ export class AuthController {
   healthCheck() {
     return { message: 'API is running' };
   }
+
+  @Get('/debug-sentry')
+  @SkipAuth()
+  getError(): void {
+    throw new Error('My first Sentry error!');
+  }
   @SkipAuth()
   @Get('create-admin')
   public async createDefaultAdmin(): Promise<AuthResDto> {
@@ -41,12 +47,6 @@ export class AuthController {
   @Post('register')
   public async register(@Body() dto: RegisterReqDto): Promise<AuthResDto> {
     return await this.authService.register(dto);
-  }
-
-  @Get('/debug-sentry')
-  @SkipAuth()
-  getError(): void {
-    throw new Error('My first Sentry error!');
   }
 
   @SkipAuth()

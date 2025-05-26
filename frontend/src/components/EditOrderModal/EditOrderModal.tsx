@@ -9,8 +9,8 @@ import {
   updateEditForm,
   updateOrder,
 } from '../../store';
-import { EditOrderModalProps } from '../../interfaces/editForm';
-import { Order, OrderState } from '../../interfaces/order';
+import { EditOrderModalProps } from '../../store/slices/interfaces/editForm';
+import { Order, OrderState } from '../../store/slices/interfaces/order';
 import Button from '../Button/Button';
 import css from './EditOrderModal.module.css';
 

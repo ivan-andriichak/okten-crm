@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { Comment, Order } from '../../interfaces/order';
+import { Comment, Order } from '../../store/slices/interfaces/order';
 import { AppDispatch, deleteComment } from '../../store';
 import Button from '../Button/Button';
 

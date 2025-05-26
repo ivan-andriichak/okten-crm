@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 
 import { AppDispatch, fetchOrders, RootState, setSort } from '../../store';
-import { OrdersProps } from '../../interfaces/order';
+import { OrdersProps } from '../../store/slices/interfaces/order';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import { Pagination } from '../Pagination/Pagination';
 import { OrderTable } from '../OrderTable/OrderTable';

@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
-import { AuthResponse, LoginRequest } from '../../interfaces/auth';
+import { AuthResponse, LoginRequest } from './interfaces/auth';
 import { api } from '../../services/api';
-import storage from '../utils/storage';
+import storage from '../../utils/storage';
 import { RootState } from '../store';
 
 const initialState: {

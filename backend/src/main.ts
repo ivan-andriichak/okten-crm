@@ -35,6 +35,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('docs', app, document, {
     swaggerOptions: {
       docExpansion: 'list',
@@ -43,7 +44,11 @@ async function bootstrap() {
     },
   });
 
-  // Увімкнення CORS
+  app.use('/swagger-json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(document);
+  });
+
   app.enableCors({
     origin: '*',
     credentials: true,

@@ -1,17 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import React from 'react';
-
-interface Notification {
-  id: string;
-  message: React.ReactNode;
-  type: 'error' | 'success' | 'info';
-  duration?: number;
-}
+import { Notification } from './interfaces/notification';
 
 export interface NotificationState {
   notifications: Notification[];
 }
-
 const initialState: NotificationState = {
   notifications: [],
 };

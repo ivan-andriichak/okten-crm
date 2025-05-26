@@ -150,13 +150,11 @@ export class OrderService {
   async generateExcel(userData: IUserData, query: ExcelQueryDto): Promise<Buffer> {
     this.logger.log(`Generating Excel for user ${userData.userId} with query: ${JSON.stringify(query)}`);
 
-    // Використовуємо getListOrders для отримання відфільтрованих заявок
     const [orders] = await this.getListOrders(userData, query as OrderListQueryDto);
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Orders');
 
-    // Визначаємо колонки для Excel
     worksheet.columns = [
       { header: 'ID', key: 'id', width: 10 },
       { header: 'Name', key: 'name', width: 20 },

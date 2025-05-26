@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { api } from '../../services/api';
-import { EditForm } from '../../interfaces/editForm';
-import { GroupEntity, Order, OrderState } from '../../interfaces/order';
+import { EditForm } from './interfaces/editForm';
+import { GroupEntity, Order, OrderState } from './interfaces/order';
 import { AppDispatch, RootState } from '../store';
+
 
 const initialState: OrderState = {
   orders: [],

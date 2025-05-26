@@ -8,6 +8,7 @@ import { PublicOrderForm } from './components/PublicOrderForm';
 import { Login } from './components/Login';
 import AdminPanel from './components/AdminPanel/AdminPanel';
 import SetPassword from './components/SetPassword/SetPassword';
+import { useCallback } from 'react';
 
 const ProtectedOrdersRoute = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -15,9 +16,9 @@ const ProtectedOrdersRoute = () => {
     (state: RootState) => state.auth,
   );
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logout());
-  };
+  }, [dispatch]);
 
   return token && role ? (
     <Orders

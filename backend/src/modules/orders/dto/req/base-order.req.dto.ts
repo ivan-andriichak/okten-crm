@@ -1,4 +1,3 @@
-// backend/src/modules/orders/dto/req/base-order.req.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 
@@ -25,7 +24,7 @@ export class BaseOrderReqDto {
     example: 'john.doe@example.com',
     description: 'Email address of the customer.',
   })
-  @IsString() // Змінено з @IsEmail() для гнучкості, якщо потрібна валідація — поверніть @IsEmail()
+  @IsString()
   @IsOptional()
   email?: string;
 
