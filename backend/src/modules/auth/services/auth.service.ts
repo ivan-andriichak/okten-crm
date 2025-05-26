@@ -64,11 +64,11 @@ export class AuthService {
         throw new BadRequestException('Password cannot be empty');
       }
 
-      const hashedPassword = dto.password ? await bcrypt.hash(dto.password, 10) : null;
+      const password = dto.password ? await bcrypt.hash(dto.password, 10) : null;
       const user = await this.userRepository.save(
         this.userRepository.create({
           ...dto,
-          password: hashedPassword,
+          password,
         }),
       );
 
@@ -172,15 +172,6 @@ export class AuthService {
     try {
       this.logger.log(`Refreshing tokens for user ${userData.userId}, deviceId: ${userData.deviceId}`);
       this.logger.log(`Received refresh token: ${refreshToken}`);
-
-      // Перевірка запису в refresh_tokens
-      const tokenRecord = await this.refreshTokenRepository.findOne({
-        where: { refreshToken, deviceId: userData.deviceId, user_id: userData.userId },
-      });
-      if (!tokenRecord) {
-        this.logger.error('Refresh token not found in database');
-        throw new UnauthorizedException('Invalid refresh token');
-      }
 
       this.logger.log('Generating new tokens');
       const tokens = await this.tokenService.generateAuthTokens({
