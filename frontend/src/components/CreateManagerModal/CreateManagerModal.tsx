@@ -1,28 +1,11 @@
-import React from 'react';
+import  { FC } from 'react';
 import Button from '../Button/Button';
 import css from './CreateManagerModal.module.css';
+import { CreateManagerModalProps } from '../interfaces/createManager';
 
-interface ManagerFormData {
-  email: string;
-  name: string;
-  surname: string;
-}
-
-interface CreateManagerModalProps {
-  isOpen: boolean;
-  formData: ManagerFormData;
-  formError: string | null;
-  formSuccess: string | null;
-  onClose: () => void;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
-}
-
-const CreateManagerModal: React.FC<CreateManagerModalProps> = ({
+const CreateManagerModal: FC<CreateManagerModalProps> = ({
   isOpen,
   formData,
-  formError,
-  formSuccess,
   onClose,
   onInputChange,
   onSubmit,
@@ -67,8 +50,6 @@ const CreateManagerModal: React.FC<CreateManagerModalProps> = ({
               required
             />
           </div>
-          {formError && <p className={css.error}>{formError}</p>}
-          {formSuccess && <p className={css.success}>{formSuccess}</p>}
           <div className={css.buttonGroup}>
             <Button type="button" onClick={onClose}>
               Cancel
