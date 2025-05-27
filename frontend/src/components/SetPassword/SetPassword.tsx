@@ -5,8 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   addNotification,
   AppDispatch,
-  login,
   clearNotifications,
+  login,
 } from '../../store';
 import Button from '../Button/Button';
 import css from './SetPassword.module.css';
@@ -20,68 +20,104 @@ const SetPassword: FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [, setEmail] = useState('');
+  const [email, setEmail] = useState('');
+  const [, setLoading] = useState(false);
 
   const isActivation = location.pathname.includes('/activate');
-  const title = isActivation ? 'Activate Account' : 'Recover Password';
+  const title = isActivation ? 'Activate Account' : 'Reset Password';
 
   useEffect(() => {
-    // Очистити сповіщення при завантаженні компонента
     dispatch(clearNotifications());
-    console.log('SetPassword mounted');
-  }, [dispatch]);
+
+    // Fetch email by token
+    const fetchEmail = async () => {
+      if (!token) {
+        dispatch(
+          addNotification({
+            message: 'Invalid or missing token',
+            type: 'error',
+            duration: 5000,
+          }),
+        );
+        setTimeout(() => navigate('/login'), 3000);
+        return;
+      }
+      try {
+        const response = await api.get(`/admin/user-by-token/${token}`);
+        setEmail(response.data.email);
+      } catch (err: any) {
+        dispatch(
+          addNotification({
+            message: 'Invalid or expired token',
+            type: 'error',
+            duration: 5000,
+          }),
+        );
+        setTimeout(() => navigate('/login'), 3000);
+      }
+    };
+    void fetchEmail();
+  }, [dispatch, token, navigate]);
+
+  const validatePassword = (pwd: string): string | null => {
+    if (pwd.length > 128) {
+      return 'Password cannot exceed 128 characters.';
+    }
+    const regex =
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!regex.test(pwd)) {
+      return (
+        'Password must be at least 8 characters long and include uppercase,' +
+        ' lowercase letters, numbers, and special characters (@$!%*?&).'
+      );
+    }
+    return null;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    dispatch(clearNotifications());
 
-    if (password.length < 8) {
-      console.log('Dispatching error notification: Password is too short');
-      const action = addNotification({
-        message: 'Password must be at least 8 characters long',
-        type: 'error',
-        duration: 8000,
-      });
-      dispatch(action);
-      console.log('Dispatched action:', action);
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      dispatch(
+        addNotification({
+          message: passwordError,
+          type: 'error',
+          duration: 5000,
+        }),
+      );
+      setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      console.log('Dispatching error notification: Passwords do not match');
-      const action = addNotification({
-        message: 'Passwords do not match',
-        type: 'error',
-        duration: 10000,
-      });
-      dispatch(action);
-      console.log('Dispatched action:', action);
+      dispatch(
+        addNotification({
+          message: 'Passwords do not match',
+          type: 'error',
+          duration: 5000,
+        }),
+      );
+      setLoading(false);
       return;
     }
 
-    if (!token) {
-      console.log('Dispatching error notification: Invalid or missing token');
-      const action = addNotification({
-        message: 'Invalid or missing token',
-        type: 'error',
-        duration: 8000,
-      });
-      dispatch(action);
-      console.log('Dispatched action:', action);
-      setTimeout(() => {
-        navigate('/login');
-      }, 8000);
+    if (!token || !email) {
+      dispatch(
+        addNotification({
+          message: 'Missing or invalid token or email',
+          type: 'error',
+          duration: 5000,
+        }),
+      );
+      setTimeout(() => navigate('/login'), 3000);
+      setLoading(false);
       return;
     }
-
-    // Очистити сповіщення перед асинхронним запитом
-    dispatch(clearNotifications());
 
     try {
-      const response = await api.get(`/admin/user-by-token/${token}`);
-      const userEmail = response.data.email;
-      setEmail(userEmail);
-
-      // Встановлення пароля
       await api.post(`/admin/set-password/${token}`, { password });
 
       let deviceId = localStorage.getItem('deviceId');
@@ -89,48 +125,34 @@ const SetPassword: FC = () => {
         deviceId = uuidv4();
         localStorage.setItem('deviceId', deviceId);
       }
+
       const result = await dispatch(
         login({
-          email: userEmail,
+          email,
           password,
           deviceId,
         }),
       );
 
       if (login.fulfilled.match(result)) {
-        console.log('Dispatching success notification');
-        const action = addNotification({
-          message: 'Password set successfully! Redirecting to orders...',
-          type: 'success',
-          duration: 8000,
-        });
-        dispatch(action);
-        console.log('Dispatched action:', action);
+        dispatch(
+          addNotification({
+            message: 'Password successfully set! Redirecting to orders...',
+            type: 'success',
+            duration: 5000,
+          }),
+        );
         setPassword('');
         setConfirmPassword('');
         setTimeout(() => {
-          console.log('Navigating to /orders');
-          dispatch(clearNotifications()); // Очистити сповіщення перед редиректом
+          dispatch(clearNotifications());
           navigate('/orders', { replace: true });
-        }, 8000);
+        }, 5000);
       } else {
         throw new Error('Login failed after setting password');
       }
     } catch (err: any) {
-      console.log('Dispatching error notification: Failed to set password');
-      const action = addNotification({
-        message:
-          err.response?.data?.message ||
-          err.message ||
-          'Failed to set password',
-        type: 'error',
-        duration: 8000,
-      });
-      dispatch(action);
-      console.log('Dispatched action:', action);
-      setTimeout(() => {
-        navigate('/login');
-      }, 8000);
+      setLoading(false);
     }
   };
 

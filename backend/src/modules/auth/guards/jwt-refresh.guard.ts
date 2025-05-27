@@ -53,7 +53,7 @@ export class JwtRefreshGuard implements CanActivate {
 
     if (!user.is_active) {
       this.logger.error(`User ${user.id} is banned or inactive`);
-      throw new UnauthorizedException('User is banned or inactive');
+      throw new UnauthorizedException('User has been banned or is inactive');
     }
 
     this.logger.log(`User ${user.id} successfully verified`);

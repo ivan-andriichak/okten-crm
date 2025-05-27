@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { OrderEntity } from '../../database/entities/order.entity';
+import { RefreshTokenEntity } from '../../database/entities/refresh-token.entity';
 import { UserEntity } from '../../database/entities/user.entity';
 import { AuthModule } from '../auth/auth.module';
+import { LoggerModule } from '../logger/logger.module';
 import { LoggerService } from '../logger/logger.service';
-import { RedisModule } from '../redis/redis.module';
 import { OrdersRepository } from '../repository/services/orders.repository';
 import { UserRepository } from '../repository/services/user.repository';
+import { UsersModule } from '../users/users.module';
 import { AdminController } from './admin.controller';
 import { AdminService } from './services/admin.service';
 
@@ -17,15 +18,9 @@ import { AdminService } from './services/admin.service';
   imports: [
     ConfigModule,
     AuthModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule, RedisModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_ACCESS_SECRET'),
-        signOptions: { expiresIn: '30m' },
-      }),
-      inject: [ConfigService],
-    }),
-    TypeOrmModule.forFeature([UserRepository, OrdersRepository, UserEntity, OrderEntity]),
+    UsersModule,
+    LoggerModule,
+    TypeOrmModule.forFeature([UserRepository, OrdersRepository, UserEntity, OrderEntity, RefreshTokenEntity]),
   ],
   controllers: [AdminController],
   providers: [AdminService, LoggerService],

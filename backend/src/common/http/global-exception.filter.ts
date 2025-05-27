@@ -1,11 +1,4 @@
-import {
-  ArgumentsHost,
-  BadRequestException,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { Request, Response } from 'express';
 import { QueryFailedError } from 'typeorm';
@@ -22,29 +15,20 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     let status: number;
-    let messages: string | string[];
+    let message: string;
 
-    if (exception instanceof BadRequestException) {
+    if (exception instanceof HttpException) {
       status = exception.getStatus();
-      const responseObj = exception.getResponse() as any;
-      messages = responseObj.message || 'Bad request';
-    } else if (exception instanceof UnauthorizedException) {
-      status = 401;
-      messages = exception.message || 'Unauthorized';
-    } else if (exception instanceof HttpException) {
-      status = exception.getStatus();
-      const responseObj = exception.getResponse() as any;
-      messages = responseObj.message || exception.message;
+      const responseObj = exception.getResponse();
+      message = typeof responseObj === 'string' ? responseObj : (responseObj as any).message || exception.message;
     } else if (exception instanceof QueryFailedError) {
       const error = DbQueryFailedFilter.filter(exception);
       status = error.status;
-      messages = error.message;
+      message = error.message;
     } else {
       status = 500;
-      messages = 'Internal server error';
+      message = 'Internal server error';
     }
-
-    messages = Array.isArray(messages) ? messages : [messages];
 
     this.logger.error(
       `Error: ${exception instanceof Error ? exception.message : 'Unknown error'}`,
@@ -54,7 +38,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     response.status(status).json({
       statusCode: status,
-      messages,
+      message,
+      error: exception instanceof HttpException ? exception.name : 'Error',
       timestamp: new Date().toISOString(),
       path: request.url,
     });

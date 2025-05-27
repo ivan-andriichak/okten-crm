@@ -7,8 +7,10 @@ import { Role } from '../../common/enums/role.enum';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { UserEntity } from '../../database/entities/user.entity';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
+import { UserResDto } from '../users/dto/res/user.res.dto';
 import { RegisterAdminReqDto } from './dto/req/register-admin.req.dto';
 import { AdminService } from './services/admin.service';
+import { SetPasswordReqDto } from './dto/req/set-password.req.dto';
 
 @ApiBearerAuth()
 @ApiTags('Admin')
@@ -48,7 +50,7 @@ export class AdminController {
 
   @Roles(Role.ADMIN)
   @Post('managers')
-  async createManager(@Body() dto: RegisterAdminReqDto): Promise<UserEntity> {
+  async createManager(@Body() dto: RegisterAdminReqDto): Promise<UserResDto> {
     return await this.adminService.createManager(dto);
   }
 
@@ -78,7 +80,7 @@ export class AdminController {
 
   @Public()
   @Post('set-password/:token')
-  async setPassword(@Param('token') token: string, @Body() body: { password: string }): Promise<void> {
-    return await this.adminService.setPassword(token, body.password);
+  async setPassword(@Param('token') token: string, @Body() dto: SetPasswordReqDto) {
+    return await this.adminService.setPassword(token, dto.password);
   }
 }

@@ -107,16 +107,16 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   const closeModal = () => {
-    localStorage.setItem('managerFormDraft', JSON.stringify(formData));
+    // localStorage.setItem('managerFormDraft', JSON.stringify(formData));
     setIsModalOpen(false);
     setFormData({ email: '', name: '', surname: '' });
   };
-  useEffect(() => {
-    const draft = localStorage.getItem('managerFormDraft');
-    if (draft) {
-      setFormData(JSON.parse(draft));
-    }
-  }, []);
+  // useEffect(() => {
+  //   const draft = localStorage.getItem('managerFormDraft');
+  //   if (draft) {
+  //     setFormData(JSON.parse(draft));
+  //   }
+  // }, []);
 
   const handlePageChange = (newPage: number) => {
     dispatch(
@@ -258,8 +258,6 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         <CreateManagerModal
           isOpen={isModalOpen}
           formData={formData}
-          formError={null}
-          formSuccess={null}
           onClose={closeModal}
           onInputChange={handleInputChange}
           onSubmit={handleSubmit}

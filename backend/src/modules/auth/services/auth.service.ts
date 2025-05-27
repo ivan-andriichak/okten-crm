@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -60,42 +59,42 @@ export class AuthService {
       this.logger.log(`Registering user with email: ${dto.email}`);
       await this.userService.isEmailExistOrThrow(dto.email);
 
-      if (dto.password === '') {
-        throw new BadRequestException('Password cannot be empty');
-      }
-
       const password = dto.password ? await bcrypt.hash(dto.password, 10) : null;
       const user = await this.userRepository.save(
         this.userRepository.create({
           ...dto,
           password,
+          is_active: dto.is_active ?? true,
         }),
       );
 
-      const tokens = await this.tokenService.generateAuthTokens({
-        userId: user.id,
-        deviceId: dto.deviceId,
-        role: user.role,
-      });
-
-      await Promise.all([
-        this.refreshTokenRepository.delete({
+      let tokens: TokenPairResDto | null = null;
+      if (dto.is_active) {
+        tokens = await this.tokenService.generateAuthTokens({
+          userId: user.id,
           deviceId: dto.deviceId,
-          user_id: user.id,
-        }),
-        this.authCacheService.deleteToken(user.id, dto.deviceId),
-      ]);
-      this.logger.log(`Old tokens deleted for user ${user.id} and device ${dto.deviceId}`);
+          role: user.role,
+        });
 
-      await Promise.all([
-        this.refreshTokenRepository.save({
-          deviceId: dto.deviceId,
-          refreshToken: tokens.refreshToken,
-          user_id: user.id,
-        }),
-        this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
-      ]);
-      this.logger.log(`Tokens saved for user ${user.id}`);
+        await Promise.all([
+          this.refreshTokenRepository.delete({
+            deviceId: dto.deviceId,
+            user_id: user.id,
+          }),
+          this.authCacheService.deleteToken(user.id, dto.deviceId),
+        ]);
+        this.logger.log(`Old tokens deleted for user ${user.id} and device ${dto.deviceId}`);
+
+        await Promise.all([
+          this.refreshTokenRepository.save({
+            deviceId: dto.deviceId,
+            refreshToken: tokens.refreshToken,
+            user_id: user.id,
+          }),
+          this.authCacheService.saveToken(tokens.accessToken, user.id, dto.deviceId),
+        ]);
+        this.logger.log(`Tokens saved for user ${user.id}`);
+      }
 
       return { user: UserMapper.toResponseDTO(user), tokens };
     } catch (error) {
