@@ -4,6 +4,7 @@ export interface Manager {
   name: string;
   surname: string;
   is_active: boolean;
+  hasPassword: boolean;
   last_login: string;
   statistics?: {
     totalOrders: number;
@@ -27,3 +28,5 @@ export interface ManagerState {
     Dubbing: number;
   };
 }
+
+

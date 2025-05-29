@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { DataSource, Equal, MoreThan, Repository } from 'typeorm';
@@ -12,7 +18,6 @@ import { AuthService } from '../../auth/services/auth.service';
 import { LoggerService } from '../../logger/logger.service';
 import { StatusEnum } from '../../orders/enums/order.enums';
 import { UserResDto } from '../../users/dto/res/user.res.dto';
-import { UsersService } from '../../users/users.service';
 import { RegisterAdminReqDto } from '../dto/req/register-admin.req.dto';
 
 @Injectable()
@@ -20,13 +25,11 @@ export class AdminService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly authService: AuthService,
-    private readonly userService: UsersService,
     private readonly configService: ConfigService,
     private readonly loggerService: LoggerService,
   ) {}
 
   async createManager(dto: RegisterAdminReqDto): Promise<UserResDto> {
-    this.loggerService.log(`Creating manager with email: ${dto.email}`);
     try {
       const authResponse = await this.authService.register({
         ...dto,
@@ -37,8 +40,9 @@ export class AdminService {
       });
       return authResponse.user;
     } catch (error) {
-      this.loggerService.error(`Failed to create manager with email: ${dto.email}`, error);
-      throw error;
+      if (error instanceof ConflictException) {
+        throw error;
+      }
     }
   }
 
@@ -63,11 +67,11 @@ export class AdminService {
       throw new NotFoundException('Manager not found');
     }
 
-    if (type === 'activate' && manager.is_active) {
+    if (type === 'activate' && (manager.is_active || manager.password)) {
       this.loggerService.warn(`Manager already active: ${id}`);
       throw new BadRequestException('Manager is already active');
     }
-    if (type === 'recover' && !manager.is_active) {
+    if (type === 'recover' && (!manager.is_active || !manager.password)) {
       this.loggerService.warn(`Manager is not active for recovery: ${id}`);
       throw new BadRequestException('Manager is not active');
     }
@@ -169,6 +173,24 @@ export class AdminService {
     await queryRunner.startTransaction();
 
     try {
+      const userRepository = this.dataSource.getRepository(UserEntity);
+      const manager = await userRepository.findOne({
+        where: { id: managerId, role: Role.MANAGER },
+        select: ['id', 'is_active', 'password'],
+      });
+      if (!manager) {
+        this.loggerService.error(`Manager not found: ${managerId}`);
+        throw new NotFoundException('Manager not found');
+      }
+      if (!manager.is_active) {
+        this.loggerService.warn(`Manager is already inactive: ${managerId}`);
+        throw new BadRequestException('Manager is already inactive');
+      }
+      if (!manager.password) {
+        this.loggerService.warn(`Manager is not activated: ${managerId}`);
+        throw new BadRequestException('Manager is not activated');
+      }
+
       await queryRunner.manager.update(UserEntity, { id: managerId }, { is_active: false });
       await queryRunner.manager.delete(RefreshTokenEntity, { user: { id: managerId } });
       await queryRunner.commitTransaction();
@@ -192,6 +214,14 @@ export class AdminService {
       this.loggerService.error(`Manager not found: ${id}`);
       throw new NotFoundException('Manager not found');
     }
+    if (user.is_active) {
+      this.loggerService.warn(`Manager is already active: ${id}`);
+      throw new BadRequestException('Manager is already active');
+    }
+    if (!user.password) {
+      this.loggerService.warn(`Manager is not activated: ${id}`);
+      throw new BadRequestException('Manager is not activated');
+    }
     await userRepository.update(id, { is_active: true });
     this.loggerService.log(`Manager unbanned: ${id}`);
     return await userRepository.findOneBy({ id });
@@ -203,7 +233,7 @@ export class AdminService {
     sort = 'created_at',
     order: 'ASC' | 'DESC' = 'DESC',
   ): Promise<{
-    managers: (UserEntity & { statistics: { totalOrders: number; activeOrders: number } })[];
+    managers: (UserEntity & { statistics: { totalOrders: number; activeOrders: number }; hasPassword: boolean })[];
     total: number;
   }> {
     const userRepository = this.dataSource.getRepository(UserEntity);
@@ -212,7 +242,7 @@ export class AdminService {
       order: { [sort]: order },
       skip: (page - 1) * limit,
       take: limit,
-      select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at', 'role'],
+      select: ['id', 'email', 'name', 'surname', 'is_active', 'password', 'created_at', 'last_login', 'role'],
     });
 
     this.loggerService.log(`Fetched ${managers.length} managers, page: ${page}, limit: ${limit}`);
@@ -222,6 +252,7 @@ export class AdminService {
         const stats = await this.getManagerStatistics(manager.id);
         return {
           ...manager,
+          hasPassword: !!manager.password, // Додаємо hasPassword
           statistics: {
             totalOrders: stats.Total || 0,
             activeOrders: stats[StatusEnum.IN_WORK] || 0,

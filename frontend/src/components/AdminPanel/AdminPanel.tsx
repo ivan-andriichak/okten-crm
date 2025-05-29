@@ -95,11 +95,11 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
       );
       setFormData({ email: '', name: '', surname: '' });
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || 'Failed to create manager';
       dispatch(
         addNotification({
-          message:
-            'Failed to create manager. Please contact support: support@example.com',
+          message: `${errorMessage}. Please contact support: support@example.com`,
           type: 'error',
         }),
       );
@@ -107,16 +107,9 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   const closeModal = () => {
-    // localStorage.setItem('managerFormDraft', JSON.stringify(formData));
     setIsModalOpen(false);
     setFormData({ email: '', name: '', surname: '' });
   };
-  // useEffect(() => {
-  //   const draft = localStorage.getItem('managerFormDraft');
-  //   if (draft) {
-  //     setFormData(JSON.parse(draft));
-  //   }
-  // }, []);
 
   const handlePageChange = (newPage: number) => {
     dispatch(
@@ -127,6 +120,16 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         order: 'DESC',
       }),
     );
+  };
+
+  const getManagerStatus = (manager: any) => {
+    if (manager.is_active) {
+      return { text: 'Active', color: 'green' };
+    }
+    if (manager.hasPassword) {
+      return { text: 'Banned', color: 'red' };
+    }
+    return { text: 'Inactive', color: 'orange' };
   };
 
   const handleAction = async (action: string, managerId: string) => {
@@ -175,6 +178,9 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
               type: 'success',
             }),
           );
+          dispatch(
+            fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }),
+          );
           break;
         }
         default:
@@ -186,7 +192,7 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           );
       }
     } catch (error: any) {
-      const errorMessage = error.message || 'Action failed';
+      const errorMessage = error?.response?.data?.message || 'Action failed';
       dispatch(
         addNotification({
           message: `${errorMessage}. Please contact support: support@example.com`,
@@ -198,7 +204,9 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
 
   return (
     <>
-      <Header />
+      <div style={{ position: 'sticky', top: 0, zIndex: 100 }}>
+        <Header />
+      </div>
       <div className={css.container}>
         <div className={css.statsContainer}>
           <h3>Overall Order Statistics</h3>
@@ -242,7 +250,8 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           <Button
             data-tooltip-id="create-tooltip"
             data-tooltip-content="Create a new manager"
-            onClick={() => setIsModalOpen(true)}>
+            onClick={() => setIsModalOpen(true)}
+          >
             CREATE
           </Button>
           <ReactTooltip
@@ -268,24 +277,26 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           <>
             <table className={css.table}>
               <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Surname</th>
-                  <th>Status</th>
-                  <th>Statistics</th>
-                  <th>Last login</th>
-                  <th>Actions</th>
-                </tr>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Status</th>
+                <th>Statistics</th>
+                <th>Last login</th>
+                <th>Actions</th>
+              </tr>
               </thead>
               <tbody>
-                {managers.map(manager => (
+              {managers.map(manager => {
+                const status = getManagerStatus(manager);
+                return (
                   <tr key={manager.id}>
                     <td>{manager.email}</td>
                     <td>{manager.name}</td>
                     <td>{manager.surname}</td>
-                    <td style={{ color: manager.is_active ? 'green' : 'red' }}>
-                      {manager.is_active ? 'Active' : 'Inactive'}
+                    <td style={{ color: status.color }}>
+                      {status.text}
                     </td>
                     <td>
                       Total Orders: {manager.statistics?.totalOrders || 0},
@@ -296,31 +307,37 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
                       {manager.is_active ? (
                         <Button
                           className={`${css.actionButton} ${css.recoverButton}`}
-                          onClick={() => handleAction('recover', manager.id)}>
+                          onClick={() => handleAction('recover', manager.id)}
+                        >
                           Recover Password
                         </Button>
                       ) : (
                         <Button
                           className={`${css.actionButton} ${css.activateButton}`}
-                          onClick={() => handleAction('activate', manager.id)}>
+                          onClick={() => handleAction('activate', manager.id)}
+                          disabled={manager.hasPassword}
+                        >
                           Activate
                         </Button>
                       )}
                       <Button
                         className={`${css.actionButton} ${css.banButton}`}
                         onClick={() => handleAction('ban', manager.id)}
-                        disabled={!manager.is_active}>
+                        disabled={!manager.is_active || !manager.hasPassword}
+                      >
                         Ban
                       </Button>
                       <Button
                         className={`${css.actionButton} ${css.unbanButton}`}
                         onClick={() => handleAction('unban', manager.id)}
-                        disabled={manager.is_active}>
+                        disabled={manager.is_active || !manager.hasPassword}
+                      >
                         Unban
                       </Button>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
             <div className={css.pagination}>

@@ -10,7 +10,6 @@ const Notification: FC = () => {
   );
 
   useEffect(() => {
-    console.log('Notifications updated:', notifications);
     const timers = notifications.map(notification =>
       setTimeout(() => {
         dispatch(removeNotification(notification.id));
@@ -18,7 +17,6 @@ const Notification: FC = () => {
     );
 
     return () => {
-      console.log('Cleaning up timers for notifications:', notifications);
       timers.forEach(clearTimeout);
     };
   }, [notifications, dispatch]);

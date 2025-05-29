@@ -1,20 +1,26 @@
-import { FC } from 'react';
 import css from './SupportEmail.module.css';
-import Button from '../Button/Button';
 import { SUPPORT_INFO } from '../../config/config';
+import { FC } from 'react';
 
 const SupportEmail: FC = () => {
   const supportInfo = SUPPORT_INFO;
 
   return (
     <div className={css.container}>
-      <Button className={css.button}>
-        <a href={`mailto:${supportInfo.email}`} className={css.link}>
-          {supportInfo.email}
-        </a>
-      </Button>
-      <p className={css.phone}>Phone: {supportInfo.phone}</p>
-      <p className={css.name}>Name: {supportInfo.name}</p>
+      <div className={css.supportCard}>
+        <button className={css.button}>
+          <a
+            href={`mailto:${supportInfo.email}`}
+            className={css.link}
+          >
+            {supportInfo.email}
+          </a>
+        </button>
+        <div className={css.info}>
+          <div className={css.phone}>📱 {supportInfo.phone}</div>
+          <div className={css.name}>👤 {supportInfo.name}</div>
+        </div>
+      </div>
     </div>
   );
 };

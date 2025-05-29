@@ -20,6 +20,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const responseObj = exception.getResponse();
+      if (
+        status === 409 &&
+        typeof responseObj === 'object' &&
+        'message' in responseObj &&
+        (responseObj as any).message === 'Email already exists'
+      ) {
+        response.status(status).json(responseObj);
+        return;
+      }
       message = typeof responseObj === 'string' ? responseObj : (responseObj as any).message || exception.message;
     } else if (exception instanceof QueryFailedError) {
       const error = DbQueryFailedFilter.filter(exception);
