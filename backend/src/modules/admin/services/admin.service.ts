@@ -216,6 +216,10 @@ export class AdminService {
       this.loggerService.warn(`Manager is already active: ${id}`);
       throw new BadRequestException('Manager is already active');
     }
+    if (!user.password) {
+      this.loggerService.warn(`Manager is not banned (no password set): ${id}`);
+      throw new BadRequestException('Manager is not banned');
+    }
 
     await userRepository.update(id, { is_active: true });
     this.loggerService.log(`Manager unbanned: ${id}`);

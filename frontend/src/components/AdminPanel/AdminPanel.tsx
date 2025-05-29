@@ -96,7 +96,8 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
       setFormData({ email: '', name: '', surname: '' });
       setIsModalOpen(false);
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || 'Failed to create manager';
+      const errorMessage =
+        error?.response?.data?.message || 'Failed to create manager';
       dispatch(
         addNotification({
           message: `${errorMessage}. Please contact support: support@example.com`,
@@ -250,8 +251,7 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           <Button
             data-tooltip-id="create-tooltip"
             data-tooltip-content="Create a new manager"
-            onClick={() => setIsModalOpen(true)}
-          >
+            onClick={() => setIsModalOpen(true)}>
             CREATE
           </Button>
           <ReactTooltip
@@ -277,67 +277,94 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           <>
             <table className={css.table}>
               <thead>
-              <tr>
-                <th>Email</th>
-                <th>Name</th>
-                <th>Surname</th>
-                <th>Status</th>
-                <th>Statistics</th>
-                <th>Last login</th>
-                <th>Actions</th>
-              </tr>
+                <tr>
+                  <th>Email</th>
+                  <th>Name</th>
+                  <th>Surname</th>
+                  <th>Status</th>
+                  <th>Statistics</th>
+                  <th>Last login</th>
+                  <th>Actions</th>
+                </tr>
               </thead>
               <tbody>
-              {managers.map(manager => {
-                const status = getManagerStatus(manager);
-                return (
-                  <tr key={manager.id}>
-                    <td>{manager.email}</td>
-                    <td>{manager.name}</td>
-                    <td>{manager.surname}</td>
-                    <td style={{ color: status.color }}>
-                      {status.text}
-                    </td>
-                    <td>
-                      Total Orders: {manager.statistics?.totalOrders || 0},
-                      Active: {manager.statistics?.activeOrders || 0}
-                    </td>
-                    <td>{formatCell('last_login', manager.last_login)}</td>
-                    <td>
-                      {manager.is_active ? (
+                {managers.map(manager => {
+                  const status = getManagerStatus(manager);
+                  return (
+                    <tr key={manager.id}>
+                      <td>{manager.email}</td>
+                      <td>{manager.name}</td>
+                      <td>{manager.surname}</td>
+                      <td style={{ color: status.color }}>{status.text}</td>
+                      <td>
+                        Total Orders: {manager.statistics?.totalOrders || 0},
+                        Active: {manager.statistics?.activeOrders || 0}
+                      </td>
+                      <td>{formatCell('last_login', manager.last_login)}</td>
+                      <td>
+                        {manager.is_active ? (
+                          <Button
+                            className={`${css.actionButton} ${css.recoverButton}`}
+                            onClick={() => handleAction('recover', manager.id)}>
+                            Recover Password
+                          </Button>
+                        ) : (
+                          <Button
+                            className={`${css.actionButton} ${css.activateButton}`}
+                            onClick={() => handleAction('activate', manager.id)}
+                            disabled={manager.hasPassword}
+                            data-tooltip-id={`activate-tooltip-${manager.id}`}
+                            data-tooltip-content={
+                              manager.hasPassword
+                                ? 'Manager is banned'
+                                : 'Generate activation link'
+                            }>
+                            Activate
+                            {manager.hasPassword && (
+                              <ReactTooltip
+                                id={`activate-tooltip-${manager.id}`}
+                                style={{
+                                  backgroundColor: 'red',
+                                  color: 'white',
+                                  borderRadius: '8px',
+                                }}
+                              />
+                            )}
+                          </Button>
+                        )}
                         <Button
-                          className={`${css.actionButton} ${css.recoverButton}`}
-                          onClick={() => handleAction('recover', manager.id)}
-                        >
-                          Recover Password
+                          className={`${css.actionButton} ${css.banButton}`}
+                          onClick={() => handleAction('ban', manager.id)}
+                          disabled={!manager.is_active}>
+                          Ban
                         </Button>
-                      ) : (
                         <Button
-                          className={`${css.actionButton} ${css.activateButton}`}
-                          onClick={() => handleAction('activate', manager.id)}
-                          disabled={manager.hasPassword}
+                          className={`${css.actionButton} ${css.unbanButton}`}
+                          onClick={() => handleAction('unban', manager.id)}
+                          disabled={manager.is_active || !manager.hasPassword}
+                          // data-tooltip-id={`unban-tooltip-${manager.id}`}
+                          // data-tooltip-content={
+                          //   manager.is_active
+                          //     ? 'Manager is already active'
+                          //     : !manager.hasPassword
+                          //       ? 'Manager is not banned'
+                          //       : 'Unban manager'
+                          // }
                         >
-                          Activate
+                          Unban
+                          {/*<ReactTooltip*/}
+                          {/*  id={`unban-tooltip-${manager.id}`}*/}
+                          {/*  style={{*/}
+                          {/*    backgroundColor: 'blue',*/}
+                          {/*    color: 'white',*/}
+                          {/*    borderRadius: '8px',*/}
+                          {/*  }}*/}
+                          {/*/>*/}
                         </Button>
-                      )}
-                      <Button
-                        className={`${css.actionButton} ${css.banButton}`}
-                        onClick={() => handleAction('ban', manager.id)}
-                        disabled={!manager.is_active}
-                      >
-                        Ban
-                      </Button>
-                      <Button
-                        className={`${css.actionButton} ${css.unbanButton}`}
-                        onClick={() => handleAction('unban', manager.id)}
-                        disabled={manager.is_active }
-                      >
-                        Unban
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             <div className={css.pagination}>
