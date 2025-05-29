@@ -43,6 +43,8 @@ export class AdminService {
       if (error instanceof ConflictException) {
         throw error;
       }
+      this.loggerService.error(`Failed to create manager with email: ${dto.email}`, error.stack);
+      throw error;
     }
   }
 
@@ -60,18 +62,18 @@ export class AdminService {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const manager = await userRepository.findOne({
       where: { id, role: Role.MANAGER },
-      select: ['id', 'is_active'],
+      select: ['id', 'is_active', 'password'],
     });
     if (!manager) {
       this.loggerService.error(`Manager not found: ${id}`);
       throw new NotFoundException('Manager not found');
     }
 
-    if (type === 'activate' && (manager.is_active || manager.password)) {
+    if (type === 'activate' && manager.is_active) {
       this.loggerService.warn(`Manager already active: ${id}`);
       throw new BadRequestException('Manager is already active');
     }
-    if (type === 'recover' && (!manager.is_active || !manager.password)) {
+    if (type === 'recover' && !manager.is_active) {
       this.loggerService.warn(`Manager is not active for recovery: ${id}`);
       throw new BadRequestException('Manager is not active');
     }
@@ -107,7 +109,7 @@ export class AdminService {
           passwordResetExpires: MoreThan(new Date()),
           role: Role.MANAGER,
         },
-        select: ['id', 'email', 'role'],
+        select: ['id', 'email', 'role', 'password'],
       });
 
       if (!user) {
@@ -186,10 +188,6 @@ export class AdminService {
         this.loggerService.warn(`Manager is already inactive: ${managerId}`);
         throw new BadRequestException('Manager is already inactive');
       }
-      if (!manager.password) {
-        this.loggerService.warn(`Manager is not activated: ${managerId}`);
-        throw new BadRequestException('Manager is not activated');
-      }
 
       await queryRunner.manager.update(UserEntity, { id: managerId }, { is_active: false });
       await queryRunner.manager.delete(RefreshTokenEntity, { user: { id: managerId } });
@@ -198,7 +196,7 @@ export class AdminService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
       this.loggerService.error(`Failed to ban manager: ${managerId}`, error);
-      throw new UnauthorizedException('Failed to ban manager');
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -208,7 +206,7 @@ export class AdminService {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const user = await userRepository.findOne({
       where: { id, role: Role.MANAGER },
-      select: ['id', 'email', 'role', 'is_active'],
+      select: ['id', 'email', 'role', 'is_active', 'password'],
     });
     if (!user) {
       this.loggerService.error(`Manager not found: ${id}`);
@@ -218,10 +216,7 @@ export class AdminService {
       this.loggerService.warn(`Manager is already active: ${id}`);
       throw new BadRequestException('Manager is already active');
     }
-    if (!user.password) {
-      this.loggerService.warn(`Manager is not activated: ${id}`);
-      throw new BadRequestException('Manager is not activated');
-    }
+
     await userRepository.update(id, { is_active: true });
     this.loggerService.log(`Manager unbanned: ${id}`);
     return await userRepository.findOneBy({ id });
@@ -252,7 +247,7 @@ export class AdminService {
         const stats = await this.getManagerStatistics(manager.id);
         return {
           ...manager,
-          hasPassword: !!manager.password, // Додаємо hasPassword
+          hasPassword: !!manager.password,
           statistics: {
             totalOrders: stats.Total || 0,
             activeOrders: stats[StatusEnum.IN_WORK] || 0,

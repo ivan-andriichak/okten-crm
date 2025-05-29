@@ -323,14 +323,14 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
                       <Button
                         className={`${css.actionButton} ${css.banButton}`}
                         onClick={() => handleAction('ban', manager.id)}
-                        disabled={!manager.is_active || !manager.hasPassword}
+                        disabled={!manager.is_active}
                       >
                         Ban
                       </Button>
                       <Button
                         className={`${css.actionButton} ${css.unbanButton}`}
                         onClick={() => handleAction('unban', manager.id)}
-                        disabled={manager.is_active || !manager.hasPassword}
+                        disabled={manager.is_active }
                       >
                         Unban
                       </Button>
