@@ -28,5 +28,17 @@ export interface ManagerState {
     Dubbing: number;
   };
 }
+export interface FetchManagersParams {
+  page: number;
+  limit: number;
+  sort?: string;
+  order?: 'ASC' | 'DESC';
+}
+
+export interface CreateManagerParams {
+  email: string;
+  name: string;
+  surname: string;
+}
 
 

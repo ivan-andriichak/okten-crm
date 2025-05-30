@@ -1,7 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { api } from '../../services/api';
 import { AppDispatch, RootState } from '../store';
-import { Manager, ManagerState } from './interfaces/manager';
+import { CreateManagerParams, FetchManagersParams, Manager, ManagerState } from './interfaces/manager';
+import { addNotification } from './notificationSlice';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/error-messages';
 
 const initialState: ManagerState = {
   managers: [],
@@ -19,19 +21,6 @@ const initialState: ManagerState = {
     Dubbing: 0,
   },
 };
-
-interface FetchManagersParams {
-  page: number;
-  limit: number;
-  sort?: string;
-  order?: 'ASC' | 'DESC';
-}
-
-interface CreateManagerParams {
-  email: string;
-  name: string;
-  surname: string;
-}
 
 export const fetchManagers = createAsyncThunk<
   { managers: Manager[]; total: number },
@@ -87,8 +76,33 @@ export const createManager = createAsyncThunk<
   const { token } = getState().auth;
   console.log('createManager: Token:', token);
   if (!token) {
+    dispatch(
+      addNotification({
+        message: ERROR_MESSAGES.SESSION_EXPIRED,
+        type: 'error',
+      }),
+    );
     throw new Error('No token available');
   }
+  if (!formData.email || !formData.name || !formData.surname) {
+    dispatch(
+      addNotification({
+        message: ERROR_MESSAGES.REQUIRED_FIELDS,
+        type: 'error',
+      }),
+    );
+    throw new Error('Missing required fields');
+  }
+  if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    dispatch(
+      addNotification({
+        message: ERROR_MESSAGES.INVALID_EMAIL,
+        type: 'error',
+      }),
+    );
+    throw new Error('Invalid email');
+  }
+
   await api.post('/admin/managers', formData, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -104,6 +118,12 @@ export const createManager = createAsyncThunk<
     }),
   );
   dispatch(fetchOverallStats());
+  dispatch(
+    addNotification({
+      message: SUCCESS_MESSAGES.CREATE_MANAGER_SUCCESS,
+      type: 'success',
+    }),
+  );
 });
 
 export const activateManager = createAsyncThunk<
@@ -112,16 +132,18 @@ export const activateManager = createAsyncThunk<
   { state: RootState; dispatch: AppDispatch }
 >('managers/activateManager', async (managerId, { getState, dispatch }) => {
   const { token } = getState().auth;
-  console.log('activateManager: Token:', token);
-  if (!token) {
-    throw new Error('No token available');
-  }
   const response = await api.post(
     `/admin/managers/${managerId}/activate`,
     {},
     {
       headers: { Authorization: `Bearer ${token}` },
     },
+  );
+  dispatch(
+    addNotification({
+      message: SUCCESS_MESSAGES.ACTIVATE_MANAGER_SUCCESS,
+      type: 'success',
+    }),
   );
   dispatch(
     fetchManagers({
@@ -151,6 +173,13 @@ export const recoverPassword = createAsyncThunk<
     {
       headers: { Authorization: `Bearer ${token}` },
     },
+  );
+
+  dispatch(
+    addNotification({
+      message: SUCCESS_MESSAGES.RECOVER_PASSWORD_SUCCESS,
+      type: 'success',
+    }),
   );
   dispatch(
     fetchManagers({
@@ -182,6 +211,12 @@ export const banManager = createAsyncThunk<
     },
   );
   dispatch(
+    addNotification({
+      message: SUCCESS_MESSAGES.BAN_MANAGER_SUCCESS,
+      type: 'success',
+    }),
+  );
+  dispatch(
     fetchManagers({
       page: getState().managers.page,
       limit: getState().managers.limit,
@@ -208,6 +243,13 @@ export const unbanManager = createAsyncThunk<
     {
       headers: { Authorization: `Bearer ${token}` },
     },
+  );
+
+  dispatch(
+    addNotification({
+      message: SUCCESS_MESSAGES.UNBAN_MANAGER_SUCCESS,
+      type: 'success',
+    }),
   );
   dispatch(
     fetchManagers({
@@ -238,7 +280,7 @@ const managerSlice = createSlice({
       })
       .addCase(fetchManagers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch managers';
+        state.error = action.error.message || ERROR_MESSAGES.FETCH_MANAGERS_FAILED;
       })
       .addCase(fetchOverallStats.pending, state => {
         state.loading = true;
@@ -261,7 +303,7 @@ const managerSlice = createSlice({
       })
       .addCase(createManager.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to create manager';
+        state.error = action.error.message || ERROR_MESSAGES.CREATE_MANAGER_FAILED;
       })
       .addCase(activateManager.pending, state => {
         state.loading = true;
@@ -272,7 +314,7 @@ const managerSlice = createSlice({
       })
       .addCase(activateManager.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to activate manager';
+       state.error = action.error.message || ERROR_MESSAGES.ACTIVATE_MANAGER_FAILED;
       })
       .addCase(recoverPassword.pending, state => {
         state.loading = true;
@@ -283,7 +325,7 @@ const managerSlice = createSlice({
       })
       .addCase(recoverPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to recover password';
+        state.error = action.error.message || ERROR_MESSAGES.RECOVER_PASSWORD_FAILED;
       })
       .addCase(banManager.pending, state => {
         state.loading = true;
@@ -294,7 +336,7 @@ const managerSlice = createSlice({
       })
       .addCase(banManager.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to ban manager';
+        state.error = action.error.message || ERROR_MESSAGES.BAN_MANAGER_FAILED;
       })
       .addCase(unbanManager.pending, state => {
         state.loading = true;
@@ -305,7 +347,7 @@ const managerSlice = createSlice({
       })
       .addCase(unbanManager.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to unban manager';
+        state.error = action.error.message || ERROR_MESSAGES.UNBAN_MANAGER_FAILED;
       });
   },
 });

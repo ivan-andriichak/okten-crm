@@ -1,0 +1,50 @@
+export const ERROR_MESSAGES = {
+  SESSION_EXPIRED: 'Session expired. Please log in again.',
+  INVALID_EMAIL: 'Invalid email format.',
+  REQUIRED_FIELDS: 'Please fill in all required fields.',
+  SERVER_ERROR: 'An unexpected error occurred.',
+  FETCH_ORDERS_FAILED: 'Failed to retrieve orders.',
+  CREATE_MANAGER_FAILED: 'Failed to create manager.',
+  FETCH_GROUPS_FAILED: 'Failed to retrieve groups.',
+  ADD_GROUP_FAILED: 'Failed to add group.',
+  CREATE_ORDER_FAILED: 'Failed to create order.',
+  UPDATE_ORDER_FAILED: 'Failed to update order.',
+  ADD_COMMENT_FAILED: 'Failed to add comment.',
+  DELETE_COMMENT_FAILED: 'Failed to delete comment.',
+  GENERATE_EXCEL_FAILED: 'Failed to generate Excel file.',
+  ACTIVATE_MANAGER_FAILED: 'Failed to activate manager.',
+  BAN_MANAGER_FAILED: 'Failed to ban manager.',
+  UNBAN_MANAGER_FAILED: 'Failed to unban manager.',
+  RECOVER_PASSWORD_FAILED: 'Failed to recover password.',
+  FETCH_MANAGERS_FAILED: 'Failed to retrieve managers.',
+  FETCH_STATS_FAILED: 'Failed to retrieve statistics.',
+  LOGIN_FAILED: 'Login failed. Please check your credentials.',
+  TOKEN_REFRESH_FAILED: 'Failed to refresh session.',
+  USER_BANNED: 'Your account is banned. Please contact support.',
+  ACCESS_DENIED: 'You do not have permission to perform this action.',
+  INVALID_PASSWORD: 'Password must be at least 8 characters with uppercase, lowercase, number, and special character.',
+  MISSING_TOKEN: 'Missing refresh token or device ID.',
+  INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
+};
+
+export const SUCCESS_MESSAGES = {
+  CREATE_MANAGER_SUCCESS: 'Manager created successfully.',
+  ACTIVATE_MANAGER_SUCCESS: 'Activation link copied to clipboard.',
+  RECOVER_PASSWORD_SUCCESS: 'Recovery link copied to clipboard.',
+  BAN_MANAGER_SUCCESS: 'Manager banned successfully.',
+  UNBAN_MANAGER_SUCCESS: 'Manager unbanned successfully.',
+  CREATE_ORDER_SUCCESS: 'Order created successfully.',
+  UPDATE_ORDER_SUCCESS: 'Order updated successfully.',
+  ADD_COMMENT_SUCCESS: 'Comment added successfully.',
+  DELETE_COMMENT_SUCCESS: 'Comment deleted successfully.',
+  GENERATE_EXCEL_SUCCESS: 'Excel file generated successfully.',
+  LOGIN_SUCCESS: 'Login successful.',
+  TOKEN_REFRESH_SUCCESS: 'Session refreshed successfully.',
+};
+
+export const NOTIFICATION_TYPES = {
+  STANDARD: "standard",
+  WITH_SUPPORT_EMAIL: "with_support_email",
+} as const;
+
+export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];

@@ -4,7 +4,6 @@ import * as ExcelJS from 'exceljs';
 import { Role } from '../../../common/enums/role.enum';
 import { OrderEntity } from '../../../database/entities/order.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
-import { GroupService } from '../../groups/services/group.services';
 import { LoggerService } from '../../logger/logger.service';
 import { CommentRepository } from '../../repository/services/comment.repository';
 import { OrdersRepository } from '../../repository/services/orders.repository';
@@ -22,7 +21,6 @@ export class OrderService {
   constructor(
     private readonly ordersRepository: OrdersRepository,
     private readonly userRepository: UserRepository,
-    private readonly groupService: GroupService,
     private readonly logger: LoggerService,
     private readonly commentRepository: CommentRepository,
   ) {}
@@ -173,7 +171,6 @@ export class OrderService {
       { header: 'Manager', key: 'manager', width: 20 },
     ];
 
-    // Додаємо рядки з даними
     orders.forEach((order) => {
       worksheet.addRow({
         id: order.id,
@@ -194,11 +191,9 @@ export class OrderService {
       });
     });
 
-    // Форматуємо заголовки
     worksheet.getRow(1).font = { bold: true };
     worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-    // Генеруємо буфер
     const buffer = await workbook.xlsx.writeBuffer();
     return buffer as Buffer;
   }

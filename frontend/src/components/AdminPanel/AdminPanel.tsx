@@ -21,6 +21,7 @@ import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import Header from '../Header/Header';
 import { Pagination } from '../Pagination/Pagination';
 import { formatCell } from '../../utils/timeUtils';
+import SupportEmail from '../SupportEmail/SupportEmail';
 
 interface ManagerFormData {
   email: string;
@@ -67,45 +68,18 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.name || !formData.surname) {
-      dispatch(
-        addNotification({
-          message: 'Fill in all fields',
-          type: 'error',
-        }),
-      );
       return;
     }
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      dispatch(
-        addNotification({
-          message: 'Invalid email format',
-          type: 'error',
-        }),
-      );
       return;
     }
 
     try {
       await dispatch(createManager(formData)).unwrap();
-      dispatch(
-        addNotification({
-          message: 'Manager created successfully!',
-          type: 'success',
-        }),
-      );
       setFormData({ email: '', name: '', surname: '' });
       setIsModalOpen(false);
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message || 'Failed to create manager';
-      dispatch(
-        addNotification({
-          message: `${errorMessage}. Please contact support: support@example.com`,
-          type: 'error',
-        }),
-      );
-    }
-  };
+    } catch (e) {
+    }}
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -139,33 +113,16 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         case 'activate': {
           const result = await dispatch(activateManager(managerId)).unwrap();
           await navigator.clipboard.writeText(result.link);
-          dispatch(
-            addNotification({
-              message: 'Activation link copied!',
-              type: 'success',
-            }),
-          );
           break;
         }
         case 'recover': {
           const result = await dispatch(recoverPassword(managerId)).unwrap();
           await navigator.clipboard.writeText(result.link);
-          dispatch(
-            addNotification({
-              message: 'Recovery link copied!',
-              type: 'success',
-            }),
-          );
+
           break;
         }
         case 'ban': {
           await dispatch(banManager(managerId)).unwrap();
-          dispatch(
-            addNotification({
-              message: 'Manager banned successfully!',
-              type: 'success',
-            }),
-          );
           dispatch(
             fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }),
           );
@@ -174,12 +131,6 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         case 'unban': {
           await dispatch(unbanManager(managerId)).unwrap();
           dispatch(
-            addNotification({
-              message: 'Manager unbanned successfully!',
-              type: 'success',
-            }),
-          );
-          dispatch(
             fetchManagers({ page, limit, sort: 'created_at', order: 'DESC' }),
           );
           break;
@@ -187,7 +138,9 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         default:
           dispatch(
             addNotification({
-              message: `Unknown action: ${action}`,
+              message: <>
+               ` Unknown action: {action}. Please contact support: <SupportEmail />`
+              </>,
               type: 'error',
             }),
           );
@@ -196,7 +149,9 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
       const errorMessage = error?.response?.data?.message || 'Action failed';
       dispatch(
         addNotification({
-          message: `${errorMessage}. Please contact support: support@example.com`,
+          message: <>
+              `${errorMessage}. Please contact support: <SupportEmail />`,
+            </>,
           type: 'error',
         }),
       );
@@ -342,24 +297,8 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
                           className={`${css.actionButton} ${css.unbanButton}`}
                           onClick={() => handleAction('unban', manager.id)}
                           disabled={manager.is_active || !manager.hasPassword}
-                          // data-tooltip-id={`unban-tooltip-${manager.id}`}
-                          // data-tooltip-content={
-                          //   manager.is_active
-                          //     ? 'Manager is already active'
-                          //     : !manager.hasPassword
-                          //       ? 'Manager is not banned'
-                          //       : 'Unban manager'
-                          // }
                         >
                           Unban
-                          {/*<ReactTooltip*/}
-                          {/*  id={`unban-tooltip-${manager.id}`}*/}
-                          {/*  style={{*/}
-                          {/*    backgroundColor: 'blue',*/}
-                          {/*    color: 'white',*/}
-                          {/*    borderRadius: '8px',*/}
-                          {/*  }}*/}
-                          {/*/>*/}
                         </Button>
                       </td>
                     </tr>
@@ -382,6 +321,6 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
       </div>
     </>
   );
-};
+  };
 
 export default AdminPanel;

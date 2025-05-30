@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { DataSource, Equal, MoreThan, Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
+import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 import { Role } from '../../../common/enums/role.enum';
 import { OrderEntity } from '../../../database/entities/order.entity';
 import { RefreshTokenEntity } from '../../../database/entities/refresh-token.entity';
@@ -66,7 +67,7 @@ export class AdminService {
     });
     if (!manager) {
       this.loggerService.error(`Manager not found: ${id}`);
-      throw new NotFoundException('Manager not found');
+      throw new NotFoundException(ERROR_MESSAGES.MANAGER_NOT_FOUND);
     }
 
     if (type === 'activate' && manager.is_active) {
@@ -75,7 +76,7 @@ export class AdminService {
     }
     if (type === 'recover' && !manager.is_active) {
       this.loggerService.warn(`Manager is not active for recovery: ${id}`);
-      throw new BadRequestException('Manager is not active');
+      throw new BadRequestException(ERROR_MESSAGES.MANAGER_NOT_ACTIVE);
     }
 
     const token = uuidv4();
@@ -90,7 +91,7 @@ export class AdminService {
     const baseUrl = this.configService.get<string>('APP_URL');
     if (!baseUrl) {
       this.loggerService.error('APP_URL is not defined in configuration');
-      throw new BadRequestException('Server configuration error');
+      throw new BadRequestException(ERROR_MESSAGES.SERVER_CONFIGURATION_ERROR);
     }
     const path = type === 'activate' ? '/activate/' : '/recover/';
     return { link: `${baseUrl}${path}${token}` };
@@ -114,7 +115,7 @@ export class AdminService {
 
       if (!user) {
         this.loggerService.error(`Invalid or expired token: ${token}`);
-        throw new UnauthorizedException('Invalid or expired token');
+        throw new UnauthorizedException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
       }
 
       if (password.length > 128) {
@@ -124,7 +125,7 @@ export class AdminService {
 
       if (!/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)) {
         this.loggerService.warn(`Invalid password format for token: ${token}, length: ${password.length}`);
-        throw new BadRequestException('Password must be at least 8 characters');
+        throw new BadRequestException(ERROR_MESSAGES.PASSWORD_INVALID_FORMAT);
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -163,7 +164,7 @@ export class AdminService {
 
     if (!user) {
       this.loggerService.error(`Invalid or expired token: ${token}`);
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
     }
 
     return { email: user.email };
@@ -182,11 +183,11 @@ export class AdminService {
       });
       if (!manager) {
         this.loggerService.error(`Manager not found: ${managerId}`);
-        throw new NotFoundException('Manager not found');
+        throw new NotFoundException(ERROR_MESSAGES.MANAGER_NOT_FOUND);
       }
       if (!manager.is_active) {
         this.loggerService.warn(`Manager is already inactive: ${managerId}`);
-        throw new BadRequestException('Manager is already inactive');
+        throw new BadRequestException(ERROR_MESSAGES.MANAGER_ALREADY_INACTIVE);
       }
 
       await queryRunner.manager.update(UserEntity, { id: managerId }, { is_active: false });
@@ -210,15 +211,15 @@ export class AdminService {
     });
     if (!user) {
       this.loggerService.error(`Manager not found: ${id}`);
-      throw new NotFoundException('Manager not found');
+      throw new NotFoundException(ERROR_MESSAGES.MANAGER_NOT_FOUND);
     }
     if (user.is_active) {
       this.loggerService.warn(`Manager is already active: ${id}`);
-      throw new BadRequestException('Manager is already active');
+      throw new BadRequestException(ERROR_MESSAGES.MANAGER_ALREADY_ACTIVE);
     }
     if (!user.password) {
       this.loggerService.warn(`Manager is not banned (no password set): ${id}`);
-      throw new BadRequestException('Manager is not banned');
+      throw new BadRequestException(ERROR_MESSAGES.MANAGER_NOT_BANNED);
     }
 
     await userRepository.update(id, { is_active: true });
@@ -278,7 +279,7 @@ export class AdminService {
     });
     if (!manager) {
       this.loggerService.error(`Manager not found: ${id}`);
-      throw new NotFoundException('Manager not found');
+      throw new NotFoundException(ERROR_MESSAGES.MANAGER_NOT_FOUND);
     }
     const orderRepository = this.dataSource.getRepository(OrderEntity);
     const stats = await this.getStatistics(orderRepository, { manager: { id } });

@@ -1,12 +1,7 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 import { Role } from '../../../common/enums/role.enum';
 import { LoggerService } from '../../logger/logger.service';
 import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
@@ -38,7 +33,7 @@ export class AuthService {
       where: { email: 'admin@gmail.com', role: Role.ADMIN },
     });
     if (existingAdmin) {
-      throw new ConflictException('Administrator already exists');
+      throw new ConflictException(ERROR_MESSAGES.ADMIN_EXISTS);
     }
 
     const defaultAdminDto: RegisterReqDto = {
@@ -118,16 +113,16 @@ export class AuthService {
         },
       });
       if (!user || !user.password) {
-        throw new UnauthorizedException('Invalid credentials or inactive user');
+        throw new UnauthorizedException(ERROR_MESSAGES.INACTIVE_USER);
       }
 
       if (!user.is_active && user.role !== Role.ADMIN) {
-        throw new ForbiddenException('User is banned');
+        throw new UnauthorizedException(ERROR_MESSAGES.USER_BANNED);
       }
 
       const isPasswordValid = await bcrypt.compare(dto.password, user.password);
       if (!isPasswordValid) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException(ERROR_MESSAGES.INVALID_CREDENTIALS);
       }
 
       const tokens = await this.tokenService.generateAuthTokens({

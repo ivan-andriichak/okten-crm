@@ -9,8 +9,8 @@ import { UserEntity } from '../../database/entities/user.entity';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { UserResDto } from '../users/dto/res/user.res.dto';
 import { RegisterAdminReqDto } from './dto/req/register-admin.req.dto';
-import { AdminService } from './services/admin.service';
 import { SetPasswordReqDto } from './dto/req/set-password.req.dto';
+import { AdminService } from './services/admin.service';
 
 @ApiBearerAuth()
 @ApiTags('Admin')

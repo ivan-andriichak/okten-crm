@@ -3,6 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { AuthResponse, LoginRequest } from './interfaces/auth';
 import { api } from '../../services/api';
 import storage from '../../utils/storage';
+import {
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from '../../constants/error-messages';
+import { addNotification } from './notificationSlice';
 import { RootState } from '../store';
 
 const initialState: {
@@ -27,7 +32,10 @@ const initialState: {
 
 const login = createAsyncThunk(
   'auth/login',
-  async ({ email, password, deviceId }: LoginRequest, { rejectWithValue }) => {
+  async (
+    { email, password, deviceId }: LoginRequest,
+    { dispatch, rejectWithValue },
+  ) => {
     try {
       const finalDeviceId = deviceId || uuidv4();
       const { data } = await api.post<AuthResponse>('/login', {
@@ -47,8 +55,14 @@ const login = createAsyncThunk(
       };
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.message ||
-        'Login failed. Please check your credentials and try again.';
+        error.response?.data?.message || ERROR_MESSAGES.LOGIN_FAILED;
+      dispatch(
+        addNotification({
+          message: errorMessage,
+          type: 'error',
+          duration: 6000,
+        }),
+      );
       return rejectWithValue(errorMessage);
     }
   },
@@ -56,14 +70,20 @@ const login = createAsyncThunk(
 
 export const refreshTokens = createAsyncThunk(
   'auth/refreshTokens',
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { getState, dispatch, rejectWithValue }) => {
     try {
       const { auth } = getState() as RootState;
       const deviceId = localStorage.getItem('deviceId');
       const refreshToken = auth.refreshToken;
-      console.log('Refreshing with:', { refreshToken, deviceId });
       if (!refreshToken || !deviceId) {
-        return rejectWithValue('Missing refresh token or deviceId');
+        dispatch(
+          addNotification({
+            message: ERROR_MESSAGES.MISSING_TOKEN,
+            type: 'error',
+            duration: 6000,
+          }),
+        );
+        return rejectWithValue(ERROR_MESSAGES.MISSING_TOKEN);
       }
 
       const response = await api.post('/refresh', {
@@ -71,12 +91,24 @@ export const refreshTokens = createAsyncThunk(
         deviceId,
       });
 
-      console.log('New tokens:', response.data);
+      dispatch(
+        addNotification({
+          message: SUCCESS_MESSAGES.TOKEN_REFRESH_SUCCESS,
+          type: 'success',
+          duration: 5000,
+        }),
+      );
       return response.data;
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.message || 'Failed to refresh tokens.';
-      console.error('Refresh failed:', errorMessage, error.response?.data);
+        error.response?.data?.message || ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
+      dispatch(
+        addNotification({
+          message: errorMessage,
+          type: 'error',
+          duration: 6000,
+        }),
+      );
       return rejectWithValue(errorMessage);
     }
   },
@@ -122,7 +154,7 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = payload ? String(payload) : 'Login error.';
+        state.error = payload ? String(payload) : ERROR_MESSAGES.LOGIN_FAILED;
       })
       .addCase(refreshTokens.pending, state => {
         state.loading = true;
@@ -138,8 +170,9 @@ const authSlice = createSlice({
       })
       .addCase(refreshTokens.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = payload ? String(payload) : 'Token refresh error.';
-        // Не очищаємо localStorage автоматично
+        state.error = payload
+          ? String(payload)
+          : ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
       });
   },
 });

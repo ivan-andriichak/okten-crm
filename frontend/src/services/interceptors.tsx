@@ -1,4 +1,3 @@
-
 import { AxiosError } from 'axios';
 import {
   addNotification,
@@ -11,18 +10,19 @@ import { AxiosRequestConfigWithRetry } from './types';
 import SupportEmail from '../components/SupportEmail/SupportEmail';
 import React from 'react';
 import { api } from './api';
+import { ERROR_MESSAGES } from '../constants/error-messages';
 
 // Handles session-related errors such as expired tokens or banned users
 const handleSessionError = async (
   message: React.ReactNode,
   isBanned: boolean = false,
-): Promise<void> => {
+): Promise<never> => {
   store.dispatch(logout());
   store.dispatch(clearNotifications());
   store.dispatch(addNotification({ message, type: 'error', duration: 6000 }));
-
-  await new Promise(resolve => setTimeout(resolve, 8000));
-  window.location.href = '/login';
+  setTimeout(() => {
+    window.location.href = '/login';
+  }, 6000);
   throw new Error(isBanned ? 'BannedError' : 'SessionError');
 };
 
@@ -33,72 +33,87 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
   const isRefreshRequest = config?.url?.includes('/refresh');
   const isSetPasswordRequest = config?.url?.includes('/set-password');
 
-  // Логування відповіді сервера для діагностики
-  console.log('API Error Response:', error.response?.data);
+  // Handle login-specific errors
+  if (isLoginRequest && error.response?.status === 401) {
+    const resData = error.response.data as {
+      message?: string;
+      error?: string;
+      messages?: string[];
+      statusCode?: number;
+    };
+    let message: React.ReactNode = ERROR_MESSAGES.LOGIN_FAILED;
 
-  // Handle 401 Unauthorized errors that are not from login or refresh requests
+    if (
+      resData.message === 'User is banned' ||
+      resData.messages?.includes('User is banned') ||
+      resData.error === 'User is banned'
+    ) {
+      message = (
+        <>
+          {ERROR_MESSAGES.USER_BANNED} <SupportEmail />
+        </>
+      );
+      store.dispatch(clearNotifications());
+      store.dispatch(addNotification({ message, type: 'error', duration: 6000 }));
+      return Promise.reject(error);
+    }
+  }
+
+  // Handle 401 Unauthorized errors for non-login/refresh requests
   if (
     error.response?.status === 401 &&
     !config?._retry &&
     !isLoginRequest &&
-    !isRefreshRequest
+    !isRefreshRequest &&
+    config
   ) {
-    if (!config) return Promise.reject(error);
     config._retry = true;
-
     let retryCount = 0;
     const maxRetries = 3;
 
     while (retryCount < maxRetries) {
       try {
-        const result = await store.dispatch(refreshTokens());
-        if (refreshTokens.fulfilled.match(result)) {
-          const { accessToken } = result.payload;
-          if (config.headers) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
-          }
-          return api(config);
-        }
-        throw new Error('Failed to refresh tokens');
+        const result = await store.dispatch(refreshTokens()).unwrap();
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${result.accessToken}`;
+        return api(config);
       } catch (refreshError: any) {
         retryCount++;
         if (retryCount >= maxRetries) {
-          const errorMessage = refreshError.message || 'Token refresh error';
-
           let message: React.ReactNode;
+          const errorMessage = refreshError.message || ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
+
           if (errorMessage.includes('Missing refresh token or deviceId')) {
-            message = 'Помилка сесії. Будь ласка, увійдіть знову.';
+            message = ERROR_MESSAGES.MISSING_TOKEN;
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('deviceId');
             await handleSessionError(message);
           } else if (errorMessage.includes('User has been banned')) {
             message = (
               <>
-                Ваш акаунт заблоковано. Зверніться до підтримки:{' '}
-                <SupportEmail />
+                {ERROR_MESSAGES.USER_BANNED} <SupportEmail />
               </>
             );
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('deviceId');
             await handleSessionError(message, true);
           } else if (errorMessage.includes('Invalid refresh token')) {
-            message = 'Сесія закінчилася. Будь ласка, увійдіть знову.';
+            message = ERROR_MESSAGES.INVALID_REFRESH_TOKEN;
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('deviceId');
             await handleSessionError(message);
           } else {
-            message = 'Не вдалося підключитися до сервера. Спробуйте ще раз.';
-            store.dispatch(clearNotifications());
-            store.dispatch(
-              addNotification({ message, type: 'error', duration: 5000 }),
-            );
-            return Promise.reject(error);
+            message = ERROR_MESSAGES.SESSION_EXPIRED;
+            await handleSessionError(message);
           }
         }
-        await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        // Exponential backoff
+        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
       }
     }
   }
 
-  let message: React.ReactNode = 'Виникла неочікувана помилка';
+  let message: React.ReactNode = ERROR_MESSAGES.SERVER_ERROR;
 
   if (error.response) {
     const resData = error.response.data as {
@@ -108,37 +123,32 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       statusCode?: number;
     };
 
-    // Handle 400 Bad Request from /admin/set-password
+    // Handle 400 Bad Request for set-password
     if (
       error.response.status === 400 &&
       isSetPasswordRequest &&
       (resData.message?.includes('Password must be') ||
         resData.messages?.some(msg => msg.includes('Password must be')))
     ) {
-      message = 'Невалідний пароль. Спробуйте ще раз або увійдіть.';
-      store.dispatch(clearNotifications());
-      store.dispatch(
-        addNotification({ message, type: 'error', duration: 6000 }),
-      );
-      return Promise.reject(error);
+      message = ERROR_MESSAGES.INVALID_PASSWORD;
     }
-
-    // Handle 401 Unauthorized for banned or inactive users
-    if (
+    // Handle 401 for banned/inactive users
+    else if (
       error.response.status === 401 &&
       (resData.message === 'User has been banned or is inactive' ||
         resData.messages?.includes('User has been banned or is inactive'))
     ) {
       message = (
         <>
-          Ваш акаунт заблоковано або деактивовано. Зверніться до підтримки:{' '}
-          <SupportEmail />
+          {ERROR_MESSAGES.USER_BANNED} <SupportEmail />
         </>
       );
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('deviceId');
       await handleSessionError(message, true);
-    } else if (error.response.status === 403) {
+    }
+    // Handle 403 Forbidden
+    else if (error.response.status === 403) {
       if (
         resData.message?.includes('You can only delete comments') ||
         resData.messages?.includes('You can only delete comments')
@@ -153,32 +163,26 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       ) {
         message = (
           <>
-            Ваш акаунт заблоковано. Зверніться до підтримки:{' '}
-            <SupportEmail />
+            {ERROR_MESSAGES.USER_BANNED} <SupportEmail />
           </>
         );
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('deviceId');
         await handleSessionError(message, true);
       } else {
-        message = 'У вас немає прав для виконання цієї дії.';
+        message = ERROR_MESSAGES.ACCESS_DENIED;
       }
-      store.dispatch(clearNotifications());
-      store.dispatch(
-        addNotification({ message, type: 'error', duration: 6000 }),
-      );
-      return Promise.reject(error);
-    } else {
+    }
+    // Generic error handling
+    else {
       message =
         resData.message ||
         resData.error ||
         resData.messages?.[0] ||
-        `Помилка ${error.response.status}`;
+        ERROR_MESSAGES.SERVER_ERROR;
     }
   } else if (error.request) {
-    message = 'Немає відповіді від сервера.';
-  } else {
-    message = error.message || 'Помилка конфігурації запиту.';
+    message = ERROR_MESSAGES.SERVER_ERROR;
   }
 
   store.dispatch(clearNotifications());
