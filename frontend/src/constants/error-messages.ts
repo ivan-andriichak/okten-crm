@@ -25,6 +25,7 @@ export const ERROR_MESSAGES = {
   INVALID_PASSWORD: 'Password must be at least 8 characters with uppercase, lowercase, number, and special character.',
   MISSING_TOKEN: 'Missing refresh token or device ID.',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
+  INACTIVE_USER: 'Invalid credentials or inactive user',
 };
 
 export const SUCCESS_MESSAGES = {
@@ -43,8 +44,6 @@ export const SUCCESS_MESSAGES = {
 };
 
 export const NOTIFICATION_TYPES = {
-  STANDARD: "standard",
-  WITH_SUPPORT_EMAIL: "with_support_email",
-} as const;
-
-export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
+  STANDARD: 'STANDARD',
+  WITH_SUPPORT_EMAIL: 'WITH_SUPPORT_EMAIL',
+}as const;

@@ -15,15 +15,6 @@ const Login = () => {
   const { loading } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   let storedDeviceId = localStorage.getItem('deviceId');
-  //   if (!storedDeviceId) {
-  //     storedDeviceId = uuidv4();
-  //     localStorage.setItem('deviceId', storedDeviceId);
-  //   }
-  //   setDeviceId(storedDeviceId);
-  // }, []);
-
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
 

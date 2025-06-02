@@ -1,7 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, removeNotification, RootState } from '../../store';
 import css from './Notification.module.css';
-import React, { FC, useEffect } from 'react';
+import { FC, useEffect } from 'react';
+import { NOTIFICATION_TYPES } from '../../constants/error-messages';
+import SupportEmail from '../SupportEmail/SupportEmail';
 
 const Notification: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,25 +28,27 @@ const Notification: FC = () => {
   }
 
   return (
-  <div className={css.notificationContainer}>
-    {notifications.map(
-      (notification: {
-        id: string;
-        type: string;
-        message: React.ReactNode;
-      }) => (
+    <div className={css.notificationContainer}>
+      {notifications.map(notification => (
         <div
           key={notification.id}
           className={`${css.notification} ${css[notification.type]}`}
           onClick={() => {
             dispatch(removeNotification(notification.id));
           }}>
-          {notification.message}
+          {notification.notificationType ===
+          NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL ? (
+            <div className={css.bannedMessage}>
+              <span>{notification.message}</span>
+              <SupportEmail />
+            </div>
+          ) : (
+            (notification.message as string)
+          )}
         </div>
-      ),
-    )}
-  </div>
-  )
-}
+      ))}
+    </div>
+  );
+};
 
 export default Notification;

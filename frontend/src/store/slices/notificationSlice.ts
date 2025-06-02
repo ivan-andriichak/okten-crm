@@ -17,7 +17,7 @@ const notificationSlice = createSlice({
       state,
       action: PayloadAction<Omit<Notification, 'id'>>,
     ) => {
-      const payloadMessage = String(action.payload.message);
+      const payloadMessage = typeof action.payload.message === 'string' ? action.payload.message : String(action.payload.message);
       state.notifications = state.notifications.filter(n => {
         const existingMessage = String(n.message);
         return !(existingMessage === payloadMessage && n.type === action.payload.type);

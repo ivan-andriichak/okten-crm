@@ -138,23 +138,30 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         default:
           dispatch(
             addNotification({
-              message: <>
-               ` Unknown action: {action}. Please contact support: <SupportEmail />`
-              </>,
-              type: 'error',
-            }),
+             message: (
+            <>
+              Unknown action: {action}. Please contact support: <SupportEmail />
+            </>
+          ),
+          type: 'error',
+          notificationType: 'system',
+      }),
           );
+          return;
       }
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || 'Action failed';
-      dispatch(
-        addNotification({
-          message: <>
-              `${errorMessage}. Please contact support: <SupportEmail />`,
-            </>,
-          type: 'error',
-        }),
-      );
+dispatch(
+  addNotification({
+    message: (
+      <>
+        {`${errorMessage}. Please contact support: `} <SupportEmail />
+      </>
+    ),
+    type: 'error',
+    notificationType: 'system',
+  }),
+);
     }
   };
 

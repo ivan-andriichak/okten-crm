@@ -6,6 +6,7 @@ import storage from '../../utils/storage';
 import {
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
+  NOTIFICATION_TYPES,
 } from '../../constants/error-messages';
 import { addNotification } from './notificationSlice';
 import { RootState } from '../store';
@@ -34,7 +35,7 @@ const login = createAsyncThunk(
   'auth/login',
   async (
     { email, password, deviceId }: LoginRequest,
-    { dispatch, rejectWithValue },
+    {  rejectWithValue },
   ) => {
     try {
       const finalDeviceId = deviceId || uuidv4();
@@ -56,13 +57,19 @@ const login = createAsyncThunk(
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || ERROR_MESSAGES.LOGIN_FAILED;
-      dispatch(
-        addNotification({
-          message: errorMessage,
-          type: 'error',
-          duration: 6000,
-        }),
-      );
+      // const notificationType =
+      //   errorMessage === ERROR_MESSAGES.USER_BANNED ||
+      //   errorMessage === ERROR_MESSAGES.INACTIVE_USER
+      //     ? NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL
+      //     : NOTIFICATION_TYPES.STANDARD;
+      // dispatch(
+      //   addNotification({
+      //     message: errorMessage,
+      //     type: 'error',
+      //     duration: 6000,
+      //     notificationType,
+      //   }),
+      // );
       return rejectWithValue(errorMessage);
     }
   },
@@ -81,6 +88,7 @@ export const refreshTokens = createAsyncThunk(
             message: ERROR_MESSAGES.MISSING_TOKEN,
             type: 'error',
             duration: 6000,
+            notificationType: NOTIFICATION_TYPES.STANDARD,
           }),
         );
         return rejectWithValue(ERROR_MESSAGES.MISSING_TOKEN);
@@ -96,17 +104,23 @@ export const refreshTokens = createAsyncThunk(
           message: SUCCESS_MESSAGES.TOKEN_REFRESH_SUCCESS,
           type: 'success',
           duration: 5000,
+          notificationType: NOTIFICATION_TYPES.STANDARD,
         }),
       );
       return response.data;
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
+      const notificationType =
+        errorMessage === ERROR_MESSAGES.USER_BANNED
+          ? NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL
+          : NOTIFICATION_TYPES.STANDARD;
       dispatch(
         addNotification({
           message: errorMessage,
           type: 'error',
           duration: 6000,
+          notificationType,
         }),
       );
       return rejectWithValue(errorMessage);

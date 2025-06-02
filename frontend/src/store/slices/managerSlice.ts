@@ -3,7 +3,7 @@ import { api } from '../../services/api';
 import { AppDispatch, RootState } from '../store';
 import { CreateManagerParams, FetchManagersParams, Manager, ManagerState } from './interfaces/manager';
 import { addNotification } from './notificationSlice';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/error-messages';
+import { ERROR_MESSAGES, NOTIFICATION_TYPES, SUCCESS_MESSAGES } from '../../constants/error-messages';
 
 const initialState: ManagerState = {
   managers: [],
@@ -74,12 +74,13 @@ export const createManager = createAsyncThunk<
   { state: RootState; dispatch: AppDispatch }
 >('managers/createManager', async (formData, { getState, dispatch }) => {
   const { token } = getState().auth;
-  console.log('createManager: Token:', token);
   if (!token) {
     dispatch(
       addNotification({
         message: ERROR_MESSAGES.SESSION_EXPIRED,
         type: 'error',
+        duration: 6000,
+        notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
       }),
     );
     throw new Error('No token available');
@@ -89,6 +90,8 @@ export const createManager = createAsyncThunk<
       addNotification({
         message: ERROR_MESSAGES.REQUIRED_FIELDS,
         type: 'error',
+        duration: 6000,
+        notificationType: NOTIFICATION_TYPES.STANDARD,
       }),
     );
     throw new Error('Missing required fields');
@@ -98,6 +101,8 @@ export const createManager = createAsyncThunk<
       addNotification({
         message: ERROR_MESSAGES.INVALID_EMAIL,
         type: 'error',
+        duration: 6000,
+        notificationType: NOTIFICATION_TYPES.STANDARD,
       }),
     );
     throw new Error('Invalid email');
@@ -122,6 +127,8 @@ export const createManager = createAsyncThunk<
     addNotification({
       message: SUCCESS_MESSAGES.CREATE_MANAGER_SUCCESS,
       type: 'success',
+      duration: 5000,
+      notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );
 });
@@ -132,29 +139,42 @@ export const activateManager = createAsyncThunk<
   { state: RootState; dispatch: AppDispatch }
 >('managers/activateManager', async (managerId, { getState, dispatch }) => {
   const { token } = getState().auth;
+  if (!token) {
+    dispatch(
+      addNotification({
+        message: ERROR_MESSAGES.SESSION_EXPIRED,
+        type: 'error',
+        duration: 6000,
+        notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
+      }),
+    );
+    throw new Error('No token available');
+  }
   const response = await api.post(
     `/admin/managers/${managerId}/activate`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    },
-  );
-  dispatch(
-    addNotification({
-      message: SUCCESS_MESSAGES.ACTIVATE_MANAGER_SUCCESS,
-      type: 'success',
-    }),
-  );
-  dispatch(
-    fetchManagers({
-      page: getState().managers.page,
-      limit: getState().managers.limit,
-      sort: 'created_at',
-      order: 'DESC',
-    }),
-  );
-  dispatch(fetchOverallStats());
-  return response.data;
+{},
+{
+  headers: { Authorization: `Bearer ${token}` },
+},
+);
+dispatch(
+  addNotification({
+    message: SUCCESS_MESSAGES.ACTIVATE_MANAGER_SUCCESS,
+    type: 'success',
+    duration: 5000,
+    notificationType: NOTIFICATION_TYPES.STANDARD,
+  }),
+);
+dispatch(
+  fetchManagers({
+    page: getState().managers.page,
+    limit: getState().managers.limit,
+    sort: 'created_at',
+    order: 'DESC',
+  }),
+);
+dispatch(fetchOverallStats());
+return response.data;
 });
 
 export const recoverPassword = createAsyncThunk<
@@ -163,8 +183,15 @@ export const recoverPassword = createAsyncThunk<
   { state: RootState; dispatch: AppDispatch }
 >('managers/recoverPassword', async (managerId, { getState, dispatch }) => {
   const { token } = getState().auth;
-  console.log('recoverPassword: Token:', token);
   if (!token) {
+    dispatch(
+      addNotification({
+        message: ERROR_MESSAGES.SESSION_EXPIRED,
+        type: 'error',
+        duration: 6000,
+        notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
+      }),
+    );
     throw new Error('No token available');
   }
   const response = await api.post(
@@ -179,6 +206,8 @@ export const recoverPassword = createAsyncThunk<
     addNotification({
       message: SUCCESS_MESSAGES.RECOVER_PASSWORD_SUCCESS,
       type: 'success',
+      duration: 5000,
+      notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );
   dispatch(
@@ -199,8 +228,15 @@ export const banManager = createAsyncThunk<
   { state: RootState; dispatch: AppDispatch }
 >('managers/banManager', async (managerId, { getState, dispatch }) => {
   const { token } = getState().auth;
-  console.log('banManager: Token:', token);
   if (!token) {
+    dispatch(
+      addNotification({
+        message: ERROR_MESSAGES.SESSION_EXPIRED,
+        type: 'error',
+        duration: 6000,
+        notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
+      }),
+    );
     throw new Error('No token available');
   }
   await api.post(
@@ -214,6 +250,8 @@ export const banManager = createAsyncThunk<
     addNotification({
       message: SUCCESS_MESSAGES.BAN_MANAGER_SUCCESS,
       type: 'success',
+      duration: 5000,
+      notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );
   dispatch(
@@ -233,8 +271,15 @@ export const unbanManager = createAsyncThunk<
   { state: RootState; dispatch: AppDispatch }
 >('managers/unbanManager', async (managerId, { getState, dispatch }) => {
   const { token } = getState().auth;
-  console.log('unbanManager: Token:', token);
   if (!token) {
+    dispatch(
+      addNotification({
+        message: ERROR_MESSAGES.SESSION_EXPIRED,
+        type: 'error',
+        duration: 6000,
+        notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
+      }),
+    );
     throw new Error('No token available');
   }
   await api.post(
@@ -249,6 +294,8 @@ export const unbanManager = createAsyncThunk<
     addNotification({
       message: SUCCESS_MESSAGES.UNBAN_MANAGER_SUCCESS,
       type: 'success',
+      duration: 5000,
+      notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );
   dispatch(
@@ -280,7 +327,8 @@ const managerSlice = createSlice({
       })
       .addCase(fetchManagers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || ERROR_MESSAGES.FETCH_MANAGERS_FAILED;
+        state.error =
+          action.error.message || ERROR_MESSAGES.FETCH_MANAGERS_FAILED;
       })
       .addCase(fetchOverallStats.pending, state => {
         state.loading = true;
@@ -292,7 +340,7 @@ const managerSlice = createSlice({
       })
       .addCase(fetchOverallStats.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch overall stats';
+        state.error = action.error.message || ERROR_MESSAGES.FETCH_STATS_FAILED;
       })
       .addCase(createManager.pending, state => {
         state.loading = true;
@@ -303,7 +351,8 @@ const managerSlice = createSlice({
       })
       .addCase(createManager.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || ERROR_MESSAGES.CREATE_MANAGER_FAILED;
+        state.error =
+          action.error.message || ERROR_MESSAGES.CREATE_MANAGER_FAILED;
       })
       .addCase(activateManager.pending, state => {
         state.loading = true;
@@ -314,7 +363,8 @@ const managerSlice = createSlice({
       })
       .addCase(activateManager.rejected, (state, action) => {
         state.loading = false;
-       state.error = action.error.message || ERROR_MESSAGES.ACTIVATE_MANAGER_FAILED;
+        state.error =
+          action.error.message || ERROR_MESSAGES.ACTIVATE_MANAGER_FAILED;
       })
       .addCase(recoverPassword.pending, state => {
         state.loading = true;
@@ -325,7 +375,8 @@ const managerSlice = createSlice({
       })
       .addCase(recoverPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || ERROR_MESSAGES.RECOVER_PASSWORD_FAILED;
+        state.error =
+          action.error.message || ERROR_MESSAGES.RECOVER_PASSWORD_FAILED;
       })
       .addCase(banManager.pending, state => {
         state.loading = true;
@@ -347,7 +398,8 @@ const managerSlice = createSlice({
       })
       .addCase(unbanManager.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || ERROR_MESSAGES.UNBAN_MANAGER_FAILED;
+        state.error =
+          action.error.message || ERROR_MESSAGES.UNBAN_MANAGER_FAILED;
       });
   },
 });

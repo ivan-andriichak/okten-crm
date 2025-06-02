@@ -50,6 +50,7 @@ const EditOrderModal = ({
         addNotification({
           message: 'Please enter a group name',
           type: 'error',
+          notificationType: 'WITH_SUPPORT_EMAIL',
           duration: 5000,
         }),
       );
@@ -60,6 +61,7 @@ const EditOrderModal = ({
         addNotification({
           message: 'Group name must be unique',
           type: 'error',
+          notificationType: 'WITH_SUPPORT_EMAIL',
           duration: 5000,
         }),
       );
@@ -71,6 +73,7 @@ const EditOrderModal = ({
           addNotification({
             message: `Group "${newGroupName}" added successfully`,
             type: 'success',
+            notificationType: 'STANDARD',
             duration: 5000,
           }),
         );
@@ -93,6 +96,7 @@ const EditOrderModal = ({
         addNotification({
           message: 'Invalid order or missing token',
           type: 'error',
+          notificationType: 'WITH_SUPPORT_EMAIL',
           duration: 5000,
         }),
       );
@@ -137,6 +141,7 @@ const EditOrderModal = ({
         addNotification({
           message: 'Order updated successfully',
           type: 'success',
+          notificationType: 'STANDARD',
           duration: 5000,
         }),
       );

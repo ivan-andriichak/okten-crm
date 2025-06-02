@@ -7,19 +7,25 @@ import {
   store,
 } from '../store';
 import { AxiosRequestConfigWithRetry } from './types';
-import SupportEmail from '../components/SupportEmail/SupportEmail';
-import React from 'react';
 import { api } from './api';
-import { ERROR_MESSAGES } from '../constants/error-messages';
+import { ERROR_MESSAGES, NOTIFICATION_TYPES } from '../constants/error-messages';
 
-// Handles session-related errors such as expired tokens or banned users
+// Handles session-related errors such as expired tokens or banned/inactive users
 const handleSessionError = async (
-  message: React.ReactNode,
+  message: string,
+  notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD,
   isBanned: boolean = false,
 ): Promise<never> => {
   store.dispatch(logout());
   store.dispatch(clearNotifications());
-  store.dispatch(addNotification({ message, type: 'error', duration: 6000 }));
+  store.dispatch(
+    addNotification({
+      message,
+      type: 'error',
+      duration: 6000,
+      notificationType,
+    }),
+  );
   setTimeout(() => {
     window.location.href = '/login';
   }, 6000);
@@ -41,22 +47,30 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       messages?: string[];
       statusCode?: number;
     };
-    let message: React.ReactNode = ERROR_MESSAGES.LOGIN_FAILED;
+    let message = ERROR_MESSAGES.LOGIN_FAILED;
+    let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
 
     if (
       resData.message === 'User is banned' ||
       resData.messages?.includes('User is banned') ||
       resData.error === 'User is banned'
     ) {
-      message = (
-        <>
-          {ERROR_MESSAGES.USER_BANNED} <SupportEmail />
-        </>
-      );
-      store.dispatch(clearNotifications());
-      store.dispatch(addNotification({ message, type: 'error', duration: 6000 }));
-      return Promise.reject(error);
+      message = ERROR_MESSAGES.USER_BANNED;
+      notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
+    } else if (
+      resData.message === 'Invalid credentials or inactive user' ||
+      resData.messages?.includes('Invalid credentials or inactive user') ||
+      resData.error === 'Invalid credentials or inactive user'
+    ) {
+      message = ERROR_MESSAGES.INACTIVE_USER;
+      notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
     }
+
+    store.dispatch(clearNotifications());
+    store.dispatch(
+      addNotification({ message, type: 'error', duration: 6000, notificationType }),
+    );
+    return Promise.reject(error);
   }
 
   // Handle 401 Unauthorized errors for non-login/refresh requests
@@ -69,7 +83,7 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
   ) {
     config._retry = true;
     let retryCount = 0;
-    const maxRetries = 3;
+    const maxRetries = 2;
 
     while (retryCount < maxRetries) {
       try {
@@ -80,31 +94,28 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       } catch (refreshError: any) {
         retryCount++;
         if (retryCount >= maxRetries) {
-          let message: React.ReactNode;
-          const errorMessage = refreshError.message || ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
+          let message = ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
+          let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
 
-          if (errorMessage.includes('Missing refresh token or deviceId')) {
+          if (refreshError.message?.includes('Missing refresh token or deviceId')) {
             message = ERROR_MESSAGES.MISSING_TOKEN;
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('deviceId');
-            await handleSessionError(message);
-          } else if (errorMessage.includes('User has been banned')) {
-            message = (
-              <>
-                {ERROR_MESSAGES.USER_BANNED} <SupportEmail />
-              </>
-            );
+            await handleSessionError(message, NOTIFICATION_TYPES.STANDARD);
+          } else if (refreshError.message?.includes('User has been banned')) {
+            message = ERROR_MESSAGES.USER_BANNED;
+            notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('deviceId');
-            await handleSessionError(message, true);
-          } else if (errorMessage.includes('Invalid refresh token')) {
+            await handleSessionError(message, notificationType, true);
+          } else if (refreshError.message?.includes('Invalid refresh token')) {
             message = ERROR_MESSAGES.INVALID_REFRESH_TOKEN;
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('deviceId');
-            await handleSessionError(message);
+            await handleSessionError(message, NOTIFICATION_TYPES.STANDARD);
           } else {
             message = ERROR_MESSAGES.SESSION_EXPIRED;
-            await handleSessionError(message);
+            await handleSessionError(message, NOTIFICATION_TYPES.STANDARD);
           }
         }
         // Exponential backoff
@@ -113,7 +124,8 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
     }
   }
 
-  let message: React.ReactNode = ERROR_MESSAGES.SERVER_ERROR;
+  let message = ERROR_MESSAGES.SERVER_ERROR;
+  let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
 
   if (error.response) {
     const resData = error.response.data as {
@@ -138,14 +150,11 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       (resData.message === 'User has been banned or is inactive' ||
         resData.messages?.includes('User has been banned or is inactive'))
     ) {
-      message = (
-        <>
-          {ERROR_MESSAGES.USER_BANNED} <SupportEmail />
-        </>
-      );
+      message = ERROR_MESSAGES.USER_BANNED;
+      notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('deviceId');
-      await handleSessionError(message, true);
+      await handleSessionError(message, notificationType, true);
     }
     // Handle 403 Forbidden
     else if (error.response.status === 403) {
@@ -153,7 +162,7 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
         resData.message?.includes('You can only delete comments') ||
         resData.messages?.includes('You can only delete comments')
       ) {
-        message = resData.message || resData.messages?.[0];
+        message = resData.message ?? resData.messages?.[0] ?? ERROR_MESSAGES.SERVER_ERROR;
       } else if (
         resData.message === 'User is banned' ||
         resData.error === 'User is banned' ||
@@ -161,14 +170,11 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
         resData.message === 'Forbidden' ||
         resData.error === 'Forbidden'
       ) {
-        message = (
-          <>
-            {ERROR_MESSAGES.USER_BANNED} <SupportEmail />
-          </>
-        );
+        message = ERROR_MESSAGES.USER_BANNED;
+        notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('deviceId');
-        await handleSessionError(message, true);
+        await handleSessionError(message, notificationType, true);
       } else {
         message = ERROR_MESSAGES.ACCESS_DENIED;
       }
@@ -176,9 +182,9 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
     // Generic error handling
     else {
       message =
-        resData.message ||
-        resData.error ||
-        resData.messages?.[0] ||
+        resData.message ??
+        resData.error ??
+        resData.messages?.[0] ??
         ERROR_MESSAGES.SERVER_ERROR;
     }
   } else if (error.request) {
@@ -186,6 +192,8 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
   }
 
   store.dispatch(clearNotifications());
-  store.dispatch(addNotification({ message, type: 'error', duration: 6000 }));
+  store.dispatch(
+    addNotification({ message, type: 'error', duration: 6000, notificationType }),
+  );
   return Promise.reject(error);
 };

@@ -12,6 +12,7 @@ const NotifyError: FC<{ error: Error }> = ({ error }) => {
       addNotification({
         message: `An unexpected error occurred: ${error.message}`,
         type: 'error',
+        notificationType: 'WITH_SUPPORT_EMAIL',
         duration: 10000,
       }),
     );
