@@ -87,7 +87,6 @@ const SetPassword: FC = () => {
         addNotification({
           message: passwordError,
           type: 'error',
-          notificationType: 'WITH_SUPPORT_EMAIL',
           duration: 5000,
         }),
       );
@@ -100,7 +99,6 @@ const SetPassword: FC = () => {
         addNotification({
           message: 'Passwords do not match',
           type: 'error',
-          notificationType: 'WITH_SUPPORT_EMAIL',
           duration: 5000,
         }),
       );
@@ -113,8 +111,6 @@ const SetPassword: FC = () => {
         addNotification({
           message: 'Missing or invalid token or email',
           type: 'error',
-          notificationType: 'WITH_SUPPORT_EMAIL',
-
           duration: 5000,
         }),
       );

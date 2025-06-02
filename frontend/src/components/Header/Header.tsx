@@ -73,7 +73,10 @@ const Header: React.FC = () => {
           </Link>
         ) : (
           <Button
-            onClick={handleAdminClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAdminClick();
+            }}
             data-tooltip-id="admin-tooltip"
             data-tooltip-content="Go to admin panel">
             <img src={admin} alt="admin" className={css.resetButton} />

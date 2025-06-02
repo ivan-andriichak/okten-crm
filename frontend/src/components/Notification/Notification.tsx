@@ -12,14 +12,24 @@ const Notification: FC = () => {
   );
 
   useEffect(() => {
+
     const timers = notifications.map(notification =>
       setTimeout(() => {
         dispatch(removeNotification(notification.id));
       }, notification.duration || 5000),
     );
 
+    const handleDocumentClick = () => {
+      notifications.forEach(notification => {
+        dispatch(removeNotification(notification.id));
+      });
+    };
+
+    document.addEventListener('click', handleDocumentClick);
+
     return () => {
       timers.forEach(clearTimeout);
+      document.removeEventListener('click', handleDocumentClick);
     };
   }, [notifications, dispatch]);
 

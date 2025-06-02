@@ -22,7 +22,7 @@ const notificationSlice = createSlice({
         const existingMessage = String(n.message);
         return !(existingMessage === payloadMessage && n.type === action.payload.type);
       });
-      if (state.notifications.length >= 5) {
+      if (state.notifications.length >= 1) {
         state.notifications.shift();
       }
       const id = crypto.randomUUID();

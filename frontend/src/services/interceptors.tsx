@@ -59,11 +59,9 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
     } else if (
       resData.message === 'Invalid credentials or inactive user' ||
-      resData.messages?.includes('Invalid credentials or inactive user') ||
-      resData.error === 'Invalid credentials or inactive user'
+      resData.messages?.includes('Invalid credentials ')
     ) {
       message = ERROR_MESSAGES.INACTIVE_USER;
-      notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
     }
 
     store.dispatch(clearNotifications());
