@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
-import debounce from 'lodash/debounce';
 
 import { AppDispatch, fetchOrders, RootState, setSort } from '../../store';
 import { OrdersProps } from '../../store/slices/interfaces/order';
@@ -55,22 +54,20 @@ const Orders = ({}: OrdersProps) => {
   const urlSort = searchParams.get('sort') || 'id';
   const urlOrder = (searchParams.get('order') as 'ASC' | 'DESC') || 'ASC';
 
-  const debouncedFetchOrders = debounce((page: number) => {
-    const params = {
-      page,
-      filters: {
-        ...filters,
-        myOrders: myOrdersOnly ? 'true' : undefined,
-        managerId: myOrdersOnly ? currentUserId || undefined : undefined,
-      },
-    };
-    dispatch(fetchOrders(params));
-  }, 500);
 
   useEffect(() => {
     if (token) {
       dispatch(setSort({ sort: urlSort, order: urlOrder }));
-      debouncedFetchOrders(currentPage);
+      dispatch(
+        fetchOrders({
+          page: currentPage,
+          filters: {
+            ...filters,
+            myOrders: myOrdersOnly ? 'true' : undefined,
+            managerId: myOrdersOnly ? currentUserId || undefined : undefined,
+          },
+        })
+      );
     }
   }, [dispatch, token, currentPage, urlSort, urlOrder, filters, myOrdersOnly]);
 

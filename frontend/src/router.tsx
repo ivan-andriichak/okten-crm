@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, logout, RootState } from './store';
 import { MainLayout } from './layouts';
-import { ErrorPage, HomePage } from './pages';
+import { ErrorPage } from './pages';
 import { Orders } from './components/Orders';
 import { PublicOrderForm } from './components/PublicOrderForm';
 import { Login } from './components/Login';
@@ -48,7 +48,7 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     errorElement: <ErrorPage />,
     children: [
-      { path: '/', element: <HomePage /> },
+      { path: '/', element: <Navigate to="/login" replace /> },
       { path: '/login', element: <Login /> },
       { path: '/orders', element: <ProtectedOrdersRoute /> },
       { path: '/admin', element: <ProtectedAdminRoute /> },

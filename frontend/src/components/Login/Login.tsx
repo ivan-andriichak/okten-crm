@@ -6,9 +6,8 @@ import Button from '../Button/Button';
 import css from './Login.module.css';
 
 const Login = () => {
-  const [email, setEmail] = useState<string>('admin@gmail.com');
-  const [password, setPassword] = useState<string>('admin');
-  // const [deviceId, setDeviceId] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
