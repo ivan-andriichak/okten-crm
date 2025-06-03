@@ -7,6 +7,7 @@ import { GlobalExceptionFilter } from './common/http/global-exception.filter';
 import configuration from './config/configuration';
 import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { EmailModule } from './modules/email/email.module';
 import { FileStorageModule } from './modules/file-storage/file-storage.module';
 import { GroupModule } from './modules/groups/group.module';
 import { LoggerModule } from './modules/logger/logger.module';
@@ -31,6 +32,7 @@ import { UsersModule } from './modules/users/users.module';
     RedisModule,
     LoggerModule,
     RepositoryModule,
+    EmailModule,
     FileStorageModule,
     GroupModule,
   ],

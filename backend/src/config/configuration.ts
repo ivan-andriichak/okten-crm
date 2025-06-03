@@ -1,8 +1,21 @@
 import * as process from 'node:process';
 
-import { Config } from './config.type';
-
-export default (): Config => ({
+export default (): {
+  app: { port: number; host: string };
+  mysql: { port: number; host: string; user: string; rootPassword: string; password: string; dbName: string };
+  redis: { port: number; host: string };
+  sentry: { dsn: string; env: string; debug: boolean };
+  jwt: { accessSecret: string; accessExpiresIn: number; refreshSecret: string; refreshExpiresIn: number };
+  aws: {
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    bucketName: string;
+    bucketUrl: string;
+    endpoint: string;
+  };
+  mailer: { host: string; port: number; secure: boolean; user: string; pass: string; from: string };
+} => ({
   app: {
     port: Number(process.env.APP_PORT) || 3001,
     host: process.env.APP_HOST || 'localhost',
@@ -38,5 +51,13 @@ export default (): Config => ({
     bucketName: process.env.AWS_S3_BUCKET_NAME,
     bucketUrl: process.env.AWS_S3_BUCKET_URL,
     endpoint: process.env.AWS_S3_ENDPOINT,
+  },
+  mailer: {
+    host: process.env.MAIL_HOST || 'sandbox.smtp.mailtrap.io',
+    port: Number(process.env.MAIL_PORT) || 2525,
+    secure: process.env.MAIL_SECURE === 'true',
+    user: process.env.MAIL_USER || '',
+    pass: process.env.MAIL_PASS || '',
+    from: process.env.MAIL_FROM || 'CRM System <no-reply@crm-system.com>',
   },
 });

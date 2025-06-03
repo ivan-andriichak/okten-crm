@@ -16,6 +16,7 @@ import { OrderEntity } from '../../../database/entities/order.entity';
 import { RefreshTokenEntity } from '../../../database/entities/refresh-token.entity';
 import { UserEntity } from '../../../database/entities/user.entity';
 import { AuthService } from '../../auth/services/auth.service';
+import { EmailService } from '../../email/email.service';
 import { LoggerService } from '../../logger/logger.service';
 import { StatusEnum } from '../../orders/enums/order.enums';
 import { UserResDto } from '../../users/dto/res/user.res.dto';
@@ -27,6 +28,7 @@ export class AdminService {
     private readonly dataSource: DataSource,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private emailService: EmailService,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -94,6 +96,11 @@ export class AdminService {
       throw new BadRequestException(ERROR_MESSAGES.SERVER_CONFIGURATION_ERROR);
     }
     const path = type === 'activate' ? '/activate/' : '/recover/';
+    const email = manager.email;
+    const link = `${baseUrl}${path}${token}`;
+
+    this.loggerService.log(`Sending ${type} email to: ${email}, link: ${link}`);
+    await this.emailService.sendActivationEmail(email, link);
     return { link: `${baseUrl}${path}${token}` };
   }
 

@@ -5,6 +5,7 @@ export type Config = {
   sentry: SentryConfig;
   jwt: JwtConfig;
   aws: AwsConfig;
+  mailer: NodeMailerConfig;
 };
 
 export type AppConfig = {
@@ -46,4 +47,15 @@ export type AwsConfig = {
   bucketName: string;
   bucketUrl: string;
   endpoint: string;
+};
+
+export type NodeMailerConfig = {
+  host: string;
+  port: number;
+  secure: boolean;
+  auth: {
+    user: string;
+    pass: string;
+    from: string;
+  };
 };

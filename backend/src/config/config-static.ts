@@ -7,7 +7,17 @@ import configuration from './configuration';
 
 class ConfigStatic {
   public get(): Config {
-    return configuration();
+    return {
+      ...configuration(),
+      mailer: {
+        ...configuration().mailer,
+        auth: {
+          user: configuration().mailer.user,
+          pass: configuration().mailer.pass,
+          from: configuration().mailer.from,
+        },
+      },
+    };
   }
 }
 
