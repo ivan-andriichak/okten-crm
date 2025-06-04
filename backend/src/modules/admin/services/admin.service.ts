@@ -16,7 +16,8 @@ import { OrderEntity } from '../../../database/entities/order.entity';
 import { RefreshTokenEntity } from '../../../database/entities/refresh-token.entity';
 import { UserEntity } from '../../../database/entities/user.entity';
 import { AuthService } from '../../auth/services/auth.service';
-import { EmailService } from '../../email/email.service';
+import { MailDto } from '../../email/mail.dto';
+import { MailService } from '../../email/mail.service';
 import { LoggerService } from '../../logger/logger.service';
 import { StatusEnum } from '../../orders/enums/order.enums';
 import { UserResDto } from '../../users/dto/res/user.res.dto';
@@ -28,11 +29,15 @@ export class AdminService {
     private readonly dataSource: DataSource,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-    private emailService: EmailService,
+    private readonly emailService: MailService,
     private readonly loggerService: LoggerService,
   ) {}
 
   async createManager(dto: RegisterAdminReqDto): Promise<UserResDto> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
       const authResponse = await this.authService.register({
         ...dto,
@@ -41,14 +46,45 @@ export class AdminService {
         password: null,
         is_active: false,
       });
+
+      const token = uuidv4();
+      const expires = new Date(Date.now() + 30 * 60 * 1000);
+
+      await queryRunner.manager.update(
+        UserEntity,
+        { id: authResponse.user.id },
+        {
+          passwordResetToken: token,
+          passwordResetExpires: expires,
+        },
+      );
+
+      const baseUrl = this.configService.get<string>('app.appUrl');
+      if (!baseUrl) {
+        this.loggerService.error('app.appUrl is not defined in configuration');
+        throw new BadRequestException(ERROR_MESSAGES.SERVER_CONFIGURATION_ERROR);
+      }
+      const link = `${baseUrl}/activate/${token}`;
+
+      await this.emailService.sendActivationEmail(dto.email, link);
+      this.loggerService.log(`Activation email sent to ${dto.email}`);
+
+      await queryRunner.commitTransaction();
       return authResponse.user;
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       if (error instanceof ConflictException) {
         throw error;
       }
-      this.loggerService.error(`Failed to create manager with email: ${dto.email}`, error.stack);
+      this.loggerService.error(`Failed to create manager with email: ${dto.email}`, error);
       throw error;
+    } finally {
+      await queryRunner.release();
     }
+  }
+
+  async sendEmail(dto: MailDto): Promise<void> {
+    await this.emailService.sendMail(dto);
   }
 
   async generateActivationLink(id: string): Promise<{ link: string }> {
@@ -65,7 +101,7 @@ export class AdminService {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const manager = await userRepository.findOne({
       where: { id, role: Role.MANAGER },
-      select: ['id', 'is_active', 'password'],
+      select: ['id', 'is_active', 'password', 'email'],
     });
     if (!manager) {
       this.loggerService.error(`Manager not found: ${id}`);
@@ -90,18 +126,22 @@ export class AdminService {
     });
     this.loggerService.log(`Generated ${type} token for manager: ${id}`);
 
-    const baseUrl = this.configService.get<string>('APP_URL');
+    const baseUrl = this.configService.get<string>('app.appUrl');
     if (!baseUrl) {
-      this.loggerService.error('APP_URL is not defined in configuration');
+      this.loggerService.error('app.appUrl is not defined in configuration');
       throw new BadRequestException(ERROR_MESSAGES.SERVER_CONFIGURATION_ERROR);
     }
     const path = type === 'activate' ? '/activate/' : '/recover/';
-    const email = manager.email;
     const link = `${baseUrl}${path}${token}`;
 
-    this.loggerService.log(`Sending ${type} email to: ${email}, link: ${link}`);
-    await this.emailService.sendActivationEmail(email, link);
-    return { link: `${baseUrl}${path}${token}` };
+    if (type === 'activate') {
+      await this.emailService.sendActivationEmail(manager.email, link);
+      this.loggerService.log(`Sending activation email to: ${manager.email}, link: ${link}`);
+    } else {
+      await this.emailService.sendRecoveryEmail(manager.email, link);
+      this.loggerService.log(`Sending recovery email to: ${manager.email}, link: ${link}`);
+    }
+    return { link };
   }
 
   async setPassword(token: string, password: string): Promise<void> {
@@ -208,6 +248,10 @@ export class AdminService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async verifyToken(token: string): Promise<{ email: string }> {
+    return await this.getUserByToken(token);
   }
 
   async unbanManager(id: string): Promise<UserEntity> {

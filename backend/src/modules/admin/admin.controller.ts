@@ -7,6 +7,7 @@ import { Role } from '../../common/enums/role.enum';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { UserEntity } from '../../database/entities/user.entity';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
+import { MailDto } from '../email/mail.dto';
 import { UserResDto } from '../users/dto/res/user.res.dto';
 import { RegisterAdminReqDto } from './dto/req/register-admin.req.dto';
 import { SetPasswordReqDto } from './dto/req/set-password.req.dto';
@@ -82,5 +83,18 @@ export class AdminController {
   @Post('set-password/:token')
   async setPassword(@Param('token') token: string, @Body() dto: SetPasswordReqDto) {
     return await this.adminService.setPassword(token, dto.password);
+  }
+
+  @Roles(Role.ADMIN)
+  @Post('send-email')
+  async sendEmail(@Body() dto: MailDto): Promise<{ message: string }> {
+    await this.adminService.sendEmail(dto);
+    return { message: 'Email sent successfully' };
+  }
+
+  @Get('verify-token/:token')
+  @Public()
+  async verifyToken(@Param('token') token: string): Promise<{ email: string }> {
+    return await this.adminService.verifyToken(token);
   }
 }

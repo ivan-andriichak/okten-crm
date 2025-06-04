@@ -11,6 +11,7 @@ export type Config = {
 export type AppConfig = {
   port: number;
   host: string;
+  appUrl: string;
 };
 
 export type MysqlConfig = {
@@ -53,9 +54,7 @@ export type NodeMailerConfig = {
   host: string;
   port: number;
   secure: boolean;
-  auth: {
-    user: string;
-    pass: string;
-    from: string;
-  };
+  user: string;
+  pass: string;
+  from: string;
 };

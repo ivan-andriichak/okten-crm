@@ -1,9 +1,18 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { api } from '../../services/api';
 import { AppDispatch, RootState } from '../store';
-import { CreateManagerParams, FetchManagersParams, Manager, ManagerState } from './interfaces/manager';
+import {
+  CreateManagerParams,
+  FetchManagersParams,
+  Manager,
+  ManagerState,
+} from './interfaces/manager';
 import { addNotification } from './notificationSlice';
-import { ERROR_MESSAGES, NOTIFICATION_TYPES, SUCCESS_MESSAGES } from '../../constants/error-messages';
+import {
+  ERROR_MESSAGES,
+  NOTIFICATION_TYPES,
+  SUCCESS_MESSAGES,
+} from '../../constants/error-messages';
 
 const initialState: ManagerState = {
   managers: [],
@@ -152,29 +161,29 @@ export const activateManager = createAsyncThunk<
   }
   const response = await api.post(
     `/admin/managers/${managerId}/activate`,
-{},
-{
-  headers: { Authorization: `Bearer ${token}` },
-},
-);
-dispatch(
-  addNotification({
-    message: SUCCESS_MESSAGES.ACTIVATE_MANAGER_SUCCESS,
-    type: 'success',
-    duration: 5000,
-    notificationType: NOTIFICATION_TYPES.STANDARD,
-  }),
-);
-dispatch(
-  fetchManagers({
-    page: getState().managers.page,
-    limit: getState().managers.limit,
-    sort: 'created_at',
-    order: 'DESC',
-  }),
-);
-dispatch(fetchOverallStats());
-return response.data;
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  dispatch(
+    addNotification({
+      message: SUCCESS_MESSAGES.ACTIVATE_MANAGER_SUCCESS,
+      type: 'success',
+      duration: 5000,
+      notificationType: NOTIFICATION_TYPES.STANDARD,
+    }),
+  );
+  dispatch(
+    fetchManagers({
+      page: getState().managers.page,
+      limit: getState().managers.limit,
+      sort: 'created_at',
+      order: 'DESC',
+    }),
+  );
+  dispatch(fetchOverallStats());
+  return response.data;
 });
 
 export const recoverPassword = createAsyncThunk<
@@ -309,6 +318,58 @@ export const unbanManager = createAsyncThunk<
   dispatch(fetchOverallStats());
 });
 
+export const verifyToken = createAsyncThunk<
+  { email: string },
+  string,
+  { state: RootState; dispatch: AppDispatch }
+>('managers/verifyToken', async (token, { dispatch }) => {
+  try {
+    const response = await api.get<{ email: string }>(
+      `/admin/verify-token/${token}`,
+    );
+    return response.data;
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message || 'Недійсний або прострочений токен';
+    dispatch(
+      addNotification({
+        message: errorMessage,
+        type: 'error',
+        notificationType: 'system',
+      }),
+    );
+    throw error;
+  }
+});
+
+export const setPassword = createAsyncThunk<
+  void,
+  { token: string; password: string },
+  { state: RootState; dispatch: AppDispatch }
+>('managers/setPassword', async ({ token, password }, { dispatch }) => {
+  try {
+    await api.post('/admin/set-password', { token, password });
+    dispatch(
+      addNotification({
+        message: 'Пароль успішно встановлено.',
+        type: 'success',
+        notificationType: 'system',
+      }),
+    );
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message || 'Не вдалося встановити пароль';
+    dispatch(
+      addNotification({
+        message: errorMessage,
+        type: 'error',
+        notificationType: 'system',
+      }),
+    );
+    throw error;
+  }
+});
+
 const managerSlice = createSlice({
   name: 'managers',
   initialState,
@@ -400,6 +461,28 @@ const managerSlice = createSlice({
         state.loading = false;
         state.error =
           action.error.message || ERROR_MESSAGES.UNBAN_MANAGER_FAILED;
+      })
+      .addCase(verifyToken.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyToken.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(verifyToken.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to verify token';
+      })
+      .addCase(setPassword.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(setPassword.fulfilled, state => {
+        state.loading = false;
+      })
+      .addCase(setPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to set password';
       });
   },
 });

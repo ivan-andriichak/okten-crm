@@ -1,7 +1,11 @@
 import * as process from 'node:process';
 
 export default (): {
-  app: { port: number; host: string };
+  app: {
+    appUrl: string;
+    port: number;
+    host: string;
+  };
   mysql: { port: number; host: string; user: string; rootPassword: string; password: string; dbName: string };
   redis: { port: number; host: string };
   sentry: { dsn: string; env: string; debug: boolean };
@@ -17,6 +21,7 @@ export default (): {
   mailer: { host: string; port: number; secure: boolean; user: string; pass: string; from: string };
 } => ({
   app: {
+    appUrl: process.env.APP_URL || 'http://localhost:3001',
     port: Number(process.env.APP_PORT) || 3001,
     host: process.env.APP_HOST || 'localhost',
   },
@@ -53,11 +58,11 @@ export default (): {
     endpoint: process.env.AWS_S3_ENDPOINT,
   },
   mailer: {
-    host: process.env.MAIL_HOST || 'sandbox.smtp.mailtrap.io',
-    port: Number(process.env.MAIL_PORT) || 2525,
+    host: process.env.MAIL_HOST || 'smtp.gmail.com',
+    port: Number(process.env.MAIL_PORT) || 587,
     secure: process.env.MAIL_SECURE === 'true',
     user: process.env.MAIL_USER || '',
     pass: process.env.MAIL_PASS || '',
-    from: process.env.MAIL_FROM || 'CRM System <no-reply@crm-system.com>',
+    from: process.env.MAIL_FROM || '',
   },
 });

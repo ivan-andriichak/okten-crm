@@ -81,7 +81,7 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
   ) {
     config._retry = true;
     let retryCount = 0;
-    const maxRetries = 2;
+    const maxRetries = 1;
 
     while (retryCount < maxRetries) {
       try {
