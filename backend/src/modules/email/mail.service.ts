@@ -21,6 +21,11 @@ export class MailService {
         user: this.configService.get<string>('mailer.user'),
         pass: this.configService.get<string>('mailer.pass'),
       },
+      tls: {
+        minVersion: 'TLSv1.2', // Явно вказуємо мінімальну версію TLS
+        rejectUnauthorized: true,
+      },
+      debug: true,
     });
   }
 
@@ -29,7 +34,7 @@ export class MailService {
       await this.transporter.sendMail({
         from: this.configService.get<string>('mailer.from'),
         to,
-        subject: 'Активація вашого акаунта менеджера',
+        subject: 'Активація вашого акаунта',
         html: `
           <h1>Вітаємо в CRM-системі!</h1>
           <p>Для активації вашого акаунта перейдіть за посиланням нижче:</p>

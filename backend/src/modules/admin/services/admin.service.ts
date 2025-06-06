@@ -64,9 +64,7 @@ export class AdminService {
         this.loggerService.error('app.appUrl is not defined in configuration');
         throw new BadRequestException(ERROR_MESSAGES.SERVER_CONFIGURATION_ERROR);
       }
-      const link = `${baseUrl}/activate/${token}`;
 
-      await this.emailService.sendActivationEmail(dto.email, link);
       this.loggerService.log(`Activation email sent to ${dto.email}`);
 
       await queryRunner.commitTransaction();
