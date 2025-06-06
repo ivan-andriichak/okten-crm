@@ -143,7 +143,7 @@ export const createManager = createAsyncThunk<
 });
 
 export const activateManager = createAsyncThunk<
-  { link: string },
+  { link: string; email: string },
   string,
   { state: RootState; dispatch: AppDispatch }
 >('managers/activateManager', async (managerId, { getState, dispatch }) => {
@@ -168,9 +168,10 @@ export const activateManager = createAsyncThunk<
   );
   dispatch(
     addNotification({
-      message: SUCCESS_MESSAGES.ACTIVATE_MANAGER_SUCCESS,
+      message: `${SUCCESS_MESSAGES.ACTIVATE_MANAGER_SUCCESS}  
+      And email sent to: ${response.data.email}`,
       type: 'success',
-      duration: 5000,
+      duration: 6000,
       notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );
@@ -187,7 +188,7 @@ export const activateManager = createAsyncThunk<
 });
 
 export const recoverPassword = createAsyncThunk<
-  { link: string },
+  { link: string; email: string },
   string,
   { state: RootState; dispatch: AppDispatch }
 >('managers/recoverPassword', async (managerId, { getState, dispatch }) => {
@@ -213,9 +214,10 @@ export const recoverPassword = createAsyncThunk<
 
   dispatch(
     addNotification({
-      message: SUCCESS_MESSAGES.RECOVER_PASSWORD_SUCCESS,
+      message: `${SUCCESS_MESSAGES.RECOVER_PASSWORD_SUCCESS}
+       And email sent to: ${response.data.email}`,
       type: 'success',
-      duration: 5000,
+      duration: 6000,
       notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );
@@ -330,7 +332,7 @@ export const verifyToken = createAsyncThunk<
     return response.data;
   } catch (error: any) {
     const errorMessage =
-      error.response?.data?.message || 'Недійсний або прострочений токен';
+      error.response?.data?.message || 'Invalid or expired token';
     dispatch(
       addNotification({
         message: errorMessage,
@@ -351,14 +353,14 @@ export const setPassword = createAsyncThunk<
     await api.post('/admin/set-password', { token, password });
     dispatch(
       addNotification({
-        message: 'Пароль успішно встановлено.',
+        message: 'Password successfully set.',
         type: 'success',
         notificationType: 'system',
       }),
     );
   } catch (error: any) {
     const errorMessage =
-      error.response?.data?.message || 'Не вдалося встановити пароль';
+      error.response?.data?.message || 'Failed to set password';
     dispatch(
       addNotification({
         message: errorMessage,

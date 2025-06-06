@@ -57,19 +57,6 @@ const login = createAsyncThunk(
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || ERROR_MESSAGES.LOGIN_FAILED;
-      // const notificationType =
-      //   errorMessage === ERROR_MESSAGES.USER_BANNED ||
-      //   errorMessage === ERROR_MESSAGES.INACTIVE_USER
-      //     ? NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL
-      //     : NOTIFICATION_TYPES.STANDARD;
-      // dispatch(
-      //   addNotification({
-      //     message: errorMessage,
-      //     type: 'error',
-      //     duration: 6000,
-      //     notificationType,
-      //   }),
-      // );
       return rejectWithValue(errorMessage);
     }
   },

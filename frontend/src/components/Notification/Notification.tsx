@@ -48,7 +48,7 @@ const Notification: FC = () => {
           }}>
           {notification.notificationType ===
           NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL ? (
-            <div className={css.bannedMessage}>
+            <div>
               <span>{notification.message}</span>
               <SupportEmail />
             </div>

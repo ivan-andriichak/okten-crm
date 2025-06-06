@@ -57,13 +57,13 @@ export class AdminController {
 
   @Roles(Role.ADMIN)
   @Post('managers/:id/activate')
-  async activateManager(@Param('id') id: string): Promise<{ link: string }> {
+  async activateManager(@Param('id') id: string): Promise<{ link: string; email: string }> {
     return await this.adminService.generateActivationLink(id);
   }
 
   @Roles(Role.ADMIN)
   @Post('managers/:id/recover')
-  async recoverPassword(@Param('id') id: string): Promise<{ link: string }> {
+  async recoverPassword(@Param('id') id: string): Promise<{ link: string; email: string }> {
     return await this.adminService.generateRecoveryLink(id);
   }
 

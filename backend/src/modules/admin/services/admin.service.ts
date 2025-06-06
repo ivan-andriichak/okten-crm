@@ -87,17 +87,23 @@ export class AdminService {
     await this.emailService.sendMail(dto);
   }
 
-  async generateActivationLink(id: string): Promise<{ link: string }> {
+  async generateActivationLink(id: string): Promise<{ link: string; email: string }> {
     this.loggerService.log(`Generating activation link for manager id: ${id}`);
     return await this.generateLinkWithToken(id, 'activate');
   }
 
-  async generateRecoveryLink(id: string): Promise<{ link: string }> {
+  async generateRecoveryLink(id: string): Promise<{ link: string; email: string }> {
     this.loggerService.log(`Generating recovery link for manager id: ${id}`);
     return await this.generateLinkWithToken(id, 'recover');
   }
 
-  private async generateLinkWithToken(id: string, type: 'activate' | 'recover'): Promise<{ link: string }> {
+  private async generateLinkWithToken(
+    id: string,
+    type: 'activate' | 'recover',
+  ): Promise<{
+    link: string;
+    email: string;
+  }> {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const manager = await userRepository.findOne({
       where: { id, role: Role.MANAGER },
@@ -141,7 +147,7 @@ export class AdminService {
       await this.emailService.sendRecoveryEmail(manager.email, link);
       this.loggerService.log(`Sending recovery email to: ${manager.email}, link: ${link}`);
     }
-    return { link };
+    return { link, email: manager.email };
   }
 
   async setPassword(token: string, password: string): Promise<void> {
