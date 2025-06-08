@@ -142,8 +142,38 @@ export const createManager = createAsyncThunk<
   );
 });
 
+const handleManagerResponse = (
+  responseData: { link: string; email: string; emailSent: boolean },
+  dispatch: AppDispatch,
+  getState: () => RootState,
+) => {
+  const { link, email, emailSent } = responseData;
+  dispatch(
+    addNotification({
+      message: emailSent
+        ? `Link sent to ${email} and copied.`
+        : `Link copied, email to ${email} failed.`,
+      type: emailSent ? 'success' : 'error',
+      duration: 4000,
+      notificationType: emailSent
+        ? NOTIFICATION_TYPES.STANDARD
+        : NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
+    }),
+  );
+  dispatch(
+    fetchManagers({
+      page: getState().managers.page,
+      limit: getState().managers.limit,
+      sort: 'created_at',
+      order: 'DESC',
+    }),
+  );
+  dispatch(fetchOverallStats());
+  return { link, email, emailSent };
+};
+
 export const activateManager = createAsyncThunk<
-  { link: string; email: string },
+  { link: string; email: string; emailSent: boolean },
   string,
   { state: RootState; dispatch: AppDispatch }
 >('managers/activateManager', async (managerId, { getState, dispatch }) => {
@@ -159,36 +189,32 @@ export const activateManager = createAsyncThunk<
     );
     throw new Error('No token available');
   }
-  const response = await api.post(
-    `/admin/managers/${managerId}/activate`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    },
-  );
-  dispatch(
-    addNotification({
-      message: `${SUCCESS_MESSAGES.ACTIVATE_MANAGER_SUCCESS}  
-      And email sent to: ${response.data.email}`,
-      type: 'success',
-      duration: 6000,
-      notificationType: NOTIFICATION_TYPES.STANDARD,
-    }),
-  );
-  dispatch(
-    fetchManagers({
-      page: getState().managers.page,
-      limit: getState().managers.limit,
-      sort: 'created_at',
-      order: 'DESC',
-    }),
-  );
-  dispatch(fetchOverallStats());
-  return response.data;
+  try {
+    const response = await api.post(
+      `/admin/managers/${managerId}/activate`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+    return handleManagerResponse(response.data, dispatch, getState);
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message || ERROR_MESSAGES.ACTIVATE_MANAGER_FAILED;
+    dispatch(
+      addNotification({
+        message: `${errorMessage}. Contact support.`,
+        type: 'error',
+        duration: 4000,
+        notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
+      }),
+    );
+    throw error;
+  }
 });
 
 export const recoverPassword = createAsyncThunk<
-  { link: string; email: string },
+  { link: string; email: string; emailSent: boolean },
   string,
   { state: RootState; dispatch: AppDispatch }
 >('managers/recoverPassword', async (managerId, { getState, dispatch }) => {
@@ -204,33 +230,28 @@ export const recoverPassword = createAsyncThunk<
     );
     throw new Error('No token available');
   }
-  const response = await api.post(
-    `/admin/managers/${managerId}/recover`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    },
-  );
-
-  dispatch(
-    addNotification({
-      message: `${SUCCESS_MESSAGES.RECOVER_PASSWORD_SUCCESS}
-       And email sent to: ${response.data.email}`,
-      type: 'success',
-      duration: 6000,
-      notificationType: NOTIFICATION_TYPES.STANDARD,
-    }),
-  );
-  dispatch(
-    fetchManagers({
-      page: getState().managers.page,
-      limit: getState().managers.limit,
-      sort: 'created_at',
-      order: 'DESC',
-    }),
-  );
-  dispatch(fetchOverallStats());
-  return response.data;
+  try {
+    const response = await api.post(
+      `/admin/managers/${managerId}/recover`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+    return handleManagerResponse(response.data, dispatch, getState);
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message || ERROR_MESSAGES.RECOVER_PASSWORD_FAILED;
+    dispatch(
+      addNotification({
+        message: `${errorMessage}. Contact support.`,
+        type: 'error',
+        duration: 4000,
+        notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
+      }),
+    );
+    throw error;
+  }
 });
 
 export const banManager = createAsyncThunk<
@@ -332,7 +353,7 @@ export const verifyToken = createAsyncThunk<
     return response.data;
   } catch (error: any) {
     const errorMessage =
-      error.response?.data?.message || 'Invalid or expired token';
+      error.response?.data?.message || 'Недійсний або прострочений токен';
     dispatch(
       addNotification({
         message: errorMessage,

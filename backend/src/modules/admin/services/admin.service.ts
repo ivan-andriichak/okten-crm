@@ -85,12 +85,12 @@ export class AdminService {
     await this.emailService.sendMail(dto);
   }
 
-  async generateActivationLink(id: string): Promise<{ link: string; email: string }> {
+  async generateActivationLink(id: string): Promise<{ link: string; email: string; emailSent: boolean }> {
     this.loggerService.log(`Generating activation link for manager id: ${id}`);
     return await this.generateLinkWithToken(id, 'activate');
   }
 
-  async generateRecoveryLink(id: string): Promise<{ link: string; email: string }> {
+  async generateRecoveryLink(id: string): Promise<{ link: string; email: string; emailSent: boolean }> {
     this.loggerService.log(`Generating recovery link for manager id: ${id}`);
     return await this.generateLinkWithToken(id, 'recover');
   }
@@ -101,6 +101,7 @@ export class AdminService {
   ): Promise<{
     link: string;
     email: string;
+    emailSent: boolean;
   }> {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const manager = await userRepository.findOne({
@@ -138,14 +139,22 @@ export class AdminService {
     const path = type === 'activate' ? '/activate/' : '/recover/';
     const link = `${baseUrl}${path}${token}`;
 
-    if (type === 'activate') {
-      await this.emailService.sendActivationEmail(manager.email, link);
-      this.loggerService.log(`Sending activation email to: ${manager.email}, link: ${link}`);
-    } else {
-      await this.emailService.sendRecoveryEmail(manager.email, link);
-      this.loggerService.log(`Sending recovery email to: ${manager.email}, link: ${link}`);
+    let emailSent = false;
+    try {
+      if (type === 'activate') {
+        await this.emailService.sendActivationEmail(manager.email, link);
+        this.loggerService.log(`Successfully sent activation email to: ${manager.email}, link: ${link}`);
+        emailSent = true;
+      } else {
+        await this.emailService.sendRecoveryEmail(manager.email, link);
+        this.loggerService.log(`Successfully sent recovery email to: ${manager.email}, link: ${link}`);
+        emailSent = true;
+      }
+    } catch (error) {
+      this.loggerService.error(`Failed to send ${type} email to ${manager.email}: ${error.message}`, error);
     }
-    return { link, email: manager.email };
+
+    return { link, email: manager.email, emailSent };
   }
 
   async setPassword(token: string, password: string): Promise<void> {
