@@ -48,11 +48,11 @@ export class OrdersRepository extends Repository<OrderEntity> {
       qb.andWhere('order.manager_id = :manager_id', { manager_id });
     }
 
-    if (name) qb.andWhere('order.name LIKE :name', { name: `%${name}%` });
-    if (surname) qb.andWhere('order.surname LIKE :surname', { surname: `%${surname}%` });
-    if (email) qb.andWhere('order.email LIKE :email', { email: `%${email}%` });
-    if (phone) qb.andWhere('order.phone LIKE :phone', { phone: `%${phone}%` });
-    if (age) qb.andWhere('order.age LIKE :age', { age: `%${age}%` });
+    if (name) qb.andWhere('LOWER(order.name) LIKE LOWER(:name)', { name: `${name.toLowerCase()}%` });
+    if (surname) qb.andWhere('LOWER(order.surname) LIKE LOWER(:surname)', { surname: `${surname.toLowerCase()}%` });
+    if (email) qb.andWhere('LOWER(order.email) LIKE LOWER(:email)', { email: `${email.toLowerCase()}%` });
+    if (phone) qb.andWhere('LOWER(order.phone) LIKE LOWER(:phone)', { phone: `${phone.toLowerCase()}%` });
+    if (age) qb.andWhere('LOWER(order.age) LIKE LOWER(:age)', { age: `${age.toLowerCase()}%` });
     if (course) qb.andWhere('order.course LIKE :course', { course: `%${course}%` });
     if (course_format) qb.andWhere('order.course_format LIKE :course_format', { course_format: `%${course_format}%` });
     if (course_type) qb.andWhere('order.course_type LIKE :course_type', { course_type: `%${course_type}%` });
@@ -64,14 +64,14 @@ export class OrdersRepository extends Repository<OrderEntity> {
     if (manager) {
       const parts = manager.trim().toLowerCase().split(/\s+/);
       if (parts.length === 1) {
-        qb.andWhere(`(LOWER(manager.name) LIKE :part OR LOWER(manager.surname) LIKE :part)`, { part: `%${parts[0]}%` });
+        qb.andWhere(`(LOWER(manager.name) LIKE :part OR LOWER(manager.surname) LIKE :part)`, { part: `${parts[0]}%` });
       } else if (parts.length >= 2) {
         qb.andWhere(
           `(
         (LOWER(manager.name) LIKE :part1 AND LOWER(manager.surname) LIKE :part2) OR
         (LOWER(manager.name) LIKE :part2 AND LOWER(manager.surname) LIKE :part1)
       )`,
-          { part1: `%${parts[0]}%`, part2: `%${parts[1]}%` },
+          { part1: `${parts[0]}%`, part2: `${parts[1]}%` },
         );
       }
     }
