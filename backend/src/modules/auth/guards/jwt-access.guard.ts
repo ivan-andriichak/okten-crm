@@ -1,4 +1,3 @@
-// backend/src/modules/auth/guards/jwt-access.guard.ts
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
@@ -68,6 +67,7 @@ export class JwtAccessGuard implements CanActivate {
 
       request.user = UserMapper.toIUserData(user, payload);
       return true;
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       throw new UnauthorizedException('Invalid access token');
     }
