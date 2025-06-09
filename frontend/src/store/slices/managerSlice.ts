@@ -152,8 +152,8 @@ const handleManagerResponse = (
     addNotification({
       message: emailSent
         ? `Link sent to ${email} and copied.`
-        : `Link copied, email to ${email} failed.`,
-      type: emailSent ? 'success' : 'error',
+        : `Link copied, but failed to send email to ${email}.`,
+      type: emailSent ? 'success' : 'info',
       duration: 4000,
       notificationType: emailSent
         ? NOTIFICATION_TYPES.STANDARD
