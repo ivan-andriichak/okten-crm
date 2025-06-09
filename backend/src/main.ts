@@ -1,7 +1,7 @@
 import { BadRequestException, Logger, ValidationError, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as Sentry from '@sentry/node';
 
 import { AppModule } from './app.module';
@@ -24,7 +24,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('OKTEN-SCHOOL-CRM')
-    .setDescription('OKTEN-SCHOOL-CRM - a scalable and flexible platform similar to CRM, integrated with AWS.')
+    .setDescription('OKTEN-SCHOOL-CRM - a scalable and flexible platform similar to CRM.')
     .setVersion('1.0.0')
     .addBearerAuth({
       type: 'http',
@@ -44,10 +44,13 @@ async function bootstrap() {
     },
   });
 
-  app.use('/swagger-json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(document);
-  });
+  app.use(
+    '/swagger-json',
+    (req: any, res: { setHeader: (arg0: string, arg1: string) => void; send: (arg0: OpenAPIObject) => void }) => {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(document);
+    },
+  );
 
   app.enableCors({
     origin: '*',
@@ -56,7 +59,6 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   });
 
-  // Глобальні Validation Pipes
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
