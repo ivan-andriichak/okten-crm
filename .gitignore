@@ -1,12 +1,5 @@
 .idea
 
-
-.env
-
-dist
-node_modules
-package-lock.json
-!/.idea/
 /.idea/.gitignore
 /.idea/codeStyles/codeStyleConfig.xml
 /.idea/libraries/information_schema_FNRwLQ.xml

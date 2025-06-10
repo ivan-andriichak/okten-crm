@@ -17,7 +17,6 @@ const Home = () => {
 
   return (
     <div className={css.login_container}>
-      <p style={{ textAlign: 'center' }}>Please log in to continue.</p>
       <div>
         <Login />
       </div>
