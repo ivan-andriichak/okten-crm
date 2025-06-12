@@ -1,8 +1,11 @@
 import axios from 'axios';
 import { handleApiError } from './interceptors';
 
+const isProduction = import.meta.env.MODE === 'production';
+const baseURL = isProduction ? '/api' : 'http://localhost:5000/';
+
 export const api = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL,
 });
 
 api.interceptors.response.use(response => response, handleApiError);
