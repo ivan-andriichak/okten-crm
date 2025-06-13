@@ -240,6 +240,7 @@ dispatch(
             <table className={css.table}>
               <thead>
                 <tr>
+                  <th>ID</th>
                   <th>Email</th>
                   <th>Name</th>
                   <th>Surname</th>
@@ -250,10 +251,12 @@ dispatch(
                 </tr>
               </thead>
               <tbody>
-                {managers.map(manager => {
+                {managers.map((manager, index) => {
                   const status = getManagerStatus(manager);
+                  const displayIndex = index + 1 + (page - 1) * limit;
                   return (
                     <tr key={manager.id}>
+                      <td>{displayIndex}</td>
                       <td>{manager.email}</td>
                       <td>{manager.name}</td>
                       <td>{manager.surname}</td>
