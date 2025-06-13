@@ -167,7 +167,7 @@ dispatch(
 
   return (
     <>
-      <div style={{ position: 'sticky', top: 0, zIndex: 100 }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: isModalOpen ? 0 : 100 }}>
         <Header />
       </div>
       <div className={css.container}>
