@@ -52,7 +52,6 @@ export class UsersController {
   }
 
   @SkipAuth()
-  // @Roles(Role.ADMIN)
   @Get(':userId')
   public async findOne(@Param('userId', ParseUUIDPipe) userId: string): Promise<UserResDto> {
     const result = await this.usersService.findOne(userId);

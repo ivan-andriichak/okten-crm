@@ -10,6 +10,15 @@ import { AppConfig } from './config/config.type';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix('api');
+
+  app.use((req: { path: string }, res: { redirect: (arg0: string) => any }, next: () => void) => {
+    if (req.path === '/') {
+      return res.redirect('/api');
+    }
+    next();
+  });
+
   const configService = app.get(ConfigService);
 
   Sentry.init({

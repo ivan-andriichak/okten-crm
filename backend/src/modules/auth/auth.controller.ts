@@ -24,7 +24,7 @@ export class AuthController {
   @SkipAuth()
   @Get()
   healthCheck() {
-    return { message: 'API is running' };
+    return { message: 'Okten CRM API is running' };
   }
 
   @Get('/debug-sentry')
