@@ -1,0 +1,20 @@
+# Development Dockerfile for frontend (Vite)
+FROM node:20
+
+# Робоча директорія всередині контейнера
+WORKDIR /app
+
+# Копіюємо лише залежності для швидшого кешування
+COPY package*.json ./
+
+# Встановлюємо залежності
+RUN npm install
+
+# Копіюємо увесь код проєкту
+COPY . .
+
+# Відкриваємо порт Vite
+EXPOSE 3000
+
+# Запускаємо Vite в dev режимі
+CMD ["npm", "run", "dev"]

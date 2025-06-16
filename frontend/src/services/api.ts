@@ -9,3 +9,16 @@ export const api = axios.create({
 });
 
 api.interceptors.response.use(response => response, handleApiError);
+
+// ________________________________________________________
+
+// import axios from 'axios';
+// import { handleApiError } from './interceptors';
+//
+// export const api = axios.create({
+//   baseURL: '/api',
+// });
+//
+// export const BASE_URL = '/api';
+
+// api.interceptors.response.use(response => response, handleApiError);

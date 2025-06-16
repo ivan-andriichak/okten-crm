@@ -8,7 +8,21 @@ export class RedisService {
   constructor(
     @Inject(REDIS_CLIENT)
     private readonly redisClient: Redis,
-  ) {}
+  ) {
+    this.redisClient = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: Number(process.env.REDIS_PORT) || 6379,
+      retryStrategy: (times) => Math.min(times * 100, 3000), // Retry logic
+    });
+
+    this.redisClient.on('connect', () => {
+      console.log('Connected to Redis');
+    });
+
+    this.redisClient.on('error', (err) => {
+      console.error('Redis connection error:', err);
+    });
+  }
 
   /**
    * Add member to hash set.
