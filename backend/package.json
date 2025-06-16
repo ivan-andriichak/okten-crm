@@ -8,7 +8,10 @@
   "scripts": {
     "build": "nest build",
     "start": "nest start",
-    "start:docker:db": "docker compose --env-file ./environments/local.env -f docker-compose.db.yaml up --build",
+    "start:docker:db": "docker compose --env-file ./environments/prod.env.env -f docker-compose.db.yaml up --build",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down",
+
     "start:local": "nest start --watch -e \"node --env-file ./environments/local.env\"",
     "start:dev": "nest start --env-file ./environments/local.env",
     "start:prod": "node -r dotenv/config dist/main.js",
