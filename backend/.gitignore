@@ -4,6 +4,8 @@
 .idea
 node_modules
 package-lock.json
+dist/*
+!dist
 
 # Logs
 logs

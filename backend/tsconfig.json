@@ -20,5 +20,7 @@
     "moduleResolution": "node",
     "inlineSources": true,
     "sourceRoot": "/"
-  }
+  },
+  "include": ["src/**/*", "config.ts"],
+  "exclude": ["node_modules", "dist"]
 }

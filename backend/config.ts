@@ -5,9 +5,18 @@ import { DataSource } from 'typeorm';
 
 import getter from './src/config/configuration';
 
-dotenv.config({ path: './environments/config.ts' });
+const ENV_MODE = process.env.NODE_ENV || 'local'; // default: local
+const envPath = path.resolve(__dirname, `./environments/${ENV_MODE}.env`);
+dotenv.config({ path: envPath });
 
 const databaseConfig = getter().mysql;
+
+console.log(`ENV mode: ${ENV_MODE}`);
+console.log('ENV:', {
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  pass: process.env.MYSQL_PASSWORD,
+});
 
 export default new DataSource({
   type: 'mysql',
