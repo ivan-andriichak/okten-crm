@@ -9,10 +9,11 @@ FROM node:20-slim
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm install --production
+RUN apt-get update && apt-get install -y curl
+RUN npm install --production && npm install @nestjs/cli
 COPY --from=builder /app/environments ./environments
 COPY --from=builder /app/config.ts ./config.ts
 COPY --from=builder /app/src ./src
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/tsconfig.json ./
 EXPOSE 5000
 CMD ["npm", "run", "start:prod"]
