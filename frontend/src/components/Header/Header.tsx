@@ -44,7 +44,7 @@ const Header: React.FC = () => {
           alt="okten-logo"
           style={{ cursor: 'pointer' }}
           onClick={() =>
-            window.open('http://localhost:3000/register', '_blank')
+            window.open('http://localhost/register', '_blank')
           }
           data-tooltip-id="logo-tooltip"
           data-tooltip-content="Go to registration page"
