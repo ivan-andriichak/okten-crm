@@ -21,8 +21,8 @@ export default (): {
   mailer: { host: string; port: number; secure: boolean; user: string; pass: string; from: string };
 } => ({
   app: {
-    appUrl: process.env.APP_URL || 'http://localhost:3000',
-    port: Number(process.env.APP_PORT) || 3000,
+    appUrl: process.env.APP_URL,
+    port: Number(process.env.APP_PORT),
     host: process.env.APP_HOST || 'localhost',
   },
   mysql: {
