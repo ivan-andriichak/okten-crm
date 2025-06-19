@@ -141,6 +141,8 @@ The backend includes Swagger UI for interactive API documentation and testing.
   http://localhost:5000/docs/
 
  - Test endpoints like GET http://localhost:5000/api directly in Swagger.
+ - To get the raw Swagger JSON, open:
+   http://localhost:5000/swagger-json
 
 ### Via Nginx:
  - Alternative, use:

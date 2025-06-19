@@ -6,8 +6,8 @@ import { Public } from '../../common/decorators/public.decorator';
 import { OrderEntity } from '../../database/entities/order.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { IUserData } from '../auth/interfaces/user-data.interface';
+import { RegisterOrderDto } from '../groups/dto/req/register-oreder.dto';
 import { CommentDto } from './dto/req/comment.req.dto';
-import { CreateOrderReqDto } from './dto/req/create-order.req.dto';
 import { EditOrderDto } from './dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from './dto/req/excel-guery.req.dto';
 import { OrderListQueryDto } from './dto/req/order-list.query.dto';
@@ -59,8 +59,8 @@ export class OrderController {
   @Post('register')
   @Public()
   @ApiOkResponse({ description: 'Public order created', type: OrderEntity })
-  async createPublicOrder(@Body() createOrderDto: CreateOrderReqDto): Promise<OrderEntity> {
-    return await this.ordersService.createPublicOrder(createOrderDto);
+  async createPublicOrder(@Body() registerOrderDto: RegisterOrderDto): Promise<OrderEntity> {
+    return await this.ordersService.createPublicOrder(registerOrderDto);
   }
 
   @Post(':orderId/comment')

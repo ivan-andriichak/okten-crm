@@ -4,12 +4,12 @@ import * as ExcelJS from 'exceljs';
 import { Role } from '../../../common/enums/role.enum';
 import { OrderEntity } from '../../../database/entities/order.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
+import { RegisterOrderDto } from '../../groups/dto/req/register-oreder.dto';
 import { LoggerService } from '../../logger/logger.service';
 import { CommentRepository } from '../../repository/services/comment.repository';
 import { OrdersRepository } from '../../repository/services/orders.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
-import { CreateOrderReqDto } from '../dto/req/create-order.req.dto';
 import { EditOrderDto } from '../dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from '../dto/req/excel-guery.req.dto';
 import { OrderListQueryDto } from '../dto/req/order-list.query.dto';
@@ -133,12 +133,12 @@ export class OrderService {
     return await this.ordersRepository.save(order);
   }
 
-  async createPublicOrder(createOrderDto: CreateOrderReqDto): Promise<OrderEntity> {
+  async createPublicOrder(registerOrderDto: RegisterOrderDto): Promise<OrderEntity> {
     const order = this.ordersRepository.create({
-      ...createOrderDto,
-      utm: createOrderDto.utm || 'utm_source=google&utm_medium=cpc&utm_campaign=spring_sale\n',
-      msg: createOrderDto.utm ? 'Заявка з реклами' : null,
-      status: createOrderDto.status || 'New',
+      ...registerOrderDto,
+      utm: registerOrderDto.utm || 'utm_source=google&utm_medium=cpc&utm_campaign=spring_sale\n',
+      msg: registerOrderDto.utm ? 'Заявка з реклами' : null,
+      status: registerOrderDto.status || 'New',
       manager: null,
       created_at: new Date(),
     });
