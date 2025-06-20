@@ -17,7 +17,7 @@
   width: fit-content;
 }
 
-.primary:hover {
+.primary:hover:not(.disabled) {
   background-color: #a9c6ff;
   color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -43,8 +43,15 @@
   width: fit-content;
 }
 
-.delete:hover {
+.delete:hover:not(.disabled) {
   background-color: #d4746b;
   color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.disabled {
+  background-color: #f0f0f0;
+  color: #aaa;
+  cursor: not-allowed;
+  border: 1px solid #ddd;
 }

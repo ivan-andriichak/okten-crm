@@ -186,7 +186,7 @@ const generateExcel = createAsyncThunk<Blob, GenerateExcelParams, ThunkConfig>(
 
       const response = await api.post('/orders/excel', params, {
         headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob', // Важливо для отримання бінарних даних
+        responseType: 'blob',
       });
 
       return new Blob([response.data], {

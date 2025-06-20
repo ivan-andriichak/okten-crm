@@ -76,7 +76,14 @@ export class OrdersRepository extends Repository<OrderEntity> {
       }
     }
 
-    qb.orderBy(`order.${sort}`, order);
+    if (sort === 'manager_id') {
+      qb.orderBy('order.manager_id', order);
+    } else if (sort === 'manager') {
+      qb.orderBy('manager.name', order);
+      qb.addOrderBy('manager.surname', order);
+    } else {
+      qb.orderBy(`order.${sort}`, order);
+    }
 
     qb.skip((page - 1) * limit).take(limit);
 
