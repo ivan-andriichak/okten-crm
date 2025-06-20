@@ -11,6 +11,7 @@ import css from './Orders.module.css';
 import { EditOrderModal } from '../EditOrderModal';
 import { Filters } from '../Filters';
 import Header from '../Header/Header';
+import { cleanQueryParams } from '../../utils/queryUtils';
 
 const Orders = ({}: OrdersProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,13 +73,13 @@ const Orders = ({}: OrdersProps) => {
   }, [dispatch, token, currentPage, urlSort, urlOrder, filters, myOrdersOnly]);
 
   const handlePageChange = (newPage: number) => {
-    setSearchParams({
+    setSearchParams(cleanQueryParams({
       page: newPage.toString(),
       sort: sort || 'id',
       order: sortOrder || 'ASC',
       ...filters,
       ...(myOrdersOnly && { myOrders: 'true' }),
-    });
+    }));
   };
 
   const resetFilters = () => {
@@ -99,11 +100,11 @@ const Orders = ({}: OrdersProps) => {
       manager: '',
     });
     setMyOrdersOnly(false);
-    setSearchParams({
+    setSearchParams(cleanQueryParams({
       page: '1',
       sort: 'id',
       order: 'ASC',
-    });
+    }));
   };
 
   return (
@@ -115,13 +116,13 @@ const Orders = ({}: OrdersProps) => {
         myOrdersOnly={myOrdersOnly}
         setMyOrdersOnly={value => {
           setMyOrdersOnly(value);
-          setSearchParams({
+          setSearchParams(cleanQueryParams({
             page: '1',
             sort: sort || 'id',
             order: sortOrder || 'ASC',
             ...filters,
             ...(value && { myOrders: 'true' }),
-          });
+          }));
         }}
         resetFilters={resetFilters}
       />
@@ -137,13 +138,13 @@ const Orders = ({}: OrdersProps) => {
           commentText={commentText}
           token={token}
           onSortChange={(newSort, newOrder) =>
-            setSearchParams({
+            setSearchParams(cleanQueryParams({
               page: currentPage.toString(),
               sort: newSort,
               order: newOrder,
               ...filters,
               ...(myOrdersOnly && { myOrders: 'true' }),
-            })
+            }))
           }
         />
       ) : (
