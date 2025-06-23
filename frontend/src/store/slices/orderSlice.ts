@@ -4,7 +4,6 @@ import { EditForm } from './interfaces/editForm';
 import { GroupEntity, Order, OrderState } from './interfaces/order';
 import { AppDispatch, RootState } from '../store';
 
-
 const initialState: OrderState = {
   orders: [],
   total: 0,
@@ -224,9 +223,9 @@ const orderSlice = createSlice({
         phone: action.payload.phone,
         age: action.payload.age?.toString() ?? null,
         course: action.payload.course,
-        course_format: action.payload.course_format,
-        course_type: action.payload.course_type,
-        status: action.payload.status,
+        course_format: action.payload.course_format ?? undefined,
+        course_type: action.payload.course_type ?? undefined,
+        status: action.payload.status ,
         sum: action.payload.sum?.toString() ?? null,
         alreadyPaid: action.payload.alreadyPaid?.toString() ?? null,
         group: action.payload.group,

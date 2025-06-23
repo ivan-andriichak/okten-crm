@@ -8,8 +8,8 @@ export interface Order {
   phone: string | null;
   age: number | null;
   course: string | null;
-  course_format: string;
-  course_type: string;
+  course_format: string | null;
+  course_type: string | null;
   status: string;
   sum: number | null;
   alreadyPaid: number | null;

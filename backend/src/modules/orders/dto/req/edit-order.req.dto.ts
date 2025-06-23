@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsEmail, IsEnum, IsInt, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 
 import { CourseEnum, CourseFormatEnum, CourseTypeEnum, StatusEnum } from '../../enums/order.enums';
@@ -69,7 +69,8 @@ export class EditOrderDto {
   })
   @IsOptional()
   @IsEnum(CourseFormatEnum)
-  course_format?: string;
+  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  course_format?: string | null;
 
   @ApiProperty({
     example: 'pro',
@@ -79,7 +80,8 @@ export class EditOrderDto {
   })
   @IsOptional()
   @IsEnum(CourseTypeEnum)
-  course_type?: string;
+  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  course_type?: string | null;
 
   @ApiProperty({
     example: 'New',
@@ -118,7 +120,8 @@ export class EditOrderDto {
   })
   @IsOptional()
   @IsString()
-  group?: string;
+  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  group?: string | null;
 
   @IsOptional()
   @IsString()

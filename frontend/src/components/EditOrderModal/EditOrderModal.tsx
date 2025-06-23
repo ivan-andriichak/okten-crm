@@ -115,8 +115,14 @@ const EditOrderModal = ({
             ? parseInt(editForm.age, 10)
             : null,
       course: editForm.course,
-      course_format: editForm.course_format ?? editingOrder.course_format,
-      course_type: editForm.course_type ?? editingOrder.course_type,
+      course_format:
+        editForm.course_format === null
+          ? null
+          : (editForm.course_format ?? editingOrder.course_format),
+      course_type:
+        editForm.course_type === null
+          ? null
+          : (editForm.course_type ?? editingOrder.course_type),
       status: editForm.status ?? editingOrder.status,
       sum:
         editForm.sum === null

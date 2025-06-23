@@ -118,7 +118,15 @@ export class OrderService {
       throw new NotFoundException(`Order with ID ${orderId} not found`);
     }
 
-    Object.assign(order, editOrderDto);
+    const updatedDto = {
+      ...editOrderDto,
+      course_format: editOrderDto.course_format === '' ? null : editOrderDto.course_format,
+      course_type: editOrderDto.course_type === '' ? null : editOrderDto.course_type,
+    };
+
+    console.log('Updated DTO:', updatedDto);
+
+    Object.assign(order, updatedDto);
 
     if (editOrderDto.manager_id) {
       const manager = await this.userRepository.findOne({
