@@ -21,13 +21,13 @@
 
 .table th,
 .table td {
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #ccc;
   text-align: left;
 }
 
 .table th {
-  background-color: #f8f9fa;
+  background-color: #e2ebfd;
   font-weight: 600;
 }
 

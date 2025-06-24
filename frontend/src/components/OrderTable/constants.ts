@@ -3,9 +3,9 @@ export const tableStyles = {
     width: '95%',
     borderCollapse: 'collapse' as const,
     margin: '0 auto',
-    backgroundColor: '#f7f8fa',
+    backgroundColor: '#fff',
     tableLayout: 'fixed' as const,
-    color: '#605f5f',
+    color: '#595757',
     boxShadow:
       '0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)',
   },
@@ -25,6 +25,15 @@ export const tableStyles = {
     overflow: 'hidden' as const,
     textOverflow: 'ellipsis' as const,
   },
+
+  tr: {
+    backgroundColor: '#fff',
+    transition: 'background 0.2s',
+  },
+  trHover: {
+    backgroundColor: '#f1f1f1',
+  },
+
   expandedTd: {
     border: '1px solid #ddd',
     padding: '8px',
