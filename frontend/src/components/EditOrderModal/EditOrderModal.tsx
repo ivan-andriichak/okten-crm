@@ -41,6 +41,7 @@ const EditOrderModal = ({
   ) => {
     const { name, value } = e.target;
     const parsedValue = value === '' ? null : value;
+    console.log('handleEditChange', name, parsedValue);
     dispatch(updateEditForm({ [name]: parsedValue }));
   };
 
@@ -123,7 +124,10 @@ const EditOrderModal = ({
         editForm.course_type === null
           ? null
           : (editForm.course_type ?? editingOrder.course_type),
-      status: editForm.status ?? editingOrder.status,
+      status:
+        editForm.status === null
+          ? null
+          : (editForm.status ?? editingOrder.status),
       sum:
         editForm.sum === null
           ? null

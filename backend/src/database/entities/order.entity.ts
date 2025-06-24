@@ -50,7 +50,7 @@ export class OrderEntity {
   @Column({ type: 'enum', enum: CourseTypeEnum })
   course_type: string;
 
-  @Column({ type: 'enum', enum: StatusEnum, default: 'New' })
+  @Column({ type: 'enum', enum: StatusEnum })
   status: string;
 
   @Column('int', { nullable: true })

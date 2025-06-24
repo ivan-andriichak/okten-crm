@@ -91,7 +91,8 @@ export class EditOrderDto {
   })
   @IsOptional()
   @IsEnum(StatusEnum)
-  status?: string;
+  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  status?: string | null;
 
   @ApiProperty({
     example: 1000,

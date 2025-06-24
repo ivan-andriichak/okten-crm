@@ -7,9 +7,9 @@ export interface EditForm {
   phone?: string | null;
   age?: string | null;
   course?: string | null;
-  course_format?: string;
-  course_type?: string;
-  status?: string;
+  course_format?: string | null;
+  course_type?: string | null;
+  status?: string | null;
   sum?: string | null;
   alreadyPaid?: string | null;
   group?: string | null;

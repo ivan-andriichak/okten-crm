@@ -10,7 +10,7 @@ export interface Order {
   course: string | null;
   course_format: string | null;
   course_type: string | null;
-  status: string;
+  status: string | null;
   sum: number | null;
   alreadyPaid: number | null;
   created_at: string;

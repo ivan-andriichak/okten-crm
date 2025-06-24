@@ -40,7 +40,7 @@ export class BaseOrderReqDto {
     example: 30,
     description: 'Age of the customer.',
   })
-  @IsNumber({}, { message: 'age must be a number' }) // Додано повідомлення для ясності
+  @IsNumber({}, { message: 'age must be a number' })
   @IsOptional()
   age?: number;
 

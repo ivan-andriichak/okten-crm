@@ -122,6 +122,7 @@ export class OrderService {
       ...editOrderDto,
       course_format: editOrderDto.course_format === '' ? null : editOrderDto.course_format,
       course_type: editOrderDto.course_type === '' ? null : editOrderDto.course_type,
+      status: editOrderDto.status === '' ? null : editOrderDto.status,
     };
 
     console.log('Updated DTO:', updatedDto);
