@@ -1,4 +1,5 @@
 .container {
+  position: relative;
   max-width: 600px;
   margin: 20px auto 0;
   padding: 20px;
@@ -48,4 +49,36 @@
 
 .select:focus {
   border-color: #b0c4de;
+}
+
+.notificationSuccess {
+  position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  margin-top: 20px;
+  padding: 12px 16px;
+  background-color: #38a169;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(32, 114, 69, 0.07);
+}
+
+.notificationError {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  margin-top: 20px;
+  padding: 12px 16px;
+  background-color: #b9553e;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(168, 7, 26, 0.07);
 }

@@ -6,6 +6,15 @@ import Button from '../Button/Button';
 
 const PublicOrderForm = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
@@ -57,13 +66,35 @@ const PublicOrderForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Phone validation: +380XXXXXXXXX
+    const phoneRegex = /^\+380\d{9}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      setNotification({ type: 'error', message: 'Телефон має бути у форматі +380XXXXXXXXX' });
+      return;
+    }
+
+    // Email validation (simple)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setNotification({ type: 'error', message: 'Введіть коректний email' });
+      return;
+    }
+
+    // Age validation: 18-60
+    const ageNum = Number(formData.age);
+    if (isNaN(ageNum) || ageNum < 18 || ageNum > 60) {
+      setNotification({ type: 'error', message: 'Вік має бути від 18 до 60' });
+      return;
+    }
+
     try {
       const orderData = {
         ...formData,
-        age: formData.age ? Number(formData.age) : undefined,
+        age: ageNum,
       };
       await dispatch(createOrder(orderData)).unwrap();
-      alert('Заявка успішно створена!');
+      setNotification({ type: 'success', message: 'Заявка успішно створена!' });
       setFormData({
         name: '',
         surname: '',
@@ -78,7 +109,7 @@ const PublicOrderForm = () => {
       });
     } catch (error) {
       console.error('Error:', error);
-      alert('Помилка при створенні заявки');
+      setNotification({ type: 'error', message: 'Помилка при створенні заявки' });
     }
   };
 
@@ -169,6 +200,17 @@ const PublicOrderForm = () => {
             Відправити заявку
           </Button>
         </div>
+      {notification && (
+        <div
+          className={
+            notification.type === 'success'
+              ? css.notificationSuccess
+              : css.notificationError
+          }
+        >
+          {notification.message}
+        </div>
+      )}
       </form>
     </div>
   );
