@@ -237,14 +237,14 @@ const Filters = ({
           <img
             src={resetImage}
             alt="Reset Filters"
-            className={css.resetButton}
+            className={`${css.resetButton} ${Object.values(filters).some(v => v) ? css.activeReset : ''}`}
           />
         </a>
         <a onClick={handleGenerateExcel}>
           <img
             src={excel}
             alt="Generate Excel"
-            style={{ width: '25px', borderRadius: '10px', cursor: 'pointer' }}
+            style={{ width: '23px', borderRadius: '10px', cursor: 'pointer' }}
           />
         </a>
       </div>
