@@ -48,11 +48,12 @@ export class OrdersRepository extends Repository<OrderEntity> {
       qb.andWhere('order.manager_id = :manager_id', { manager_id });
     }
 
-    if (name) qb.andWhere('LOWER(order.name) LIKE LOWER(:name)', { name: `${name.toLowerCase()}%` });
-    if (surname) qb.andWhere('LOWER(order.surname) LIKE LOWER(:surname)', { surname: `${surname.toLowerCase()}%` });
-    if (email) qb.andWhere('LOWER(order.email) LIKE LOWER(:email)', { email: `${email.toLowerCase()}%` });
-    if (phone) qb.andWhere('LOWER(order.phone) LIKE LOWER(:phone)', { phone: `${phone.toLowerCase()}%` });
-    if (age) qb.andWhere('LOWER(order.age) LIKE LOWER(:age)', { age: `${age.toLowerCase()}%` });
+    if (name) qb.andWhere('LOWER(TRIM(order.name)) LIKE LOWER(:name)', { name: `${name.trim().toLowerCase()}%` });
+    if (surname)
+      qb.andWhere('LOWER(TRIM(order.surname)) LIKE LOWER(:surname)', { surname: `${surname.trim().toLowerCase()}%` });
+    if (email) qb.andWhere('LOWER(TRIM(order.email)) LIKE LOWER(:email)', { email: `${email.trim().toLowerCase()}%` });
+    if (phone) qb.andWhere('LOWER(TRIM(order.phone)) LIKE LOWER(:phone)', { phone: `${phone.trim().toLowerCase()}%` });
+    if (age) qb.andWhere('order.age = :age', { age: Number(age) });
     if (course) qb.andWhere('order.course LIKE :course', { course: `%${course}%` });
     if (course_format) qb.andWhere('order.course_format LIKE :course_format', { course_format: `%${course_format}%` });
     if (course_type) qb.andWhere('order.course_type LIKE :course_type', { course_type: `%${course_type}%` });
@@ -60,7 +61,8 @@ export class OrdersRepository extends Repository<OrderEntity> {
     if (sum) qb.andWhere('order.sum LIKE :sum', { sum: `%${sum}%` });
     if (alreadyPaid) qb.andWhere('order.alreadyPaid LIKE :alreadyPaid', { alreadyPaid: `%${alreadyPaid}%` });
     if (group) qb.andWhere('order.group LIKE :group', { group: `%${group}%` });
-    if (created_at) qb.andWhere('DATE(order.created_at) = :created_at', { created_at });
+    if (created_at && created_at.trim())
+      qb.andWhere('CAST(order.created_at AS CHAR) LIKE :created_at', { created_at: `%${created_at.trim()}%` });
     if (manager) {
       const parts = manager.trim().toLowerCase().split(/\s+/);
       if (parts.length === 1) {

@@ -1,4 +1,3 @@
-
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, fetchGroups, generateExcel } from '../../store';
@@ -21,19 +20,19 @@ interface RootState {
 }
 
 const Filters = ({
-                   filters,
-                   setFilters,
-                   myOrdersOnly,
-                   setMyOrdersOnly,
-                   resetFilters,
-                 }: FiltersProps) => {
+  filters,
+  setFilters,
+  myOrdersOnly,
+  setMyOrdersOnly,
+  resetFilters,
+}: FiltersProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const groups = useSelector((state: RootState) => state.orders.groups) || [];
   const token = useSelector((state: RootState) => state.auth.token);
 
-  const [inputValues, setInputValues] = useState<Record<string, string>>(filters);
+  const [inputValues, setInputValues] =
+    useState<Record<string, string>>(filters);
 
-  // Sync inputValues when filters change (e.g., on reset)
   useEffect(() => {
     setInputValues(filters);
   }, [filters]);
@@ -44,13 +43,11 @@ const Filters = ({
     }
   }, [dispatch, token, groups.length]);
 
-  // Debounced function for text inputs
   const debouncedSetFilters = useMemo(
     () => debounce(setFilters, 1000),
-    [setFilters]
+    [setFilters],
   );
 
-  // Cleanup debounce on component unmount
   useEffect(() => {
     return () => {
       debouncedSetFilters.cancel();
@@ -65,7 +62,6 @@ const Filters = ({
     // Update input values immediately
     setInputValues(prev => ({ ...prev, [name]: value }));
 
-    // Apply debouncing for text inputs, immediate update for selects
     if (e.target.tagName === 'INPUT') {
       debouncedSetFilters({ ...filters, [name]: value });
     } else {
@@ -85,7 +81,7 @@ const Filters = ({
             ...filters,
             myOrders: myOrdersOnly.toString(),
           },
-        })
+        }),
       ).unwrap();
 
       const url = window.URL.createObjectURL(result);
@@ -142,19 +138,19 @@ const Filters = ({
           className={css.filterInput}
         />
         <input
-          type="text"
+          type="number"
           name="age"
           value={inputValues.age || ''}
           onChange={handleFilterChange}
           placeholder="Filter by age"
           className={css.filterInput}
+          min="0"
         />
         <select
           name="course"
           value={filters.course || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course ? css.selectedInput : ''}`}>
           <option value="">Filter by course</option>
           {courseOptions.map(option => (
             <option key={option} value={option}>
@@ -166,8 +162,7 @@ const Filters = ({
           name="course_format"
           value={filters.course_format || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course_format ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course_format ? css.selectedInput : ''}`}>
           <option value="">Filter by course format</option>
           {courseFormatOptions.map(option => (
             <option key={option} value={option}>
@@ -179,8 +174,7 @@ const Filters = ({
           name="course_type"
           value={filters.course_type || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course_type ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course_type ? css.selectedInput : ''}`}>
           <option value="">Filter by course type</option>
           {courseTypeOptions.map(option => (
             <option key={option} value={option}>
@@ -192,8 +186,7 @@ const Filters = ({
           name="status"
           value={filters.status || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.status ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.status ? css.selectedInput : ''}`}>
           <option value="">Filter by status</option>
           {statusOptions.map(option => (
             <option key={option} value={option}>
@@ -205,8 +198,7 @@ const Filters = ({
           name="group"
           value={filters.group || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.group ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.group ? css.selectedInput : ''}`}>
           <option value="">Filter by group</option>
           {groups.map(group => (
             <option key={group} value={group}>
@@ -242,7 +234,11 @@ const Filters = ({
           My
         </div>
         <a onClick={resetFilters}>
-          <img src={resetImage} alt="Reset Filters" className={css.resetButton} />
+          <img
+            src={resetImage}
+            alt="Reset Filters"
+            className={css.resetButton}
+          />
         </a>
         <a onClick={handleGenerateExcel}>
           <img

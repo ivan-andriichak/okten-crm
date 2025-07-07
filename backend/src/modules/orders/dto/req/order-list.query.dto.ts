@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsDateString, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class OrderListQueryDto {
   @ApiProperty({ description: 'Page number', required: false, default: 1 })
@@ -89,7 +89,7 @@ export class OrderListQueryDto {
 
   @ApiProperty({ description: 'Filter by created at (e.g., 2021-11-01)', required: false })
   @IsOptional()
-  @IsDateString()
+  // @IsDateString()
   created_at?: string;
 
   @ApiProperty({ description: 'Filter by manager name', required: false })
