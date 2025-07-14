@@ -53,7 +53,7 @@ const Orders = ({}: OrdersProps) => {
 
   const currentPage = Number(searchParams.get('page')) || 1;
   const urlSort = searchParams.get('sort') || 'id';
-  const urlOrder = (searchParams.get('order') as 'ASC' | 'DESC') || 'ASC';
+  const urlOrder = (searchParams.get('order') as 'ASC' | 'DESC') || 'DESC';
 
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const Orders = ({}: OrdersProps) => {
     setSearchParams(cleanQueryParams({
       page: newPage.toString(),
       sort: sort || 'id',
-      order: sortOrder || 'ASC',
+      order: sortOrder || 'DESC',
       ...filters,
       ...(myOrdersOnly && { myOrders: 'true' }),
     }));
@@ -103,7 +103,7 @@ const Orders = ({}: OrdersProps) => {
     setSearchParams(cleanQueryParams({
       page: '1',
       sort: 'id',
-      order: 'ASC',
+      order: 'DESC',
     }));
   };
 
@@ -119,7 +119,7 @@ const Orders = ({}: OrdersProps) => {
           setSearchParams(cleanQueryParams({
             page: '1',
             sort: sort || 'id',
-            order: sortOrder || 'ASC',
+            order: sortOrder || 'DESC',
             ...filters,
             ...(value && { myOrders: 'true' }),
           }));
