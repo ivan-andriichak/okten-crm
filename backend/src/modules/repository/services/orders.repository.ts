@@ -50,11 +50,11 @@ export class OrdersRepository extends Repository<OrderEntity> {
       qb.andWhere('order.manager_id = :manager_id', { manager_id });
     }
 
-    if (name) qb.andWhere('LOWER(TRIM(order.name)) = LOWER(:name)', { name: `${name.trim().toLowerCase()}` });
+    if (name) qb.andWhere('LOWER(TRIM(order.name)) LIKE :name', { name: `%${name.trim().toLowerCase()}%` });
     if (surname)
-      qb.andWhere('LOWER(TRIM(order.surname)) = LOWER(:surname)', { surname: `${surname.trim().toLowerCase()}` });
-    if (email) qb.andWhere('LOWER(TRIM(order.email)) = LOWER(:email)', { email: `${email.trim().toLowerCase()}` });
-    if (phone) qb.andWhere('LOWER(TRIM(order.phone)) = LOWER(:phone)', { phone: `${phone.trim().toLowerCase()}` });
+      qb.andWhere('LOWER(TRIM(order.surname)) LIKE :surname', { surname: `%${surname.trim().toLowerCase()}%` });
+    if (email) qb.andWhere('LOWER(TRIM(order.email)) LIKE :email', { email: `${email.trim().toLowerCase()}` });
+    if (phone) qb.andWhere('LOWER(TRIM(order.phone)) LIKE :phone', { phone: `${phone.trim().toLowerCase()}` });
     if (age) qb.andWhere('order.age = :age', { age: Number(age) });
     if (course) qb.andWhere('order.course LIKE :course', { course: `%${course}%` });
     if (course_format) qb.andWhere('order.course_format LIKE :course_format', { course_format: `%${course_format}%` });
@@ -67,17 +67,11 @@ export class OrdersRepository extends Repository<OrderEntity> {
       qb.andWhere('CAST(order.created_at AS CHAR) LIKE :created_at', { created_at: `%${created_at.trim()}%` });
     if (manager) {
       const parts = manager.trim().toLowerCase().split(/\s+/);
-      if (parts.length === 1) {
-        qb.andWhere(`(LOWER(manager.name) LIKE :part OR LOWER(manager.surname) LIKE :part)`, { part: `${parts[0]}%` });
-      } else if (parts.length >= 2) {
-        qb.andWhere(
-          `(
-            (LOWER(manager.name) LIKE :part1 AND LOWER(manager.surname) LIKE :part2) OR
-            (LOWER(manager.name) LIKE :part2 AND LOWER(manager.surname) LIKE :part1)
-          )`,
-          { part1: `${parts[0]}%`, part2: `${parts[1]}%` },
-        );
-      }
+      parts.forEach((part, idx) => {
+        qb.andWhere(`(LOWER(manager.name) LIKE :managerPart${idx} OR LOWER(manager.surname) LIKE :managerPart${idx})`, {
+          [`managerPart${idx}`]: `%${part}%`,
+        });
+      });
     }
 
     if (sort === 'manager_id') {
