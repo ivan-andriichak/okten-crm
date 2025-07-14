@@ -50,11 +50,11 @@ export class OrdersRepository extends Repository<OrderEntity> {
       qb.andWhere('order.manager_id = :manager_id', { manager_id });
     }
 
-    if (name) qb.andWhere('LOWER(TRIM(order.name)) LIKE LOWER(:name)', { name: `${name.trim().toLowerCase()}%` });
+    if (name) qb.andWhere('LOWER(TRIM(order.name)) = LOWER(:name)', { name: `${name.trim().toLowerCase()}` });
     if (surname)
-      qb.andWhere('LOWER(TRIM(order.surname)) LIKE LOWER(:surname)', { surname: `${surname.trim().toLowerCase()}%` });
-    if (email) qb.andWhere('LOWER(TRIM(order.email)) LIKE LOWER(:email)', { email: `${email.trim().toLowerCase()}%` });
-    if (phone) qb.andWhere('LOWER(TRIM(order.phone)) LIKE LOWER(:phone)', { phone: `${phone.trim().toLowerCase()}%` });
+      qb.andWhere('LOWER(TRIM(order.surname)) = LOWER(:surname)', { surname: `${surname.trim().toLowerCase()}` });
+    if (email) qb.andWhere('LOWER(TRIM(order.email)) = LOWER(:email)', { email: `${email.trim().toLowerCase()}` });
+    if (phone) qb.andWhere('LOWER(TRIM(order.phone)) = LOWER(:phone)', { phone: `${phone.trim().toLowerCase()}` });
     if (age) qb.andWhere('order.age = :age', { age: Number(age) });
     if (course) qb.andWhere('order.course LIKE :course', { course: `%${course}%` });
     if (course_format) qb.andWhere('order.course_format LIKE :course_format', { course_format: `%${course_format}%` });

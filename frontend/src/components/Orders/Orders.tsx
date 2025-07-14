@@ -72,6 +72,18 @@ const Orders = ({}: OrdersProps) => {
     }
   }, [dispatch, token, currentPage, urlSort, urlOrder, filters, myOrdersOnly]);
 
+  useEffect(() => {
+    setSearchParams(
+      cleanQueryParams({
+        page: currentPage.toString(),
+        sort: sort || 'id',
+        order: sortOrder || 'DESC',
+        ...filters,
+        ...(myOrdersOnly && { myOrders: 'true' }),
+      }),
+    );
+  }, [filters, myOrdersOnly, currentPage, sort, sortOrder, setSearchParams]);
+
   const handlePageChange = (newPage: number) => {
     setSearchParams(cleanQueryParams({
       page: newPage.toString(),
