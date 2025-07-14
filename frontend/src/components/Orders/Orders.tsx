@@ -55,10 +55,11 @@ const Orders = ({}: OrdersProps) => {
   const urlSort = searchParams.get('sort') || 'id';
   const urlOrder = (searchParams.get('order') as 'ASC' | 'DESC') || 'DESC';
 
-
   useEffect(() => {
     if (token) {
-      dispatch(setSort({ sort: urlSort, order: urlOrder }));
+      if (urlSort !== sort || urlOrder !== sortOrder) {
+        dispatch(setSort({ sort: urlSort, order: urlOrder }));
+      }
       dispatch(
         fetchOrders({
           page: currentPage,
@@ -67,31 +68,22 @@ const Orders = ({}: OrdersProps) => {
             myOrders: myOrdersOnly ? 'true' : undefined,
             managerId: myOrdersOnly ? currentUserId || undefined : undefined,
           },
-        })
+        }),
       );
     }
-  }, [dispatch, token, currentPage, urlSort, urlOrder, filters, myOrdersOnly]);
+  }, [dispatch, token, currentPage, urlSort, urlOrder, filters, myOrdersOnly, sort, sortOrder]);
 
-  useEffect(() => {
+  const handlePageChange = (newPage: number) => {
     setSearchParams(
       cleanQueryParams({
-        page: currentPage.toString(),
+        page: newPage.toString(),
         sort: sort || 'id',
         order: sortOrder || 'DESC',
         ...filters,
         ...(myOrdersOnly && { myOrders: 'true' }),
       }),
+      { replace: true },
     );
-  }, [filters, myOrdersOnly, currentPage, sort, sortOrder, setSearchParams]);
-
-  const handlePageChange = (newPage: number) => {
-    setSearchParams(cleanQueryParams({
-      page: newPage.toString(),
-      sort: sort || 'id',
-      order: sortOrder || 'DESC',
-      ...filters,
-      ...(myOrdersOnly && { myOrders: 'true' }),
-    }));
   };
 
   const resetFilters = () => {
@@ -112,11 +104,14 @@ const Orders = ({}: OrdersProps) => {
       manager: '',
     });
     setMyOrdersOnly(false);
-    setSearchParams(cleanQueryParams({
-      page: '1',
-      sort: 'id',
-      order: 'DESC',
-    }));
+    setSearchParams(
+      cleanQueryParams({
+        page: '1',
+        sort: 'id',
+        order: 'DESC',
+      }),
+      { replace: true },
+    );
   };
 
   return (
@@ -124,17 +119,32 @@ const Orders = ({}: OrdersProps) => {
       <Header />
       <Filters
         filters={filters}
-        setFilters={setFilters}
+        setFilters={(newFilters) => {
+          setFilters(newFilters);
+          setSearchParams(
+            cleanQueryParams({
+              page: '1', // Скидаємо на першу сторінку при зміні фільтрів
+              sort: sort || 'id',
+              order: sortOrder || 'DESC',
+              ...newFilters,
+              ...(myOrdersOnly && { myOrders: 'true' }),
+            }),
+            { replace: true },
+          );
+        }}
         myOrdersOnly={myOrdersOnly}
-        setMyOrdersOnly={value => {
+        setMyOrdersOnly={(value) => {
           setMyOrdersOnly(value);
-          setSearchParams(cleanQueryParams({
-            page: '1',
-            sort: sort || 'id',
-            order: sortOrder || 'DESC',
-            ...filters,
-            ...(value && { myOrders: 'true' }),
-          }));
+          setSearchParams(
+            cleanQueryParams({
+              page: '1', // Скидаємо на першу сторінку при зміні myOrdersOnly
+              sort: sort || 'id',
+              order: sortOrder || 'DESC',
+              ...filters,
+              ...(value && { myOrders: 'true' }),
+            }),
+            { replace: true },
+          );
         }}
         resetFilters={resetFilters}
       />
@@ -150,13 +160,16 @@ const Orders = ({}: OrdersProps) => {
           commentText={commentText}
           token={token}
           onSortChange={(newSort, newOrder) =>
-            setSearchParams(cleanQueryParams({
-              page: currentPage.toString(),
-              sort: newSort,
-              order: newOrder,
-              ...filters,
-              ...(myOrdersOnly && { myOrders: 'true' }),
-            }))
+            setSearchParams(
+              cleanQueryParams({
+                page: '1', // Скидаємо на першу сторінку при зміні сортування
+                sort: newSort,
+                order: newOrder,
+                ...filters,
+                ...(myOrdersOnly && { myOrders: 'true' }),
+              }),
+              { replace: true },
+            )
           }
         />
       ) : (
