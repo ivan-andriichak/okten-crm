@@ -98,8 +98,7 @@ export class OrderService {
     return OrderMapper.toOrderListItemResDto(updatedOrder);
   }
 
-  async deleteComment(commentId: string, userData: IUserData): Promise<void> {
-    this.logger.log(`deleteComment called for comment ${commentId} by user ${userData.userId}`);
+  async deleteComment(commentId: string): Promise<void> {
     const comment = await this.commentRepository.findOne({
       where: { id: commentId },
       relations: ['order', 'order.manager', 'user'],
@@ -107,11 +106,6 @@ export class OrderService {
 
     if (!comment) {
       throw new NotFoundException(`Comment with id ${commentId} not found`);
-    }
-
-    const order = comment.order;
-    if (order.manager && order.manager.id !== userData.userId && comment.user.id !== userData.userId) {
-      throw new ForbiddenException('You can only delete comments on orders assigned to you or written by you');
     }
 
     await this.commentRepository.remove(comment);

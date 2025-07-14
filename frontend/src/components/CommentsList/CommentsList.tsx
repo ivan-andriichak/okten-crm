@@ -1,6 +1,6 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Comment, Order } from '../../store/slices/interfaces/order';
-import { AppDispatch, deleteComment } from '../../store';
+import { AppDispatch, deleteComment, RootState } from '../../store';
 import Button from '../Button/Button';
 
 interface CommentListProps {
@@ -10,6 +10,8 @@ interface CommentListProps {
 
 const CommentList = ({ comments, order }: CommentListProps) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { name, surname } = useSelector((state: RootState) => state.auth);
+  const userFullName = name && surname ? `${name} ${surname}` : null;
 
   const handleDelete = (commentId: string) => {
     dispatch(deleteComment(commentId));
@@ -18,6 +20,7 @@ const CommentList = ({ comments, order }: CommentListProps) => {
   return (
     <div
       style={{
+        position: 'relative',
         margin: '10px 0',
         display: 'flex',
         flexDirection: 'row',
@@ -53,6 +56,7 @@ const CommentList = ({ comments, order }: CommentListProps) => {
               <div
                 key={comment.id}
                 style={{
+                  position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   backgroundColor: 'white',
@@ -75,7 +79,7 @@ const CommentList = ({ comments, order }: CommentListProps) => {
                   <span>
                     <strong>Author:</strong> {comment.author || 'Unknown'}
                   </span>
-                  <span>
+                  <span style={{ marginRight: '10px' }}>
                     Date:{' '}
                     {new Date(comment.createdAt).toLocaleString('uk-UA', {
                       month: 'long',
@@ -84,11 +88,21 @@ const CommentList = ({ comments, order }: CommentListProps) => {
                     })}
                   </span>
                   <div>
-                    <Button
-                      variant="delete"
-                      onClick={() => handleDelete(comment.id)}>
-                      Delete Comment
-                    </Button>
+                    {userFullName && comment.author === userFullName && (
+                      <Button
+                        variant="delete"
+                        style={{
+                          position: 'absolute',
+                          top: 5,
+                          right: 5,
+                          padding: 0,
+                          minWidth: 'unset',
+                        }}
+                        onClick={() => handleDelete(comment.id)}
+                        aria-label="Delete Comment">
+                        &#10005;
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

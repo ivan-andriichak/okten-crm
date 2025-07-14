@@ -97,8 +97,7 @@ export class OrderController {
 
   @Delete('comments/:commentId')
   @ApiOkResponse({ description: 'Comment deleted successfully' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async deleteComment(@Param('commentId') commentId: string, @CurrentUser() userData: IUserData): Promise<void> {
-    await this.ordersService.deleteComment(commentId, userData);
+  async deleteComment(@Param('commentId') commentId: string): Promise<void> {
+    await this.ordersService.deleteComment(commentId);
   }
 }
