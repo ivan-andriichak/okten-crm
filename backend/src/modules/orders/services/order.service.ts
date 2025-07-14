@@ -30,6 +30,15 @@ export class OrderService {
     return await this.ordersRepository.getListOrders(userId, query);
   }
 
+  public async getAllOrders(userData: IUserData, query: ExcelQueryDto): Promise<OrderEntity[]> {
+    const userId = userData.role === Role.MANAGER || userData.role === Role.ADMIN ? userData.userId : undefined;
+    this.logger.log(
+      `Fetching all orders for Excel for user ${userData.userId} (role: ${userData.role}) 
+      with query: ${JSON.stringify(query)}`,
+    );
+    return await this.ordersRepository.getAllOrders(userId, query);
+  }
+
   async getOrderById(orderId: number): Promise<OrderEntity> {
     const order = await this.ordersRepository.findOne({ where: { id: orderId } });
     if (!order) {
@@ -155,9 +164,12 @@ export class OrderService {
   }
 
   async generateExcel(userData: IUserData, query: ExcelQueryDto): Promise<Buffer> {
-    this.logger.log(`Generating Excel for user ${userData.userId} with query: ${JSON.stringify(query)}`);
+    this.logger.log(
+      `Generating Excel for user ${userData.userId} (role: ${userData.role}) with query: ${JSON.stringify(query)}`,
+    );
 
-    const [orders] = await this.getListOrders(userData, query as OrderListQueryDto);
+    const orders = await this.getAllOrders(userData, query);
+    this.logger.log(`Fetched ${orders.length} orders for Excel generation`);
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Orders');

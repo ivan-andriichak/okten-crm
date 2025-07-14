@@ -32,7 +32,7 @@ export interface OrdersProps {
 export interface OrderTableProps {
   orders: Order[];
   sort: string | null;
-  sortOrder: 'ASC' | 'DESC' | null;
+  sortOrder: 'ASC' | 'DESC';
   expandedOrderId: string | null;
   currentUserId: string | null;
   commentText: string;

@@ -10,12 +10,12 @@ export class OrdersRepository extends Repository<OrderEntity> {
     super(OrderEntity, dataSource.manager);
   }
 
-  public async getListOrders(userId: string, query: OrderListQueryDto): Promise<[OrderEntity[], number]> {
+  private buildOrderQuery(userId: string | undefined, query: OrderListQueryDto, withPagination: boolean = true) {
     const {
       page = 1,
       limit = 25,
       sort = 'id',
-      order = 'ASC',
+      order = 'DESC',
       name,
       surname,
       email,
@@ -33,6 +33,8 @@ export class OrdersRepository extends Repository<OrderEntity> {
       manager_id,
       myOrders,
     } = query;
+
+    console.log('buildOrderQuery - course:', course, 'myOrders:', myOrders, 'userId:', userId);
 
     const qb = this.createQueryBuilder('order')
       .leftJoinAndSelect('order.manager', 'manager')
@@ -70,9 +72,9 @@ export class OrdersRepository extends Repository<OrderEntity> {
       } else if (parts.length >= 2) {
         qb.andWhere(
           `(
-        (LOWER(manager.name) LIKE :part1 AND LOWER(manager.surname) LIKE :part2) OR
-        (LOWER(manager.name) LIKE :part2 AND LOWER(manager.surname) LIKE :part1)
-      )`,
+            (LOWER(manager.name) LIKE :part1 AND LOWER(manager.surname) LIKE :part2) OR
+            (LOWER(manager.name) LIKE :part2 AND LOWER(manager.surname) LIKE :part1)
+          )`,
           { part1: `${parts[0]}%`, part2: `${parts[1]}%` },
         );
       }
@@ -87,7 +89,9 @@ export class OrdersRepository extends Repository<OrderEntity> {
       qb.orderBy(`order.${sort}`, order);
     }
 
-    qb.skip((page - 1) * limit).take(limit);
+    if (withPagination) {
+      qb.skip((page - 1) * limit).take(limit);
+    }
 
     qb.select([
       'order.id',
@@ -120,7 +124,17 @@ export class OrdersRepository extends Repository<OrderEntity> {
       'commentUser.surname',
     ]);
 
+    return qb;
+  }
+
+  public async getListOrders(userId: string, query: OrderListQueryDto): Promise<[OrderEntity[], number]> {
+    const qb = this.buildOrderQuery(userId, query, true);
     const [orders, total] = await qb.getManyAndCount();
     return [orders, total];
+  }
+
+  public async getAllOrders(userId: string, query: OrderListQueryDto): Promise<OrderEntity[]> {
+    const qb = this.buildOrderQuery(userId, query, false);
+    return await qb.getMany();
   }
 }

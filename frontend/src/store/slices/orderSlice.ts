@@ -12,7 +12,7 @@ const initialState: OrderState = {
   page: 1,
   limit: 25,
   sort: 'id',
-  order: 'ASC',
+  order: 'DESC',
   expandedOrderId: null,
   editingOrder: null,
   editForm: {},
@@ -164,8 +164,11 @@ const generateExcel = createAsyncThunk<Blob, GenerateExcelParams, ThunkConfig>(
     try {
       const state = getState();
       const { token } = state.auth;
+      const { sort, order } = state.orders
 
       const params: any = {
+        sort: filters.sort || sort,
+        order: filters.order || order,
         ...(filters?.myOrders && { myOrders: filters.myOrders }),
         ...(filters?.name && { name: filters.name }),
         ...(filters?.surname && { surname: filters.surname }),

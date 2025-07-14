@@ -79,7 +79,7 @@ const Filters = ({
         generateExcel({
           filters: {
             ...filters,
-            myOrders: myOrdersOnly.toString(),
+            ...(myOrdersOnly && { myOrders: 'true' }),
           },
         }),
       ).unwrap();
