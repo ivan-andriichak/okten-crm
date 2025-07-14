@@ -7,8 +7,8 @@ import {
   store,
 } from '../store';
 import { AxiosRequestConfigWithRetry } from './types';
-import { api } from './api';
 import { ERROR_MESSAGES, NOTIFICATION_TYPES } from '../constants/error-messages';
+import { api } from './api';
 
 // Handles session-related errors such as expired tokens or banned/inactive users
 const handleSessionError = async (
@@ -71,6 +71,47 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
     return Promise.reject(error);
   }
 
+  // Handle 400 Bad Request (validation errors)
+  if (error.response?.status === 400) {
+    const resData = error.response.data as
+      | { message?: string; error?: string; messages?: string[]; statusCode?: number }
+      | Array<{ property: string; constraints: Record<string, string> }>;
+
+    let message = ERROR_MESSAGES.SERVER_ERROR;
+    let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
+
+    if (Array.isArray(resData)) {
+      // Handle NestJS validation errors
+      message = resData
+        .map(err => {
+          if (err.constraints) {
+            return Object.values(err.constraints).join('; ');
+          }
+          return '';
+        })
+        .filter(Boolean)
+        .join('; ');
+    } else if (
+      isSetPasswordRequest &&
+      (resData.message?.includes('Password must be') ||
+        resData.messages?.some(msg => msg.includes('Password must be')))
+    ) {
+      message = ERROR_MESSAGES.INVALID_PASSWORD;
+    } else {
+      message =
+        resData.message ??
+        resData.error ??
+        resData.messages?.[0] ??
+        ERROR_MESSAGES.SERVER_ERROR;
+    }
+
+    store.dispatch(clearNotifications());
+    store.dispatch(
+      addNotification({ message, type: 'error', duration: 6000, notificationType }),
+    );
+    return Promise.reject(error);
+  }
+
   // Handle 401 Unauthorized errors for non-login/refresh requests
   if (
     error.response?.status === 401 &&
@@ -122,9 +163,48 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
     }
   }
 
+  // Handle 403 Forbidden
+  if (error.response?.status === 403) {
+    const resData = error.response.data as {
+      message?: string;
+      error?: string;
+      messages?: string[];
+      statusCode?: number;
+    };
+    let message = ERROR_MESSAGES.SERVER_ERROR;
+    let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
+
+    if (
+      resData.message?.includes('You can only delete comments') ||
+      resData.messages?.includes('You can only delete comments')
+    ) {
+      message = resData.message ?? resData.messages?.[0] ?? ERROR_MESSAGES.SERVER_ERROR;
+    } else if (
+      resData.message === 'User is banned' ||
+      resData.error === 'User is banned' ||
+      resData.messages?.includes('User is banned') ||
+      resData.message === 'Forbidden' ||
+      resData.error === 'Forbidden'
+    ) {
+      message = ERROR_MESSAGES.USER_BANNED;
+      notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('deviceId');
+      await handleSessionError(message, notificationType, true);
+    } else {
+      message = ERROR_MESSAGES.ACCESS_DENIED;
+    }
+
+    store.dispatch(clearNotifications());
+    store.dispatch(
+      addNotification({ message, type: 'error', duration: 6000, notificationType }),
+    );
+    return Promise.reject(error);
+  }
+
+  // Generic error handling
   let message = ERROR_MESSAGES.SERVER_ERROR;
   let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
-
   if (error.response) {
     const resData = error.response.data as {
       message?: string;
@@ -132,59 +212,11 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       messages?: string[];
       statusCode?: number;
     };
-
-    // Handle 400 Bad Request for set-password
-    if (
-      error.response.status === 400 &&
-      isSetPasswordRequest &&
-      (resData.message?.includes('Password must be') ||
-        resData.messages?.some(msg => msg.includes('Password must be')))
-    ) {
-      message = ERROR_MESSAGES.INVALID_PASSWORD;
-    }
-    // Handle 401 for banned/inactive users
-    else if (
-      error.response.status === 401 &&
-      (resData.message === 'User has been banned or is inactive' ||
-        resData.messages?.includes('User has been banned or is inactive'))
-    ) {
-      message = ERROR_MESSAGES.USER_BANNED;
-      notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('deviceId');
-      await handleSessionError(message, notificationType, true);
-    }
-    // Handle 403 Forbidden
-    else if (error.response.status === 403) {
-      if (
-        resData.message?.includes('You can only delete comments') ||
-        resData.messages?.includes('You can only delete comments')
-      ) {
-        message = resData.message ?? resData.messages?.[0] ?? ERROR_MESSAGES.SERVER_ERROR;
-      } else if (
-        resData.message === 'User is banned' ||
-        resData.error === 'User is banned' ||
-        resData.messages?.includes('User is banned') ||
-        resData.message === 'Forbidden' ||
-        resData.error === 'Forbidden'
-      ) {
-        message = ERROR_MESSAGES.USER_BANNED;
-        notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('deviceId');
-        await handleSessionError(message, notificationType, true);
-      } else {
-        message = ERROR_MESSAGES.ACCESS_DENIED;
-      }
-    }
-    // Generic error handling
-    else {
-      message =
-        resData.message ??
-        resData.error ??
-        resData.messages?.[0] ??
-        ERROR_MESSAGES.SERVER_ERROR;
-    }
+    message =
+      resData.message ??
+      resData.error ??
+      resData.messages?.[0] ??
+      ERROR_MESSAGES.SERVER_ERROR;
   } else if (error.request) {
     message = ERROR_MESSAGES.SERVER_ERROR;
   }

@@ -12,7 +12,6 @@ const Notification: FC = () => {
   );
 
   useEffect(() => {
-
     const timers = notifications.map(notification =>
       setTimeout(() => {
         dispatch(removeNotification(notification.id));
@@ -39,24 +38,30 @@ const Notification: FC = () => {
 
   return (
     <div className={css.notificationContainer}>
-      {notifications.map(notification => (
-        <div
-          key={notification.id}
-          className={`${css.notification} ${css[notification.type]}`}
-          onClick={() => {
-            dispatch(removeNotification(notification.id));
-          }}>
-          {notification.notificationType ===
-          NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL ? (
-            <div>
-              <span>{notification.message}</span>
-              <SupportEmail />
-            </div>
-          ) : (
-            (notification.message as string)
-          )}
-        </div>
-      ))}
+      {notifications.map(notification => {
+        const message =
+          typeof notification.message === 'string'
+            ? notification.message
+            : 'Сталася помилка. Спробуйте ще раз.';
+        return (
+          <div
+            key={notification.id}
+            className={`${css.notification} ${css[notification.type]}`}
+            onClick={() => {
+              dispatch(removeNotification(notification.id));
+            }}>
+            {notification.notificationType ===
+            NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL ? (
+              <div>
+                <span>{notification.message}</span>
+                <SupportEmail />
+              </div>
+            ) : (
+              message
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

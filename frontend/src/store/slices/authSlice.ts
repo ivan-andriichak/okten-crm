@@ -5,11 +5,16 @@ import { api } from '../../services/api';
 import storage from '../../utils/storage';
 import {
   ERROR_MESSAGES,
-  SUCCESS_MESSAGES,
   NOTIFICATION_TYPES,
+  SUCCESS_MESSAGES,
 } from '../../constants/error-messages';
 import { addNotification } from './notificationSlice';
 import { RootState } from '../store';
+
+interface ValidationError {
+  property: string;
+  constraints: Record<string, string>;
+}
 
 const initialState: {
   token: string | null;
@@ -35,7 +40,7 @@ const login = createAsyncThunk(
   'auth/login',
   async (
     { email, password, deviceId }: LoginRequest,
-    {  rejectWithValue },
+    { dispatch, rejectWithValue },
   ) => {
     try {
       const finalDeviceId = deviceId || uuidv4();
@@ -55,8 +60,38 @@ const login = createAsyncThunk(
         surname: data.user.surname,
       };
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || ERROR_MESSAGES.LOGIN_FAILED;
+      let errorMessage = ERROR_MESSAGES.LOGIN_FAILED;
+      const resData = error.response?.data;
+
+      if (resData?.message && Array.isArray(resData.message)) {
+        errorMessage = (resData.message as ValidationError[])
+          .map(err => {
+            if (err.constraints) {
+              return Object.values(err.constraints)
+                .map(constraint =>
+                  constraint.includes('email must be an email')
+                    ? 'Incorrect email format'
+                    : constraint,
+                )
+                .join('; ');
+            }
+            return '';
+          })
+          .filter(Boolean)
+          .join('; ');
+      }
+      else if (typeof resData?.message === 'string') {
+        errorMessage = resData.message;
+      }
+
+      dispatch(
+        addNotification({
+          message: errorMessage,
+          type: 'error',
+          duration: 6000,
+          notificationType: NOTIFICATION_TYPES.STANDARD,
+        }),
+      );
       return rejectWithValue(errorMessage);
     }
   },
@@ -171,9 +206,7 @@ const authSlice = createSlice({
       })
       .addCase(refreshTokens.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = payload
-          ? String(payload)
-          : ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
+        state.error = payload ? String(payload) : ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
       });
   },
 });

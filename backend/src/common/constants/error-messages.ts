@@ -10,6 +10,5 @@ export const ERROR_MESSAGES = {
   MANAGER_NOT_BANNED: 'Manager is not banned',
   ADMIN_EXISTS: 'Administrator already exists',
   INVALID_CREDENTIALS: 'Invalid credentials',
-  INACTIVE_USER: 'Invalid credentials or inactive user',
   USER_BANNED: 'User is banned',
 };

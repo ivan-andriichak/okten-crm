@@ -123,7 +123,7 @@ const Orders = ({}: OrdersProps) => {
           setFilters(newFilters);
           setSearchParams(
             cleanQueryParams({
-              page: '1', // Скидаємо на першу сторінку при зміні фільтрів
+              page: '1',
               sort: sort || 'id',
               order: sortOrder || 'DESC',
               ...newFilters,
@@ -137,7 +137,7 @@ const Orders = ({}: OrdersProps) => {
           setMyOrdersOnly(value);
           setSearchParams(
             cleanQueryParams({
-              page: '1', // Скидаємо на першу сторінку при зміні myOrdersOnly
+              page: '1',
               sort: sort || 'id',
               order: sortOrder || 'DESC',
               ...filters,
@@ -162,7 +162,7 @@ const Orders = ({}: OrdersProps) => {
           onSortChange={(newSort, newOrder) =>
             setSearchParams(
               cleanQueryParams({
-                page: '1', // Скидаємо на першу сторінку при зміні сортування
+                page: '1',
                 sort: newSort,
                 order: newOrder,
                 ...filters,

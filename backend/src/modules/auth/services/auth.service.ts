@@ -113,7 +113,7 @@ export class AuthService {
         },
       });
       if (!user || !user.password) {
-        throw new UnauthorizedException(ERROR_MESSAGES.INACTIVE_USER);
+        throw new UnauthorizedException(ERROR_MESSAGES.INVALID_CREDENTIALS);
       }
 
       if (!user.is_active && user.role !== Role.ADMIN) {
