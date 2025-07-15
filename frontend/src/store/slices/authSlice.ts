@@ -11,11 +11,6 @@ import {
 import { addNotification } from './notificationSlice';
 import { RootState } from '../store';
 
-interface ValidationError {
-  property: string;
-  constraints: Record<string, string>;
-}
-
 const initialState: {
   token: string | null;
   refreshToken: string | null;
@@ -38,10 +33,7 @@ const initialState: {
 
 const login = createAsyncThunk(
   'auth/login',
-  async (
-    { email, password, deviceId }: LoginRequest,
-    { dispatch, rejectWithValue },
-  ) => {
+  async ({ email, password, deviceId }: LoginRequest, { rejectWithValue }) => {
     try {
       const finalDeviceId = deviceId || uuidv4();
       const { data } = await api.post<AuthResponse>('/login', {
@@ -60,39 +52,7 @@ const login = createAsyncThunk(
         surname: data.user.surname,
       };
     } catch (error: any) {
-      let errorMessage = ERROR_MESSAGES.LOGIN_FAILED;
-      const resData = error.response?.data;
-
-      if (resData?.message && Array.isArray(resData.message)) {
-        errorMessage = (resData.message as ValidationError[])
-          .map(err => {
-            if (err.constraints) {
-              return Object.values(err.constraints)
-                .map(constraint =>
-                  constraint.includes('email must be an email')
-                    ? 'Incorrect email format'
-                    : constraint,
-                )
-                .join('; ');
-            }
-            return '';
-          })
-          .filter(Boolean)
-          .join('; ');
-      }
-      else if (typeof resData?.message === 'string') {
-        errorMessage = resData.message;
-      }
-
-      dispatch(
-        addNotification({
-          message: errorMessage,
-          type: 'error',
-          duration: 6000,
-          notificationType: NOTIFICATION_TYPES.STANDARD,
-        }),
-      );
-      return rejectWithValue(errorMessage);
+      return rejectWithValue(error?.response?.data?.message || error.message);
     }
   },
 );
@@ -206,7 +166,9 @@ const authSlice = createSlice({
       })
       .addCase(refreshTokens.rejected, (state, { payload }) => {
         state.loading = false;
-        state.error = payload ? String(payload) : ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
+        state.error = payload
+          ? String(payload)
+          : ERROR_MESSAGES.TOKEN_REFRESH_FAILED;
       });
   },
 });

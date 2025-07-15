@@ -15,7 +15,7 @@ const handleSessionError = async (
   message: string,
   notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD,
   isBanned: boolean = false,
-): Promise<never> => {
+): Promise<void> => {
   store.dispatch(logout());
   store.dispatch(clearNotifications());
   store.dispatch(
@@ -50,11 +50,13 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
     let message = ERROR_MESSAGES.LOGIN_FAILED;
     let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
 
-    if (
+    const isBanned =
       resData.message === 'User is banned' ||
-      resData.messages?.includes('User is banned') ||
-      resData.error === 'User is banned'
-    ) {
+      (Array.isArray(resData.message) && resData.message.includes('User is banned')) ||
+      resData.error === 'User is banned' ||
+      resData.messages?.includes('User is banned');
+
+    if (isBanned) {
       message = ERROR_MESSAGES.USER_BANNED;
       notificationType = NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL;
     } else if (
@@ -77,7 +79,7 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       | { message?: string; error?: string; messages?: string[]; statusCode?: number }
       | Array<{ property: string; constraints: Record<string, string> }>;
 
-    let message = ERROR_MESSAGES.SERVER_ERROR;
+    let message ;
     let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
 
     if (Array.isArray(resData)) {
@@ -171,7 +173,7 @@ export const handleApiError = async (error: AxiosError): Promise<never> => {
       messages?: string[];
       statusCode?: number;
     };
-    let message = ERROR_MESSAGES.SERVER_ERROR;
+    let message ;
     let notificationType: keyof typeof NOTIFICATION_TYPES = NOTIFICATION_TYPES.STANDARD;
 
     if (

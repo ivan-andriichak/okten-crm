@@ -29,7 +29,6 @@ const SetPassword: FC = () => {
   useEffect(() => {
     dispatch(clearNotifications());
 
-    // Fetch email by token
     const fetchEmail = async () => {
       if (!token) {
         dispatch(
@@ -152,7 +151,14 @@ const SetPassword: FC = () => {
           navigate('/orders', { replace: true });
         }, 5000);
       } else {
-        throw new Error('Login failed after setting password');
+        dispatch(
+          addNotification({
+            message: 'Login failed after setting password',
+            type: 'error',
+            duration: 5000,
+          }),
+        );
+        setLoading(false);
       }
     } catch (err: any) {
       setLoading(false);

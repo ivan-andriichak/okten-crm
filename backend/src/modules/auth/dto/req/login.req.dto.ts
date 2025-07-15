@@ -1,9 +1,16 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString, IsUUID, Length } from 'class-validator';
 
-import { BaseAuthReqDto } from './base-auth.req.dto';
+export class LoginReqDto {
+  @ApiProperty({
+    example: 'Example1!',
+    description: 'The email address of the user.',
+    maxLength: 300,
+  })
+  @IsString()
+  @Length(0, 300)
+  email: string;
 
-export class LoginReqDto extends PickType(BaseAuthReqDto, ['email', 'password', 'deviceId']) {
   @ApiProperty({
     required: false,
     example: '550e8400-e29b-41d4-a716-446655440000',

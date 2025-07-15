@@ -17,17 +17,16 @@ const Login = () => {
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-
-    const result = await dispatch(
-      login({
-        email,
-        password,
-        deviceId: localStorage.getItem('deviceId') || undefined,
-      }),
-    );
-
-    if (login.fulfilled.match(result)) {
+    try {
+      await dispatch(
+        login({
+          email,
+          password,
+          deviceId: localStorage.getItem('deviceId') || undefined,
+        }),
+      ).unwrap();
       navigate('/orders');
+    } catch (error) {
     }
   };
 
