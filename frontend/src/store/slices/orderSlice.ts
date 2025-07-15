@@ -158,13 +158,17 @@ const deleteComment = createAsyncThunk<string, string, ThunkConfig>(
   },
 );
 
-const generateExcel = createAsyncThunk<Blob, GenerateExcelParams, ThunkConfig>(
+const generateExcel = createAsyncThunk<
+  { success: boolean },
+  GenerateExcelParams,
+  ThunkConfig
+>(
   'orders/generateExcel',
-  async ({ filters }, { getState, rejectWithValue }) => {
+  async ({ filters }, { getState, rejectWithValue}) => {
     try {
       const state = getState();
       const { token } = state.auth;
-      const { sort, order } = state.orders
+      const { sort, order } = state.orders;
 
       const params: any = {
         sort: filters.sort || sort,
@@ -186,14 +190,12 @@ const generateExcel = createAsyncThunk<Blob, GenerateExcelParams, ThunkConfig>(
         ...(filters?.manager && { manager: filters.manager }),
       };
 
-      const response = await api.post('/orders/excel', params, {
+      await api.post('/orders/excel', params, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob',
       });
 
-      return new Blob([response.data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
+      return { success: true };
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || 'Failed to generate Excel file';
