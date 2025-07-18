@@ -42,7 +42,7 @@ const Notification: FC = () => {
         const message =
           typeof notification.message === 'string'
             ? notification.message
-            : 'Сталася помилка. Спробуйте ще раз.';
+            : 'An error occurred. Please try again.';
         return (
           <div
             key={notification.id}

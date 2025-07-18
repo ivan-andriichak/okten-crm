@@ -8,7 +8,7 @@ import {
 } from '../../store';
 import Button from '../Button/Button';
 import { CommentList } from '../CommentsList/CommentsList';
-import React from 'react';
+import React, { useState } from 'react';
 import { OrderDetailsProps } from './const';
 
 const OrderDetails = ({
@@ -22,16 +22,21 @@ const OrderDetails = ({
     state.orders.orders.find(o => Number(o.id) === orderId),
   );
 
-  if (!order) return <p>Loading order...</p>;
-
+  if (!order) {
+    return <div>Order not found</div>;
+  }
   const canEditOrComment =
     !order.manager || (order.manager && order.manager.id === currentUserId);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleCommentSubmit = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    if (!commentText || !token || !canEditOrComment) return;
+    if (!commentText || !token || !canEditOrComment || isSubmitting) return;
+    setIsSubmitting(true);
     await dispatch(addComment({ orderId: order.id, commentText }));
     dispatch(setCommentText(''));
+    setIsSubmitting(false);
   };
 
   const handleEditClick = () => {
@@ -60,7 +65,11 @@ const OrderDetails = ({
               border: '1px solid #ccc',
             }}
           />
-          <Button variant="primary" onClick={handleCommentSubmit}>
+          <Button
+            variant="primary"
+            onClick={handleCommentSubmit}
+            disabled={isSubmitting}
+          >
             Submit Comment
           </Button>
           <Button
