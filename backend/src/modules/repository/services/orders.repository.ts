@@ -59,7 +59,11 @@ export class OrdersRepository extends Repository<OrderEntity> {
     if (course) qb.andWhere('order.course LIKE :course', { course: `%${course}%` });
     if (course_format) qb.andWhere('order.course_format LIKE :course_format', { course_format: `%${course_format}%` });
     if (course_type) qb.andWhere('order.course_type LIKE :course_type', { course_type: `%${course_type}%` });
-    if (status) qb.andWhere('order.status LIKE :status', { status: `%${status}%` });
+    if (status === 'New') {
+      qb.andWhere('(order.status = :status OR order.status IS NULL)', { status: 'new' });
+    } else if (status) {
+      qb.andWhere('order.status = :status', { status });
+    }
     if (sum) qb.andWhere('order.sum LIKE :sum', { sum: `%${sum}%` });
     if (alreadyPaid) qb.andWhere('order.alreadyPaid LIKE :alreadyPaid', { alreadyPaid: `%${alreadyPaid}%` });
     if (group) qb.andWhere('order.group LIKE :group', { group: `%${group}%` });

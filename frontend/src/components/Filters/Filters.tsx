@@ -121,14 +121,6 @@ const Filters = ({
         }),
       ).unwrap();
 
-      // dispatch(
-      //   addNotification({
-      //    message: 'Excel file generated successfully!',
-      //     type: 'success',
-      //     duration: 5000,
-      //     notificationType: 'standard',
-      //   }),
-      // );
     } catch (error: any) {
       const errorMessage =
      error.response?.data?.message || 'Failed to generate Excel file';
