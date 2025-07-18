@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, Length, Matches } from 'class-validator';
 
+import { regexConstant } from '../../../../common/constants/regex.constant';
 import { Role } from '../../../../common/enums/role.enum';
 import { TransformHelper } from '../../../../common/helpers/transform.helper';
 import { IsRoleBasedPasswordValid } from '../../decorators/password-valid.decorator';
@@ -49,7 +50,7 @@ export class BaseUserReqDto {
   @IsString()
   @IsEmail()
   @Length(0, 300)
-  @Matches(/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/)
+  @Matches(regexConstant.EMAIL)
   email: string;
 
   @ApiProperty({
