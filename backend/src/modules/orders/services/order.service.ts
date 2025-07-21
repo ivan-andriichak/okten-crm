@@ -139,7 +139,7 @@ export class OrderService {
       status:
         editOrderDto.status && ['In work', 'New', 'Agree', 'Disagree', 'Dubbing'].includes(editOrderDto.status)
           ? editOrderDto.status
-          : editOrderDto.status === '' || editOrderDto.status === null
+          : editOrderDto.status === '' || editOrderDto.status === null || editOrderDto.status !== order.status
             ? order.status === 'New' || order.status == null
               ? 'In work'
               : order.status
