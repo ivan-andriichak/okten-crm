@@ -6,7 +6,6 @@ import {
   AppDispatch,
   closeEditModal,
   fetchGroups,
-  fetchOrders,
   updateEditForm,
   updateOrder,
 } from '../../store';
@@ -163,8 +162,6 @@ const EditOrderModal = ({
         }),
       );
       dispatch(closeEditModal());
-
-      dispatch(fetchOrders({ page: 1, filters: {} }));
     }
   };
 
