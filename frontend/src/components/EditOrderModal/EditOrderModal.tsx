@@ -185,7 +185,7 @@ const EditOrderModal = ({
   const isFormChanged = useMemo(() => {
     if (!editingOrder) return false;
 
-    const normalize = (val: any) => (val === null || val === undefined ? '' : String(val));
+    const normalize = (val: any) => (val === null || val === undefined ? '' : String(val).trim());
 
     return (
       normalize(editForm.name) !== normalize(editingOrder.name) ||
