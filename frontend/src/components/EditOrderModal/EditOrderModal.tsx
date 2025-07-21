@@ -6,6 +6,7 @@ import {
   AppDispatch,
   closeEditModal,
   fetchGroups,
+  fetchOrders,
   updateEditForm,
   updateOrder,
 } from '../../store';
@@ -29,6 +30,8 @@ const EditOrderModal = ({
   const loading = useSelector((state: RootState) => state.orders.loading);
   const [newGroupName, setNewGroupName] = useState('');
   const [isAddingGroup, setIsAddingGroup] = useState(false);
+
+const searchParams = Object.fromEntries(new URLSearchParams(window.location.search));
 
   useEffect(() => {
     if (token && groups.length === 0) {
@@ -163,6 +166,7 @@ const EditOrderModal = ({
       );
       dispatch(closeEditModal());
     }
+dispatch(fetchOrders({ page: 1, filters: searchParams }));
   };
 
   return (
