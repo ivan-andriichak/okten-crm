@@ -34,8 +34,6 @@ export class OrdersRepository extends Repository<OrderEntity> {
       myOrders,
     } = query;
 
-    console.log('buildOrderQuery - course:', course, 'myOrders:', myOrders, 'userId:', userId);
-
     const qb = this.createQueryBuilder('order')
       .leftJoinAndSelect('order.manager', 'manager')
       .leftJoinAndSelect('order.groupEntity', 'groupEntity')

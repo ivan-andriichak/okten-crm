@@ -139,11 +139,11 @@ export class OrderService {
       status:
         editOrderDto.status && ['In work', 'New', 'Agree', 'Disagree', 'Dubbing'].includes(editOrderDto.status)
           ? editOrderDto.status
-          : editOrderDto.status === '' || editOrderDto.status === null || editOrderDto.status !== order.status
-            ? order.status === 'New' || order.status == null
+          : editOrderDto.status === '' || editOrderDto.status == null
+            ? 'In work'
+            : order.status === 'New' || order.status == null
               ? 'In work'
-              : order.status
-            : order.status,
+              : order.status,
     };
 
     Object.assign(order, updatedDto);
@@ -152,9 +152,11 @@ export class OrderService {
       order.status = 'New';
       order.manager = null;
     } else if (
-      (isAnyFieldChanged || editOrderDto.status || order.status === 'New' || order.status == null) &&
-      editOrderDto.status !== null &&
-      editOrderDto.status !== ''
+      isAnyFieldChanged ||
+      editOrderDto.status === '' ||
+      ['In work', 'Agree', 'Disagree', 'Dubbing'].includes(editOrderDto.status) ||
+      order.status === 'New' ||
+      order.status == null
     ) {
       order.status = updatedDto.status;
       const user = await this.userRepository.findOne({
