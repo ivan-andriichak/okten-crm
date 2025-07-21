@@ -1,4 +1,5 @@
 export interface Manager {
+  role?: string;
   id: string;
   email: string;
   name: string;

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { DataSource, Equal, MoreThan, Repository } from 'typeorm';
+import { DataSource, Equal, In, MoreThan, Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
@@ -105,8 +105,8 @@ export class AdminService {
   }> {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const manager = await userRepository.findOne({
-      where: { id, role: Role.MANAGER },
-      select: ['id', 'is_active', 'password', 'email'],
+      where: { id, role: In([Role.MANAGER, Role.ADMIN]) },
+      select: ['id', 'is_active', 'password', 'email', 'role'],
     });
     if (!manager) {
       this.loggerService.error(`Manager not found: ${id}`);
@@ -168,7 +168,7 @@ export class AdminService {
         where: {
           passwordResetToken: token,
           passwordResetExpires: MoreThan(new Date()),
-          role: Role.MANAGER,
+          role: In([Role.MANAGER, Role.ADMIN]),
         },
         select: ['id', 'email', 'role', 'password'],
       });
@@ -217,7 +217,7 @@ export class AdminService {
       where: {
         passwordResetToken: token,
         passwordResetExpires: MoreThan(new Date()),
-        role: Role.MANAGER,
+        role: In([Role.MANAGER, Role.ADMIN]),
       },
       select: ['email'],
     });
@@ -302,7 +302,7 @@ export class AdminService {
   }> {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const [managers, total] = await userRepository.findAndCount({
-      where: { role: Role.MANAGER },
+      where: [{ role: Role.MANAGER }, { role: Role.ADMIN }],
       order: { [sort]: order },
       skip: (page - 1) * limit,
       take: limit,
@@ -338,7 +338,7 @@ export class AdminService {
   async getManagerStatistics(id: string): Promise<Record<string, number>> {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const manager = await userRepository.findOne({
-      where: { id, role: Role.MANAGER },
+      where: { id, role: In([Role.MANAGER, Role.ADMIN]) },
       select: ['id'],
     });
     if (!manager) {

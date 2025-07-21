@@ -251,65 +251,88 @@ dispatch(
                 </tr>
               </thead>
               <tbody>
-                {managers.map((manager, index) => {
+              {[...managers]
+                .sort((a, b) => {
+                  if (a.role === 'admin' && b.role !== 'admin') return -1;
+                  if (a.role !== 'admin' && b.role === 'admin') return 1;
+                  return 0;
+                })
+                .map((manager, index) => {
                   const status = getManagerStatus(manager);
                   const displayIndex = index + 1 + (page - 1) * limit;
+                  const isAdmin = manager.role === 'admin';
                   return (
-                    <tr key={manager.id}>
+                    <tr key={manager.id} style={isAdmin ? { backgroundColor: 'rgb(240, 255, 232)' } : {}}>
                       <td>{displayIndex}</td>
-                      <td>{manager.email}</td>
+                      <td>
+          <span>
+            {manager.email} {isAdmin && <h4 style={{ textDecoration: isAdmin ? 'underline' : 'none'}} >(Admin)</h4>}
+          </span>
+                      </td>
                       <td>{manager.name}</td>
                       <td>{manager.surname}</td>
                       <td style={{ color: status.color }}>{status.text}</td>
                       <td>
-                        Total Orders: {manager.statistics?.totalOrders || 0},
-                        Active: {manager.statistics?.activeOrders || 0}
+                        Total Orders: {manager.statistics?.totalOrders ?? 0},
+                        Active: {manager.statistics?.activeOrders ?? 0}
                       </td>
                       <td>{formatCell('last_login', manager.last_login)}</td>
                       <td>
-                        {manager.is_active ? (
+                        {isAdmin ? (
                           <Button
                             className={`${css.actionButton} ${css.recoverButton}`}
                             onClick={() => handleAction('recover', manager.id)}>
                             Recover Password
                           </Button>
                         ) : (
-                          <Button
-                            className={`${css.actionButton} ${css.activateButton}`}
-                            onClick={() => handleAction('activate', manager.id)}
-                            disabled={manager.hasPassword}
-                            data-tooltip-id={`activate-tooltip-${manager.id}`}
-                            data-tooltip-content={
-                              manager.hasPassword
-                                ? 'Manager is banned'
-                                : 'Generate activation link'
-                            }>
-                            Activate
-                            {manager.hasPassword && (
-                              <ReactTooltip
-                                id={`activate-tooltip-${manager.id}`}
-                                style={{
-                                  backgroundColor: 'red',
-                                  color: 'white',
-                                  borderRadius: '8px',
-                                }}
-                              />
+                          <>
+                            {manager.is_active ? (
+                              <Button
+                                className={`${css.actionButton} ${css.recoverButton}`}
+                                onClick={() => handleAction('recover', manager.id)}>
+                                Recover Password
+                              </Button>
+                            ) : (
+                              <Button
+                                className={`${css.actionButton} ${css.activateButton}`}
+                                onClick={() => handleAction('activate', manager.id)}
+                                disabled={manager.hasPassword}
+                                data-tooltip-id={`activate-tooltip-${manager.id}`}
+                                data-tooltip-content={
+                                  manager.hasPassword
+                                    ? 'Manager is banned'
+                                    : 'Generate activation link'
+                                }>
+                                Activate
+                                {manager.hasPassword && (
+                                  <ReactTooltip
+                                    id={`activate-tooltip-${manager.id}`}
+                                    style={{
+                                      backgroundColor: 'red',
+                                      color: 'white',
+                                      borderRadius: '8px',
+                                    }}
+                                  />
+                                )}
+                              </Button>
                             )}
-                          </Button>
+                          {manager.is_active ? (
+                              <Button
+                                className={`${css.actionButton} ${css.banButton}`}
+                                onClick={() => handleAction('ban', manager.id)}
+                                disabled={manager.role === 'admin' || !manager.hasPassword}>
+                                Ban
+                              </Button>
+                            ) : (
+                              <Button
+                                className={`${css.actionButton} ${css.unbanButton}`}
+                                onClick={() => handleAction('unban', manager.id)}
+                                disabled={manager.role === 'admin' || !manager.hasPassword}>
+                                Unban
+                              </Button>
+                            )}
+                          </>
                         )}
-                        <Button
-                          className={`${css.actionButton} ${css.banButton}`}
-                          onClick={() => handleAction('ban', manager.id)}
-                          disabled={!manager.is_active}>
-                          Ban
-                        </Button>
-                        <Button
-                          className={`${css.actionButton} ${css.unbanButton}`}
-                          onClick={() => handleAction('unban', manager.id)}
-                          disabled={manager.is_active || !manager.hasPassword}
-                        >
-                          Unban
-                        </Button>
                       </td>
                     </tr>
                   );
