@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addGroup,
@@ -21,17 +21,19 @@ interface RootState {
 }
 
 const EditOrderModal = ({
-  editingOrder,
-  editForm,
-  token,
-}: EditOrderModalProps) => {
+                          editingOrder,
+                          editForm,
+                          token,
+                        }: EditOrderModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const groups = useSelector((state: RootState) => state.orders.groups) || [];
   const loading = useSelector((state: RootState) => state.orders.loading);
   const [newGroupName, setNewGroupName] = useState('');
   const [isAddingGroup, setIsAddingGroup] = useState(false);
 
-const searchParams = Object.fromEntries(new URLSearchParams(window.location.search));
+  const searchParams = Object.fromEntries(
+    new URLSearchParams(window.location.search),
+  );
 
   useEffect(() => {
     if (token && groups.length === 0) {
@@ -44,7 +46,6 @@ const searchParams = Object.fromEntries(new URLSearchParams(window.location.sear
   ) => {
     const { name, value } = e.target;
     const parsedValue = value === '' ? null : value;
-    console.log('handleEditChange', name, parsedValue);
     dispatch(updateEditForm({ [name]: parsedValue }));
   };
 
@@ -95,12 +96,25 @@ const searchParams = Object.fromEntries(new URLSearchParams(window.location.sear
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!editingOrder || !token) {
       dispatch(
         addNotification({
           message: 'Invalid order or missing token',
           type: 'error',
           notificationType: 'WITH_SUPPORT_EMAIL',
+          duration: 5000,
+        }),
+      );
+      return;
+    }
+
+    if (!isFormChanged) {
+      dispatch(
+        addNotification({
+          message: 'No changes detected. Please modify at least one field before submitting.',
+          type: 'info',
+          notificationType: 'STANDARD',
           duration: 5000,
         }),
       );
@@ -150,11 +164,8 @@ const searchParams = Object.fromEntries(new URLSearchParams(window.location.sear
       updates.status = editForm.status;
     }
 
-    console.log('Sending editOrder request with data:', updates);
+    const result = await dispatch(updateOrder({ id: editingOrder.id, updates }));
 
-    const result = await dispatch(
-      updateOrder({ id: editingOrder.id, updates }),
-    );
     if (updateOrder.fulfilled.match(result)) {
       dispatch(
         addNotification({
@@ -166,8 +177,31 @@ const searchParams = Object.fromEntries(new URLSearchParams(window.location.sear
       );
       dispatch(closeEditModal());
     }
-dispatch(fetchOrders({ page: 1, filters: searchParams }));
+
+    dispatch(fetchOrders({ page: 1, filters: searchParams }));
   };
+
+
+  const isFormChanged = useMemo(() => {
+    if (!editingOrder) return false;
+
+    const normalize = (val: any) => (val === null || val === undefined ? '' : String(val));
+
+    return (
+      normalize(editForm.name) !== normalize(editingOrder.name) ||
+      normalize(editForm.surname) !== normalize(editingOrder.surname) ||
+      normalize(editForm.email) !== normalize(editingOrder.email) ||
+      normalize(editForm.phone) !== normalize(editingOrder.phone) ||
+      normalize(editForm.age) !== normalize(editingOrder.age) ||
+      normalize(editForm.course) !== normalize(editingOrder.course) ||
+      normalize(editForm.course_format) !== normalize(editingOrder.course_format) ||
+      normalize(editForm.course_type) !== normalize(editingOrder.course_type) ||
+      normalize(editForm.status) !== normalize(editingOrder.status) ||
+      normalize(editForm.sum) !== normalize(editingOrder.sum) ||
+      normalize(editForm.alreadyPaid) !== normalize(editingOrder.alreadyPaid) ||
+      normalize(editForm.group) !== normalize(editingOrder.group)
+    );
+  }, [editForm, editingOrder]);
 
   return (
     <div className={css.modalOverlay}>
@@ -293,7 +327,9 @@ dispatch(fetchOrders({ page: 1, filters: searchParams }));
                 value={editForm.status ?? ''}
                 onChange={handleEditChange}
                 className={css.input}>
-                <option value="" disabled>Select Status</option>
+                <option value="" disabled>
+                  Select Status
+                </option>
                 <option value="In work">In work</option>
                 <option value="New">New</option>
                 <option value="Agree">Agree</option>
@@ -371,7 +407,7 @@ dispatch(fetchOrders({ page: 1, filters: searchParams }));
             variant="primary"
             type="submit"
             onClick={handleEditSubmit}
-            disabled={loading}>
+            disabled={loading || !isFormChanged}>
             Submit
           </Button>
           <Button
