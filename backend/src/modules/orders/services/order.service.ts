@@ -155,8 +155,7 @@ export class OrderService {
       isAnyFieldChanged ||
       editOrderDto.status === '' ||
       ['In work', 'Agree', 'Disagree', 'Dubbing'].includes(editOrderDto.status) ||
-      order.status === 'New' ||
-      order.status == null
+      (editOrderDto.status !== null && editOrderDto.status !== '')
     ) {
       order.status = updatedDto.status;
       const user = await this.userRepository.findOne({
