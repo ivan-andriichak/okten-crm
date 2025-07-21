@@ -151,7 +151,11 @@ export class OrderService {
     if (editOrderDto.status === 'New') {
       order.status = 'New';
       order.manager = null;
-    } else if (isAnyFieldChanged || editOrderDto.status || order.status === 'New' || order.status == null) {
+    } else if (
+      (isAnyFieldChanged || editOrderDto.status || order.status === 'New' || order.status == null) &&
+      editOrderDto.status !== null &&
+      editOrderDto.status !== ''
+    ) {
       order.status = updatedDto.status;
       const user = await this.userRepository.findOne({
         where: { id: userData.userId },
