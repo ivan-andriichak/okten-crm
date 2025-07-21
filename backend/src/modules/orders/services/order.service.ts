@@ -111,7 +111,9 @@ export class OrderService {
     await this.commentRepository.remove(comment);
   }
 
-  async editOrder(orderId: number, editOrderDto: EditOrderDto): Promise<OrderEntity> {
+  async editOrder(orderId: number, editOrderDto: EditOrderDto, userData: IUserData): Promise<OrderEntity> {
+    this.logger.log(`Editing order ${orderId} by user ${userData.userId} with data: ${JSON.stringify(editOrderDto)}`);
+
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
       relations: ['manager', 'groupEntity'],
@@ -121,27 +123,46 @@ export class OrderService {
       throw new NotFoundException(`Order with ID ${orderId} not found`);
     }
 
+    if (order.manager && order.manager.id !== userData.userId) {
+      throw new ForbiddenException('You can only edit orders without a manager or assigned to you');
+    }
+
+    const isAnyFieldChanged = Object.keys(editOrderDto).some((key) => {
+      if (key === 'status') return false;
+      return editOrderDto[key] !== order[key];
+    });
+
     const updatedDto = {
       ...editOrderDto,
       course_format: editOrderDto.course_format === '' ? null : editOrderDto.course_format,
       course_type: editOrderDto.course_type === '' ? null : editOrderDto.course_type,
-      status: editOrderDto.status === '' ? null : editOrderDto.status,
+      status:
+        editOrderDto.status && ['In work', 'New', 'Agree', 'Disagree', 'Dubbing'].includes(editOrderDto.status)
+          ? editOrderDto.status
+          : editOrderDto.status === '' || editOrderDto.status === null
+            ? order.status === 'New' || order.status == null
+              ? 'In work'
+              : order.status
+            : order.status,
     };
-
-    console.log('Updated DTO:', updatedDto);
 
     Object.assign(order, updatedDto);
 
-    if (editOrderDto.manager_id) {
-      const manager = await this.userRepository.findOne({
-        where: { id: editOrderDto.manager_id },
+    if (editOrderDto.status === 'New') {
+      order.status = 'New';
+      order.manager = null;
+    } else if (isAnyFieldChanged || editOrderDto.status || order.status === 'New' || order.status == null) {
+      order.status = updatedDto.status;
+      const user = await this.userRepository.findOne({
+        where: { id: userData.userId },
       });
-      if (!manager) {
-        throw new NotFoundException(`Manager with ID ${editOrderDto.manager_id} not found`);
+      if (!user) {
+        throw new NotFoundException(`User with id ${userData.userId} not found`);
       }
-      order.manager = manager;
+      order.manager = user;
     }
 
+    this.logger.log(`Order ${orderId} updated with status: ${order.status}, manager: ${order.manager?.id || 'none'}`);
     return await this.ordersRepository.save(order);
   }
 

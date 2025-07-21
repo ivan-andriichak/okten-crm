@@ -88,7 +88,7 @@ const CommentList = ({ comments, order }: CommentListProps) => {
                     })}
                   </span>
                   <div>
-                    {userFullName && comment.author === userFullName && (
+                    {userFullName && comment.author === userFullName && order.manager && (
                       <Button
                         variant="delete"
                         style={{

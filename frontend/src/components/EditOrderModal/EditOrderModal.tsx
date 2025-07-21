@@ -6,6 +6,7 @@ import {
   AppDispatch,
   closeEditModal,
   fetchGroups,
+  fetchOrders,
   updateEditForm,
   updateOrder,
 } from '../../store';
@@ -124,10 +125,6 @@ const EditOrderModal = ({
         editForm.course_type === null
           ? null
           : (editForm.course_type ?? editingOrder.course_type),
-      status:
-        editForm.status === null
-          ? null
-          : (editForm.status ?? editingOrder.status),
       sum:
         editForm.sum === null
           ? null
@@ -143,6 +140,16 @@ const EditOrderModal = ({
       group: editForm.group,
     };
 
+    if (
+      editForm.status &&
+      editForm.status !== '' &&
+      editForm.status !== editingOrder.status
+    ) {
+      updates.status = editForm.status;
+    }
+
+    console.log('Sending editOrder request with data:', updates);
+
     const result = await dispatch(
       updateOrder({ id: editingOrder.id, updates }),
     );
@@ -156,6 +163,8 @@ const EditOrderModal = ({
         }),
       );
       dispatch(closeEditModal());
+
+      dispatch(fetchOrders({ page: 1, filters: {} }));
     }
   };
 

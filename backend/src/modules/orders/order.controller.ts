@@ -91,8 +91,12 @@ export class OrderController {
 
   @Patch(':id/edit')
   @ApiOkResponse({ description: 'Updated order', type: OrderEntity })
-  async editOrder(@Param('id') id: number, @Body() editOrderDto: EditOrderDto): Promise<OrderEntity> {
-    return await this.ordersService.editOrder(id, editOrderDto);
+  async editOrder(
+    @Param('id') id: number,
+    @Body() editOrderDto: EditOrderDto,
+    @CurrentUser() userData: IUserData,
+  ): Promise<OrderEntity> {
+    return await this.ordersService.editOrder(id, editOrderDto, userData);
   }
 
   @Delete('comments/:commentId')
