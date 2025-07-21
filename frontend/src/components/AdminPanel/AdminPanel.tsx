@@ -324,12 +324,14 @@ dispatch(
                                 Ban
                               </Button>
                             ) : (
-                              <Button
-                                className={`${css.actionButton} ${css.unbanButton}`}
-                                onClick={() => handleAction('unban', manager.id)}
-                                disabled={manager.role === 'admin' || !manager.hasPassword}>
-                                Unban
-                              </Button>
+                              manager.hasPassword && (
+                                <Button
+                                  className={`${css.actionButton} ${css.unbanButton}`}
+                                  onClick={() => handleAction('unban', manager.id)}
+                                  disabled={manager.role === 'admin'}>
+                                  Unban
+                                </Button>
+                              )
                             )}
                           </>
                         )}
