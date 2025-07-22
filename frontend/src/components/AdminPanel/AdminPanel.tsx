@@ -78,8 +78,8 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
       await dispatch(createManager(formData)).unwrap();
       setFormData({ email: '', name: '', surname: '' });
       setIsModalOpen(false);
-    } catch (e) {
-    }}
+    } catch (e) {}
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -118,7 +118,6 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         case 'recover': {
           const result = await dispatch(recoverPassword(managerId)).unwrap();
           await navigator.clipboard.writeText(result.link);
-
           break;
         }
         case 'ban': {
@@ -138,30 +137,31 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         default:
           dispatch(
             addNotification({
-             message: (
-            <>
-              Unknown action: {action}. Please contact support: <SupportEmail />
-            </>
-          ),
-          type: 'error',
-          notificationType: 'system',
-      }),
+              message: (
+                <>
+                  Unknown action: {action}. Please contact support:{' '}
+                  <SupportEmail />
+                </>
+              ),
+              type: 'error',
+              notificationType: 'system',
+            }),
           );
           return;
       }
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || 'Action failed';
-dispatch(
-  addNotification({
-    message: (
-      <>
-        {`${errorMessage}. Please contact support: `} <SupportEmail />
-      </>
-    ),
-    type: 'error',
-    notificationType: 'system',
-  }),
-);
+      dispatch(
+        addNotification({
+          message: (
+            <>
+              {`${errorMessage}. Please contact support: `} <SupportEmail />
+            </>
+          ),
+          type: 'error',
+          notificationType: 'system',
+        }),
+      );
     }
   };
 
@@ -213,7 +213,8 @@ dispatch(
           <Button
             data-tooltip-id="create-tooltip"
             data-tooltip-content="Create a new manager"
-            onClick={() => setIsModalOpen(true)}>
+            onClick={() => setIsModalOpen(true)}
+          >
             CREATE
           </Button>
           <ReactTooltip
@@ -239,49 +240,50 @@ dispatch(
           <>
             <table className={css.table}>
               <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Surname</th>
-                  <th>Status</th>
-                  <th>Statistics</th>
-                  <th>Last login</th>
-                  <th>Actions</th>
-                </tr>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Status</th>
+                <th>Statistics</th>
+                <th>Last login</th>
+                <th>Actions</th>
+              </tr>
               </thead>
               <tbody>
-              {[...managers]
-                .sort((a, b) => {
-                  if (a.role === 'admin' && b.role !== 'admin') return -1;
-                  if (a.role !== 'admin' && b.role === 'admin') return 1;
-                  return 0;
-                })
-                .map((manager, index) => {
+              {managers.map((manager, index) => {
                   const status = getManagerStatus(manager);
                   const displayIndex = index + 1 + (page - 1) * limit;
                   const isAdmin = manager.role === 'admin';
                   return (
-                    <tr key={manager.id} style={isAdmin ? { backgroundColor: 'rgb(240, 255, 232)' } : {}}>
+                    <tr
+                      key={manager.id}
+                      style={isAdmin ? { backgroundColor: 'rgb(240, 255, 232)' } : {}}
+                    >
                       <td>{displayIndex}</td>
                       <td>
-          <span>
-            {manager.email} {isAdmin && <h4 style={{ textDecoration: isAdmin ? 'underline' : 'none'}} >(Admin)</h4>}
-          </span>
+                          <span>
+                            {manager.email}{' '}
+                            {isAdmin && (
+                              <h4 style={{ textDecoration: 'underline' }}>(Admin)</h4>
+                            )}
+                          </span>
                       </td>
                       <td>{manager.name}</td>
                       <td>{manager.surname}</td>
                       <td style={{ color: status.color }}>{status.text}</td>
                       <td>
-                        Total Orders: {manager.statistics?.totalOrders ?? 0},
-                        Active: {manager.statistics?.activeOrders ?? 0}
+                        Total Orders: {manager.statistics?.totalOrders ?? 0}, Active:{' '}
+                        {manager.statistics?.activeOrders ?? 0}
                       </td>
                       <td>{formatCell('last_login', manager.last_login)}</td>
                       <td>
                         {isAdmin ? (
                           <Button
                             className={`${css.actionButton} ${css.recoverButton}`}
-                            onClick={() => handleAction('recover', manager.id)}>
+                            onClick={() => handleAction('recover', manager.id)}
+                          >
                             Recover Password
                           </Button>
                         ) : (
@@ -289,7 +291,8 @@ dispatch(
                             {manager.is_active ? (
                               <Button
                                 className={`${css.actionButton} ${css.recoverButton}`}
-                                onClick={() => handleAction('recover', manager.id)}>
+                                onClick={() => handleAction('recover', manager.id)}
+                              >
                                 Recover Password
                               </Button>
                             ) : (
@@ -302,7 +305,8 @@ dispatch(
                                   manager.hasPassword
                                     ? 'Manager is banned'
                                     : 'Generate activation link'
-                                }>
+                                }
+                              >
                                 Activate
                                 {manager.hasPassword && (
                                   <ReactTooltip
@@ -316,11 +320,12 @@ dispatch(
                                 )}
                               </Button>
                             )}
-                          {manager.is_active ? (
+                            {manager.is_active ? (
                               <Button
                                 className={`${css.actionButton} ${css.banButton}`}
                                 onClick={() => handleAction('ban', manager.id)}
-                                disabled={manager.role === 'admin' || !manager.hasPassword}>
+                                disabled={!manager.is_active}
+                              >
                                 Ban
                               </Button>
                             ) : (
@@ -328,7 +333,8 @@ dispatch(
                                 <Button
                                   className={`${css.actionButton} ${css.unbanButton}`}
                                   onClick={() => handleAction('unban', manager.id)}
-                                  disabled={manager.role === 'admin'}>
+                                  disabled={manager.is_active || !manager.hasPassword}
+                                >
                                   Unban
                                 </Button>
                               )
@@ -356,6 +362,6 @@ dispatch(
       </div>
     </>
   );
-  };
+};
 
 export default AdminPanel;

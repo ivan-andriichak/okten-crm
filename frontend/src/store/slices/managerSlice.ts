@@ -37,7 +37,7 @@ export const fetchManagers = createAsyncThunk<
   { state: RootState }
 >(
   'managers/fetchManagers',
-  async ({ page, limit, sort, order }, { getState }) => {
+  async ({ page, limit, sort = 'created_at', order = 'DESC' }, { getState }) => {
     const { token } = getState().auth;
     if (!token) {
       throw new Error('No token available');

@@ -303,7 +303,10 @@ export class AdminService {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const [managers, total] = await userRepository.findAndCount({
       where: [{ role: Role.MANAGER }, { role: Role.ADMIN }],
-      order: { [sort]: order },
+      order: {
+        role: 'DESC',
+        [sort]: order,
+      },
       skip: (page - 1) * limit,
       take: limit,
       select: ['id', 'email', 'name', 'surname', 'is_active', 'password', 'created_at', 'last_login', 'role'],
