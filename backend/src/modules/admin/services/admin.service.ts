@@ -358,7 +358,14 @@ export class AdminService {
     orderRepository: Repository<OrderEntity>,
     where: Record<string, any> = {},
   ): Promise<Record<string, number>> {
-    const statuses = [StatusEnum.NEW, StatusEnum.IN_WORK, StatusEnum.AGREE, StatusEnum.DISAGREE, StatusEnum.DUBBING];
+    const statuses = [
+      StatusEnum.NEW,
+      StatusEnum.NULL,
+      StatusEnum.IN_WORK,
+      StatusEnum.AGREE,
+      StatusEnum.DISAGREE,
+      StatusEnum.DUBBING,
+    ];
     const stats: Record<string, number> = {};
 
     for (const status of statuses) {
@@ -366,6 +373,10 @@ export class AdminService {
         where: { ...where, status: Equal(status) },
       });
     }
+
+    stats['NULL'] = await orderRepository.count({
+      where: { ...where, status: null },
+    });
 
     stats['Total'] = await orderRepository.count({ where });
     return stats;

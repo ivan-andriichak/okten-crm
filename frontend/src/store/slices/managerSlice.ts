@@ -24,6 +24,7 @@ const initialState: ManagerState = {
   overallStats: {
     Total: 0,
     New: 0,
+    NULL: 0,
     'In work': 0,
     Agree: 0,
     Disagree: 0,
@@ -37,7 +38,10 @@ export const fetchManagers = createAsyncThunk<
   { state: RootState }
 >(
   'managers/fetchManagers',
-  async ({ page, limit, sort = 'created_at', order = 'DESC' }, { getState }) => {
+  async (
+    { page, limit, sort = 'created_at', order = 'DESC' },
+    { getState },
+  ) => {
     const { token } = getState().auth;
     if (!token) {
       throw new Error('No token available');
@@ -59,6 +63,7 @@ export const fetchOverallStats = createAsyncThunk<
   {
     Total: number;
     New: number;
+    NULL: number;
     'In work': number;
     Agree: number;
     Disagree: number;
@@ -74,6 +79,7 @@ export const fetchOverallStats = createAsyncThunk<
   const response = await api.get('/admin/orders/stats', {
     headers: { Authorization: `Bearer ${token}` },
   });
+  console.log('fetchOverallStats response:', response.data);
   return response.data;
 });
 

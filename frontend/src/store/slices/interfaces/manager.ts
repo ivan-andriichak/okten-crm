@@ -23,6 +23,7 @@ export interface ManagerState {
   overallStats: {
     Total: number;
     New: number;
+    NULL: number;
     'In work': number;
     Agree: number;
     Disagree: number;

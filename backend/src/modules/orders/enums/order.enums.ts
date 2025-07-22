@@ -1,6 +1,7 @@
 export enum StatusEnum {
   IN_WORK = 'In work',
   NEW = 'New',
+  NULL = 'NULL',
   AGREE = 'Agree',
   DISAGREE = 'Disagree',
   DUBBING = 'Dubbing',
