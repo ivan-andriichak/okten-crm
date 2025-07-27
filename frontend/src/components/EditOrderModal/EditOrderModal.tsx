@@ -14,6 +14,7 @@ import { EditOrderModalProps } from '../../store/slices/interfaces/editForm';
 import { Order, OrderState } from '../../store/slices/interfaces/order';
 import Button from '../Button/Button';
 import css from './EditOrderModal.module.css';
+import { capitalizeFirstLetter, regexConstant } from '../../constants/regex-constant';
 
 interface RootState {
   orders: OrderState;
@@ -28,6 +29,12 @@ const EditOrderModal = ({
   const dispatch = useDispatch<AppDispatch>();
   const groups = useSelector((state: RootState) => state.orders.groups) || [];
   const loading = useSelector((state: RootState) => state.orders.loading);
+  const [validationErrors, setValidationErrors] = useState<{
+    phone?: string;
+    email?: string;
+    age?: string;
+  }>({});
+
   const [newGroupName, setNewGroupName] = useState('');
   const [isAddingGroup, setIsAddingGroup] = useState(false);
 
@@ -41,13 +48,14 @@ const EditOrderModal = ({
     }
   }, [dispatch, token, groups.length]);
 
-  const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    const parsedValue = value === '' ? null : value;
-    dispatch(updateEditForm({ [name]: parsedValue }));
-  };
+ const handleEditChange = (
+   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+ ) => {
+   const { name, value } = e.target;
+   if ((name === 'name' || name === 'surname') && /[0-9]/.test(value)) return;
+   const parsedValue = value === '' ? null : value;
+   dispatch(updateEditForm({ [name]: capitalizeFirstLetter(parsedValue) }));
+ };
 
   const handleAddGroup = () => {
     if (!newGroupName) {
@@ -89,6 +97,26 @@ const EditOrderModal = ({
     });
   };
 
+  const validateForm = () => {
+    const errors: typeof validationErrors = {};
+
+    if (editForm.phone && !regexConstant.PHONE.test(editForm.phone)) {
+      errors.phone = 'Phone number must be in the format +380XXXXXXXXX';
+    }
+
+    if (editForm.email && !regexConstant.EMAIL.test(editForm.email)) {
+      errors.email = 'Incorrect email';
+    }
+
+   if (editForm.age && (editForm.age.includes('-') || !regexConstant.AGE.test(editForm.age))) {
+      errors.age = 'Age must be between 18 and 60';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+
   const handleSelectGroup = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedGroup = e.target.value;
     dispatch(updateEditForm({ group: selectedGroup }));
@@ -112,7 +140,8 @@ const EditOrderModal = ({
     if (!isFormChanged) {
       dispatch(
         addNotification({
-          message: 'No changes detected. Please modify at least one field before submitting.',
+          message:
+            'No changes detected. Please modify at least one field before submitting.',
           type: 'info',
           notificationType: 'STANDARD',
           duration: 5000,
@@ -120,6 +149,8 @@ const EditOrderModal = ({
       );
       return;
     }
+
+    if (!validateForm()) return;
 
     const updates: Partial<Order> = {
       name: editForm.name,
@@ -297,6 +328,7 @@ const EditOrderModal = ({
                 onChange={handleEditChange}
                 className={css.input}
               />
+              {validationErrors.email && <div className={css.error}>{validationErrors.email}</div>}
             </div>
             <div>
               <label>Phone:</label>
@@ -307,6 +339,7 @@ const EditOrderModal = ({
                 onChange={handleEditChange}
                 className={css.input}
               />
+              {validationErrors.phone && <div className={css.error}>{validationErrors.phone}</div>}
             </div>
             <div>
               <label>Age:</label>
@@ -315,9 +348,16 @@ const EditOrderModal = ({
                 name="age"
                 value={editForm.age ?? ''}
                 onChange={handleEditChange}
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                    e.preventDefault();
+                  }
+                }}
                 className={css.input}
               />
+              {validationErrors.age && <div className={css.error}>{validationErrors.age}</div>}
             </div>
+
           </div>
           <div className={css.column}>
             <div style={{ marginBottom: '25px' }}>

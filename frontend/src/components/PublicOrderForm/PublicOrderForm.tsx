@@ -67,21 +67,18 @@ const PublicOrderForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Phone validation: +380XXXXXXXXX
     const phoneRegex = /^\+380\d{9}$/;
     if (!phoneRegex.test(formData.phone)) {
       setNotification({ type: 'error', message: 'Телефон має бути у форматі +380XXXXXXXXX' });
       return;
     }
 
-    // Email validation (simple)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setNotification({ type: 'error', message: 'Введіть коректний email' });
       return;
     }
 
-    // Age validation: 18-60
     const ageNum = Number(formData.age);
     if (isNaN(ageNum) || ageNum < 18 || ageNum > 60) {
       setNotification({ type: 'error', message: 'Вік має бути від 18 до 60' });
