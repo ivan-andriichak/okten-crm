@@ -324,6 +324,7 @@ export class AdminService {
         const stats = await this.getManagerStatistics(manager.id);
         return {
           ...manager,
+          hasPassword: !!manager.password,
           statistics: {
             totalOrders: stats.Total || 0,
             activeOrders: stats[StatusEnum.IN_WORK] || 0,

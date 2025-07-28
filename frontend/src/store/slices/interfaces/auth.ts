@@ -8,6 +8,7 @@ export interface AuthResponse {
     email: string;
     name: string;
     surname: string;
+    has_password: boolean;
     is_active: boolean;
     last_login: string;
     image: string | null;
