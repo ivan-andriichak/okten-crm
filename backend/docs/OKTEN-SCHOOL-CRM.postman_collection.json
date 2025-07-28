@@ -29,51 +29,6 @@
 									]
 								}
 							},
-							"response": [
-								{
-									"name": "Untitled Response",
-									"originalRequest": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{baseUrl}}/api/debug-sentry",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"debug-sentry"
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "text",
-									"header": [],
-									"cookie": [],
-									"body": ""
-								}
-							]
-						},
-						{
-							"name": "{{baseUrl}}/api/debug-sentry",
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/debug-sentry",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"debug-sentry"
-									]
-								}
-							},
 							"response": []
 						}
 					]
@@ -82,7 +37,7 @@
 					"name": "create-admin",
 					"item": [
 						{
-							"name": "Auth Controller create Default Admin",
+							"name": "Create admin",
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -97,31 +52,7 @@
 									]
 								}
 							},
-							"response": [
-								{
-									"name": "Untitled Response",
-									"originalRequest": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{baseUrl}}/api/create-admin",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"create-admin"
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "text",
-									"header": [],
-									"cookie": [],
-									"body": ""
-								}
-							]
+							"response": []
 						}
 					]
 				},
@@ -129,8 +60,18 @@
 					"name": "register",
 					"item": [
 						{
-							"name": "Auth Controller register",
+							"name": "Register user",
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [
 									{
@@ -144,7 +85,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Clavdia\",\n  \"surname\": \"Petrivna\",\n  \"email\": \"test@gmail.com\",\n  \"password\": \"123qwe!@#QWE\",\n  \"deviceId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"is_active\": false,\n  \"role\": \"manager\"\n}",
+									"raw": "{\n  \"name\": \"Clavdia\",\n  \"surname\": \"Petrivna\",\n  \"email\": \"test113@gmail.com\",\n  \"password\": \"Qwerty12@\",\n  \"deviceId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"role\": \"manager\"\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -153,174 +94,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/register",
+									"raw": "localhost:5000/api/register",
 									"host": [
-										"{{baseUrl}}"
+										"localhost"
 									],
+									"port": "5000",
 									"path": [
 										"api",
 										"register"
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "user created successfully",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json"
-											},
-											{
-												"key": "Accept",
-												"value": "application/json"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"name\": \"Clavdia\",\n  \"surname\": \"Petrivna\",\n  \"email\": \"test@gmail.com\",\n  \"password\": \"123qwe!@#QWE\",\n  \"deviceId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"is_active\": false,\n  \"role\": \"manager\"\n}",
-											"options": {
-												"raw": {
-													"headerFamily": "json",
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{baseUrl}}/api/register",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"register"
-											]
-										}
-									},
-									"status": "Created",
-									"code": 201,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "Content-Type",
-											"value": "application/json"
-										}
-									],
-									"cookie": [],
-									"body": "{\n  \"user\": {\n    \"id\": \"cillu\",\n    \"email\": \"aliquip qui\",\n    \"name\": \"sunt e\",\n    \"surname\": \"laborum ea Ut nisi\",\n    \"last_login\": \"2015-09-10T13:04:30.518Z\",\n    \"is_active\": true,\n    \"image\": \"id dolore in dolor\",\n    \"role\": \"magna laboris\"\n  },\n  \"tokens\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}"
-								}
-							]
-						}
-					]
-				},
-				{
-					"name": "login",
-					"item": [
-						{
-							"name": "Auth Controller login",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"email\": \"test@gmail.com\",\n  \"password\": \"123qwe!@#QWE\",\n  \"deviceId\": \"550e8400-e29b-41d4-a716-446655440000\"\n}",
-									"options": {
-										"raw": {
-											"headerFamily": "json",
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"login"
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "Untitled Response",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"email\": \"test@gmail.com\",\n  \"password\": \"123qwe!@#QWE\",\n  \"deviceId\": \"550e8400-e29b-41d4-a716-446655440000\"\n}",
-											"options": {
-												"raw": {
-													"headerFamily": "json",
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{baseUrl}}/api/login",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"login"
-											]
-										}
-									},
-									"status": "Created",
-									"code": 201,
-									"_postman_previewlanguage": "text",
-									"header": [],
-									"cookie": [],
-									"body": ""
-								}
-							]
-						},
-						{
-							"name": "{{baseUrl}}/api/login",
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"admin\",\n  \"deviceId\": \"550e8400-e29b-41d4-a716-446655440000\"\n}",
-									"options": {
-										"raw": {
-											"headerFamily": "json",
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/login",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"login"
 									]
 								}
 							},
@@ -329,17 +110,44 @@
 					]
 				},
 				{
-					"name": "refresh",
+					"name": "login",
 					"item": [
 						{
-							"name": "Auth Controller refresh",
+							"name": "Login user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJSON = pm.response.json();\r",
+											"\r",
+											"// Test to check if the response is successful and has tokens\r",
+											"pm.test(\"Response is successful and contains tokens\", function () {\r",
+											"    pm.expect(pm.response).to.have.status(200);\r",
+											"    pm.expect(responseJSON).to.have.property('tokens');\r",
+											"    pm.expect(responseJSON.tokens).to.have.property('accessToken').that.is.a('string').and.is.not.empty;\r",
+											"    pm.expect(responseJSON.tokens).to.have.property('refreshToken').that.is.a('string').and.is.not.empty;\r",
+											"});\r",
+											"\r",
+											"// Save tokens to environment variables\r",
+											"pm.environment.set(\"accessToken\", responseJSON.tokens.accessToken);\r",
+											"pm.environment.set(\"refreshToken\", responseJSON.tokens.refreshToken);\r",
+											"\r",
+											"\r",
+											"pm.environment.set(\"userId\", responseJSON.user.id);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
 								"auth": {
 									"type": "bearer",
 									"bearer": [
 										{
 											"key": "token",
-											"value": "{{bearerToken}}",
+											"value": "{{accessToken}}",
 											"type": "string"
 										}
 									]
@@ -353,7 +161,107 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4Nzg5OTdkNS00ZTY0LTRjNjQtYjkxMC04YThkNDMwY2RlZTEiLCJkZXZpY2VJZCI6IjNjODlhZjBhLTEzODYtNDEzMy04NGJiLTNhZmZkNTQxMzJiYSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0ODE1NzQxMiwiZXhwIjoxNzQ4NzYyMjEyfQ.dGycRPUpCjlrCBkyCHoYTtuxN7QXTxx6MywTyz2A0YM\",\n  \"deviceId\": \"30406eb8-5a30-4930-9bb2-17ac1c23d732\"\n}",
+									"raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"admin\",\n  \"deviceId\": \"97da6aa2-c551-4d84-b5a4-bfa12e83279e\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"login"
+									]
+								},
+								"description": "### Login API Endpoint\n\nThis endpoint is used to authenticate a user and obtain access and refresh tokens. It allows users to log in by providing their credentials, which include an email and password, along with a device identifier.\n\n#### Request\n\n- **Method**: POST\n    \n- **Endpoint**: `{{baseUrl}}/api/login`\n    \n- { \"email\": \"admin@gmail.com\", \"password\": \"admin\", \"deviceId\": \"550e8400-e29b-41d4-a716-446655...\"}\n    \n    - `email` (string): The email address of the user.\n        \n    - `password` (string): The password associated with the user's account.\n        \n    - `deviceId` (string): A unique identifier for the device being used to log in.\n        \n    \n    **Example Request Body**:\n    \n\n#### Response\n\n- **Status Code**: 201 Created\n    \n- **Content-Type**: application/json\n    \n- { \"user\": { \"id\": \"\", \"email\": \"\", \"name\": \"\", \"surname\": \"\", \"is_active\": true, \"last_login\": \"\", \"image\": null, \"role\": \"\" }, \"tokens\": { \"accessToken\": \"\", \"refreshToken\": \"\" }}\n    \n    - `user`: An object containing user information, including:\n        \n        - `id` (string): Unique identifier for the user.\n            \n        - `email` (string): The email of the user.\n            \n        - `name` (string): The name of the user.\n            \n        - `surname` (string): The surname of the user.\n            \n        - `is_active` (boolean): Indicates if the user's account is active.\n            \n        - `last_login` (string): Timestamp of the last login.\n            \n        - `image` (string|null): URL to the user's profile image, if available.\n            \n        - `role` (string): The role of the user within the application.\n            \n    - `tokens`: An object containing:\n        \n        - `accessToken` (string): The token used for authentication in subsequent requests.\n            \n        - `refreshToken` (string): The token used to obtain a new access token when the current one expires.\n            \n    \n    **Example Response Body**:"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "refresh",
+					"item": [
+						{
+							"name": "Refresh token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const baseUrl = pm.environment.get(\"baseUrl\");\r",
+											"const requestBody = {\r",
+											"    refreshToken: pm.environment.get(\"refreshToken\"),\r",
+											"    deviceId: pm.environment.get(\"deviceId\")\r",
+											"};\r",
+											"\r",
+											"const apiEndpoint = pm.environment.get(\"apiEndpoint\") || \"/api/refresh\"; \r",
+											"const requestMethod = pm.environment.get(\"requestMethod\") || 'POST'; \r",
+											"const contentType = pm.environment.get(\"contentType\") || 'application/json'; \r",
+											"\r",
+											"pm.sendRequest({\r",
+											"    url: `${baseUrl}${apiEndpoint}`,\r",
+											"    method: requestMethod,\r",
+											"    header: {\r",
+											"        'Content-Type': contentType\r",
+											"    },\r",
+											"    body: {\r",
+											"        mode: 'raw',\r",
+											"        raw: JSON.stringify(requestBody)\r",
+											"    }\r",
+											"}, function (err, res) {\r",
+											"    if (err) {\r",
+											"        console.log(err);\r",
+											"    } else {\r",
+											"        const jsonResponse = res.json();\r",
+											"        if (jsonResponse.tokens) {\r",
+											"            pm.environment.set(\"accessToken\", jsonResponse.tokens.accessToken);\r",
+											"            pm.environment.set(\"refreshToken\", jsonResponse.tokens.refreshToken);\r",
+											"            console.log(\"New access token: \", jsonResponse.tokens.accessToken);\r",
+											"            console.log(\"New refresh token: \", jsonResponse.tokens.refreshToken);\r",
+											"        } else {\r",
+											"            console.log(\"Tokens not found in response.\");\r",
+											"        }\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer <token>",
+										"description": "Added as a part of security scheme: bearer"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\",\n  \"deviceId\": \"97da6aa2-c551-4d84-b5a4-bfa12e83279e\"\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -372,51 +280,7 @@
 									]
 								}
 							},
-							"response": [
-								{
-									"name": "Untitled Response",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Content-Type",
-												"value": "application/json"
-											},
-											{
-												"key": "Authorization",
-												"value": "Bearer <token>",
-												"description": "Added as a part of security scheme: bearer"
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4Nzg5OTdkNS00ZTY0LTRjNjQtYjkxMC04YThkNDMwY2RlZTEiLCJkZXZpY2VJZCI6IjNjODlhZjBhLTEzODYtNDEzMy04NGJiLTNhZmZkNTQxMzJiYSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0ODE1NzQxMiwiZXhwIjoxNzQ4NzYyMjEyfQ.dGycRPUpCjlrCBkyCHoYTtuxN7QXTxx6MywTyz2A0YM\",\n  \"deviceId\": \"30406eb8-5a30-4930-9bb2-17ac1c23d732\"\n}",
-											"options": {
-												"raw": {
-													"headerFamily": "json",
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{baseUrl}}/api/refresh",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"refresh"
-											]
-										}
-									},
-									"status": "Created",
-									"code": 201,
-									"_postman_previewlanguage": "text",
-									"header": [],
-									"cookie": [],
-									"body": ""
-								}
-							]
+							"response": []
 						}
 					]
 				},
@@ -424,65 +288,7 @@
 					"name": "logOut",
 					"item": [
 						{
-							"name": "Auth Controller log Out",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{bearerToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api/logOut",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"logOut"
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "Untitled Response",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer <token>",
-												"description": "Added as a part of security scheme: bearer"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/api/logOut",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"logOut"
-											]
-										}
-									},
-									"status": "No Content",
-									"code": 204,
-									"_postman_previewlanguage": "text",
-									"header": [],
-									"cookie": [],
-									"body": ""
-								}
-							]
-						},
-						{
-							"name": "{{baseUrl}}/api/logOut",
+							"name": "Log out",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -596,10 +402,11 @@
 															]
 														},
 														"url": {
-															"raw": "{{baseUrl}}/api/users/me/avatar",
+															"raw": "localhost:5000/api/users/me/avatar",
 															"host": [
-																"{{baseUrl}}"
+																"localhost"
 															],
+															"port": "5000",
 															"path": [
 																"api",
 																"users",
@@ -658,10 +465,11 @@
 															}
 														],
 														"url": {
-															"raw": "{{baseUrl}}/api/users/me/avatar",
+															"raw": "localhost:5000/api/users/me/avatar",
 															"host": [
-																"{{baseUrl}}"
+																"localhost"
 															],
+															"port": "5000",
 															"path": [
 																"api",
 																"users",
@@ -689,7 +497,7 @@
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{bearerToken}}",
+													"value": "{{accessToken}}",
 													"type": "string"
 												}
 											]
@@ -721,10 +529,11 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/api/users/me",
+													"raw": "localhost:5000/api/users/me",
 													"host": [
-														"{{baseUrl}}"
+														"localhost"
 													],
+													"port": "5000",
 													"path": [
 														"api",
 														"users",
@@ -802,6 +611,41 @@
 									]
 								},
 								{
+									"name": "Find me",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/users/me",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"users",
+												"me"
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Users Controller update Me",
 									"request": {
 										"auth": {
@@ -870,10 +714,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/api/users/me",
+													"raw": "localhost:5000/api/users/me",
 													"host": [
-														"{{baseUrl}}"
+														"localhost"
 													],
+													"port": "5000",
 													"path": [
 														"api",
 														"users",
@@ -1030,7 +875,7 @@
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{bearerToken}}",
+													"value": "{{accessToken}}",
 													"type": "string"
 												}
 											]
@@ -1062,10 +907,11 @@
 													}
 												],
 												"url": {
-													"raw": "{{baseUrl}}/api/users/me",
+													"raw": "localhost:5000/api/users/me",
 													"host": [
-														"{{baseUrl}}"
+														"localhost"
 													],
+													"port": "5000",
 													"path": [
 														"api",
 														"users",
@@ -1171,9 +1017,14 @@
 											"body": ""
 										}
 									]
-								},
+								}
+							]
+						},
+						{
+							"name": "{userId}",
+							"item": [
 								{
-									"name": "{{baseUrl}}/api/users/me",
+									"name": "Users Controller find user",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -1186,105 +1037,16 @@
 											]
 										},
 										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer <token>",
-												"description": "Added as a part of security scheme: bearer"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/api/users/me",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"users",
-												"me"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "{userId}",
-							"item": [
-								{
-									"name": "Users Controller find One",
-									"request": {
-										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{baseUrl}}/api/users/:userId",
+											"raw": "{{baseUrl}}/api/users/{{userId}}",
 											"host": [
 												"{{baseUrl}}"
 											],
 											"path": [
 												"api",
 												"users",
-												":userId"
-											],
-											"variable": [
-												{
-													"key": "userId",
-													"value": "sed officia",
-													"description": "(Required) "
-												}
-											]
-										}
-									},
-									"response": [
-										{
-											"name": "Untitled Response",
-											"originalRequest": {
-												"method": "GET",
-												"header": [],
-												"url": {
-													"raw": "{{baseUrl}}/api/users/:userId",
-													"host": [
-														"{{baseUrl}}"
-													],
-													"path": [
-														"api",
-														"users",
-														":userId"
-													],
-													"variable": [
-														{
-															"key": "userId"
-														}
-													]
-												}
-											},
-											"status": "OK",
-											"code": 200,
-											"_postman_previewlanguage": "text",
-											"header": [],
-											"cookie": [],
-											"body": ""
-										}
-									]
-								},
-								{
-									"name": "{{baseUrl}}/api/users/3b7cba55-dd77-44ce-8165-4276c3914032",
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{baseUrl}}/api/users/3b7cba55-dd77-44ce-8165-4276c3914032",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"users",
-												"3b7cba55-dd77-44ce-8165-4276c3914032"
+												"{{userId}}"
 											]
 										}
 									},
@@ -1307,83 +1069,7 @@
 											"name": "statistics",
 											"item": [
 												{
-													"name": "Admin Controller get Manager Statistics",
-													"request": {
-														"auth": {
-															"type": "bearer",
-															"bearer": [
-																{
-																	"key": "token",
-																	"value": "{{bearerToken}}",
-																	"type": "string"
-																}
-															]
-														},
-														"method": "GET",
-														"header": [],
-														"url": {
-															"raw": "{{baseUrl}}/api/admin/managers/:id/statistics",
-															"host": [
-																"{{baseUrl}}"
-															],
-															"path": [
-																"api",
-																"admin",
-																"managers",
-																":id",
-																"statistics"
-															],
-															"variable": [
-																{
-																	"key": "id",
-																	"value": "sed officia",
-																	"description": "(Required) "
-																}
-															]
-														}
-													},
-													"response": [
-														{
-															"name": "Untitled Response",
-															"originalRequest": {
-																"method": "GET",
-																"header": [
-																	{
-																		"key": "Authorization",
-																		"value": "Bearer <token>",
-																		"description": "Added as a part of security scheme: bearer"
-																	}
-																],
-																"url": {
-																	"raw": "{{baseUrl}}/api/admin/managers/:id/statistics",
-																	"host": [
-																		"{{baseUrl}}"
-																	],
-																	"path": [
-																		"api",
-																		"admin",
-																		"managers",
-																		":id",
-																		"statistics"
-																	],
-																	"variable": [
-																		{
-																			"key": "id"
-																		}
-																	]
-																}
-															},
-															"status": "OK",
-															"code": 200,
-															"_postman_previewlanguage": "text",
-															"header": [],
-															"cookie": [],
-															"body": ""
-														}
-													]
-												},
-												{
-													"name": "{{baseUrl}}/api/admin/managers/3b7cba55-dd77-44ce-8165-4276c3914032/statistics",
+													"name": "Get manager statistics",
 													"request": {
 														"auth": {
 															"type": "bearer",
@@ -1396,15 +1082,9 @@
 															]
 														},
 														"method": "GET",
-														"header": [
-															{
-																"key": "Authorization",
-																"value": "Bearer <token>",
-																"description": "Added as a part of security scheme: bearer"
-															}
-														],
+														"header": [],
 														"url": {
-															"raw": "{{baseUrl}}/api/admin/managers/3b7cba55-dd77-44ce-8165-4276c3914032/statistics",
+															"raw": "{{baseUrl}}/api/admin/managers/{{userId}}/statistics",
 															"host": [
 																"{{baseUrl}}"
 															],
@@ -1412,7 +1092,7 @@
 																"api",
 																"admin",
 																"managers",
-																"3b7cba55-dd77-44ce-8165-4276c3914032",
+																"{{userId}}",
 																"statistics"
 															]
 														}
@@ -1425,20 +1105,26 @@
 											"name": "activate",
 											"item": [
 												{
-													"name": "Admin Controller activate Manager",
+													"name": "Activate managers",
 													"request": {
 														"auth": {
 															"type": "bearer",
 															"bearer": [
 																{
 																	"key": "token",
-																	"value": "{{bearerToken}}",
+																	"value": "{{accessToken}}",
 																	"type": "string"
 																}
 															]
 														},
 														"method": "POST",
-														"header": [],
+														"header": [
+															{
+																"key": "Authorization",
+																"value": "Bearer <token>",
+																"description": "Added as a part of security scheme: bearer"
+															}
+														],
 														"url": {
 															"raw": "{{baseUrl}}/api/admin/managers/:id/activate",
 															"host": [
@@ -1454,54 +1140,20 @@
 															"variable": [
 																{
 																	"key": "id",
-																	"value": "sed officia",
-																	"description": "(Required) "
+																	"value": ""
 																}
 															]
 														}
 													},
-													"response": [
-														{
-															"name": "Untitled Response",
-															"originalRequest": {
-																"method": "POST",
-																"header": [
-																	{
-																		"key": "Authorization",
-																		"value": "Bearer <token>",
-																		"description": "Added as a part of security scheme: bearer"
-																	}
-																],
-																"url": {
-																	"raw": "{{baseUrl}}/api/admin/managers/:id/activate",
-																	"host": [
-																		"{{baseUrl}}"
-																	],
-																	"path": [
-																		"api",
-																		"admin",
-																		"managers",
-																		":id",
-																		"activate"
-																	],
-																	"variable": [
-																		{
-																			"key": "id"
-																		}
-																	]
-																}
-															},
-															"status": "Created",
-															"code": 201,
-															"_postman_previewlanguage": "text",
-															"header": [],
-															"cookie": [],
-															"body": ""
-														}
-													]
-												},
+													"response": []
+												}
+											]
+										},
+										{
+											"name": "recover",
+											"item": [
 												{
-													"name": "{{baseUrl}}/api/admin/managers/a465fae9-ec6f-4af9-8140-6854ce8365eb/activate",
+													"name": "Recovery password",
 													"request": {
 														"auth": {
 															"type": "bearer",
@@ -1521,42 +1173,6 @@
 																"description": "Added as a part of security scheme: bearer"
 															}
 														],
-														"url": {
-															"raw": "{{baseUrl}}/api/admin/managers/a465fae9-ec6f-4af9-8140-6854ce8365eb/activate",
-															"host": [
-																"{{baseUrl}}"
-															],
-															"path": [
-																"api",
-																"admin",
-																"managers",
-																"a465fae9-ec6f-4af9-8140-6854ce8365eb",
-																"activate"
-															]
-														}
-													},
-													"response": []
-												}
-											]
-										},
-										{
-											"name": "recover",
-											"item": [
-												{
-													"name": "Admin Controller recover Password",
-													"request": {
-														"auth": {
-															"type": "bearer",
-															"bearer": [
-																{
-																	"key": "token",
-																	"value": "{{bearerToken}}",
-																	"type": "string"
-																}
-															]
-														},
-														"method": "POST",
-														"header": [],
 														"url": {
 															"raw": "{{baseUrl}}/api/admin/managers/:id/recover",
 															"host": [
@@ -1572,84 +1188,8 @@
 															"variable": [
 																{
 																	"key": "id",
-																	"value": "sed officia",
-																	"description": "(Required) "
+																	"value": ""
 																}
-															]
-														}
-													},
-													"response": [
-														{
-															"name": "Untitled Response",
-															"originalRequest": {
-																"method": "POST",
-																"header": [
-																	{
-																		"key": "Authorization",
-																		"value": "Bearer <token>",
-																		"description": "Added as a part of security scheme: bearer"
-																	}
-																],
-																"url": {
-																	"raw": "{{baseUrl}}/api/admin/managers/:id/recover",
-																	"host": [
-																		"{{baseUrl}}"
-																	],
-																	"path": [
-																		"api",
-																		"admin",
-																		"managers",
-																		":id",
-																		"recover"
-																	],
-																	"variable": [
-																		{
-																			"key": "id"
-																		}
-																	]
-																}
-															},
-															"status": "Created",
-															"code": 201,
-															"_postman_previewlanguage": "text",
-															"header": [],
-															"cookie": [],
-															"body": ""
-														}
-													]
-												},
-												{
-													"name": "{{baseUrl}}/api/admin/managers/3b7cba55-dd77-44ce-8165-4276c3914032/recover",
-													"request": {
-														"auth": {
-															"type": "bearer",
-															"bearer": [
-																{
-																	"key": "token",
-																	"value": "{{accessToken}}",
-																	"type": "string"
-																}
-															]
-														},
-														"method": "POST",
-														"header": [
-															{
-																"key": "Authorization",
-																"value": "Bearer <token>",
-																"description": "Added as a part of security scheme: bearer"
-															}
-														],
-														"url": {
-															"raw": "{{baseUrl}}/api/admin/managers/3b7cba55-dd77-44ce-8165-4276c3914032/recover",
-															"host": [
-																"{{baseUrl}}"
-															],
-															"path": [
-																"api",
-																"admin",
-																"managers",
-																"3b7cba55-dd77-44ce-8165-4276c3914032",
-																"recover"
 															]
 														}
 													},
@@ -1661,14 +1201,14 @@
 											"name": "ban",
 											"item": [
 												{
-													"name": "Admin Controller ban Manager",
+													"name": "Admin Controller ban manager",
 													"request": {
 														"auth": {
 															"type": "bearer",
 															"bearer": [
 																{
 																	"key": "token",
-																	"value": "{{bearerToken}}",
+																	"value": "{{accessToken}}",
 																	"type": "string"
 																}
 															]
@@ -1696,48 +1236,10 @@
 															]
 														}
 													},
-													"response": [
-														{
-															"name": "Untitled Response",
-															"originalRequest": {
-																"method": "POST",
-																"header": [
-																	{
-																		"key": "Authorization",
-																		"value": "Bearer <token>",
-																		"description": "Added as a part of security scheme: bearer"
-																	}
-																],
-																"url": {
-																	"raw": "{{baseUrl}}/api/admin/managers/:id/ban",
-																	"host": [
-																		"{{baseUrl}}"
-																	],
-																	"path": [
-																		"api",
-																		"admin",
-																		"managers",
-																		":id",
-																		"ban"
-																	],
-																	"variable": [
-																		{
-																			"key": "id"
-																		}
-																	]
-																}
-															},
-															"status": "Created",
-															"code": 201,
-															"_postman_previewlanguage": "text",
-															"header": [],
-															"cookie": [],
-															"body": ""
-														}
-													]
+													"response": []
 												},
 												{
-													"name": "{{baseUrl}}/api/admin/managers/a465fae9-ec6f-4af9-8140-6854ce8365eb/ban",
+													"name": "Ban managers",
 													"request": {
 														"auth": {
 															"type": "bearer",
@@ -1779,14 +1281,14 @@
 											"name": "unban",
 											"item": [
 												{
-													"name": "Admin Controller unban Manager",
+													"name": "Admin Controller unban manager",
 													"request": {
 														"auth": {
 															"type": "bearer",
 															"bearer": [
 																{
 																	"key": "token",
-																	"value": "{{bearerToken}}",
+																	"value": "{{accessToken}}",
 																	"type": "string"
 																}
 															]
@@ -1814,48 +1316,10 @@
 															]
 														}
 													},
-													"response": [
-														{
-															"name": "Untitled Response",
-															"originalRequest": {
-																"method": "POST",
-																"header": [
-																	{
-																		"key": "Authorization",
-																		"value": "Bearer <token>",
-																		"description": "Added as a part of security scheme: bearer"
-																	}
-																],
-																"url": {
-																	"raw": "{{baseUrl}}/api/admin/managers/:id/unban",
-																	"host": [
-																		"{{baseUrl}}"
-																	],
-																	"path": [
-																		"api",
-																		"admin",
-																		"managers",
-																		":id",
-																		"unban"
-																	],
-																	"variable": [
-																		{
-																			"key": "id"
-																		}
-																	]
-																}
-															},
-															"status": "Created",
-															"code": 201,
-															"_postman_previewlanguage": "text",
-															"header": [],
-															"cookie": [],
-															"body": ""
-														}
-													]
+													"response": []
 												},
 												{
-													"name": "{{baseUrl}}/api/admin/managers/a465fae9-ec6f-4af9-8140-6854ce8365eb/unban",
+													"name": "Unban Managers",
 													"request": {
 														"auth": {
 															"type": "bearer",
@@ -1896,7 +1360,7 @@
 									]
 								},
 								{
-									"name": "Admin Controller get Managers",
+									"name": "Admin Controller get managers",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -1929,55 +1393,58 @@
 											]
 										}
 									},
-									"response": [
-										{
-											"name": "Untitled Response",
-											"originalRequest": {
-												"method": "GET",
-												"header": [
-													{
-														"key": "Authorization",
-														"value": "Bearer <token>",
-														"description": "Added as a part of security scheme: bearer"
-													}
-												],
-												"url": {
-													"raw": "{{baseUrl}}/api/admin/managers?order=sed officia",
-													"host": [
-														"{{baseUrl}}"
-													],
-													"path": [
-														"api",
-														"admin",
-														"managers"
-													],
-													"query": [
-														{
-															"key": "order",
-															"value": "sed officia",
-															"description": "(Required) "
-														}
-													]
-												}
-											},
-											"status": "OK",
-											"code": 200,
-											"_postman_previewlanguage": "text",
-											"header": [],
-											"cookie": [],
-											"body": ""
-										}
-									]
+									"response": []
 								},
 								{
-									"name": "Admin Controller create Manager",
+									"name": "Get managers",
 									"request": {
 										"auth": {
 											"type": "bearer",
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{bearerToken}}",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [
+											{
+												"key": "Authorization",
+												"value": "Bearer <token>",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/admin/managers?orde=1",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"admin",
+												"managers"
+											],
+											"query": [
+												{
+													"key": "orde",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Admin Controller create manager",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
 													"type": "string"
 												}
 											]
@@ -2011,55 +1478,10 @@
 											]
 										}
 									},
-									"response": [
-										{
-											"name": "Untitled Response",
-											"originalRequest": {
-												"method": "POST",
-												"header": [
-													{
-														"key": "Content-Type",
-														"value": "application/json"
-													},
-													{
-														"key": "Authorization",
-														"value": "Bearer <token>",
-														"description": "Added as a part of security scheme: bearer"
-													}
-												],
-												"body": {
-													"mode": "raw",
-													"raw": "{\n  \"name\": \"Clavdia\",\n  \"surname\": \"Petrivna\",\n  \"email\": \"test@gmail.com\"\n}",
-													"options": {
-														"raw": {
-															"headerFamily": "json",
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{baseUrl}}/api/admin/managers",
-													"host": [
-														"{{baseUrl}}"
-													],
-													"path": [
-														"api",
-														"admin",
-														"managers"
-													]
-												}
-											},
-											"status": "Created",
-											"code": 201,
-											"_postman_previewlanguage": "text",
-											"header": [],
-											"cookie": [],
-											"body": ""
-										}
-									]
+									"response": []
 								},
 								{
-									"name": "{{baseUrl}}/api/admin/managers",
+									"name": "Created managers",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -2106,48 +1528,6 @@
 										}
 									},
 									"response": []
-								},
-								{
-									"name": "{{baseUrl}}/api/admin/managers?order=sed officia",
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{accessToken}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer <token>",
-												"description": "Added as a part of security scheme: bearer"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/api/admin/managers?order=desc",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"admin",
-												"managers"
-											],
-											"query": [
-												{
-													"key": "order",
-													"value": "desc",
-													"description": "(Required) "
-												}
-											]
-										}
-									},
-									"response": []
 								}
 							]
 						},
@@ -2165,7 +1545,7 @@
 													"bearer": [
 														{
 															"key": "token",
-															"value": "{{bearerToken}}",
+															"value": "{{accessToken}}",
 															"type": "string"
 														}
 													]
@@ -2198,10 +1578,11 @@
 															}
 														],
 														"url": {
-															"raw": "{{baseUrl}}/api/admin/orders/stats",
+															"raw": "localhost:5000/api/admin/orders/stats",
 															"host": [
-																"{{baseUrl}}"
+																"localhost"
 															],
+															"port": "5000",
 															"path": [
 																"api",
 																"admin",
@@ -2218,6 +1599,43 @@
 													"body": ""
 												}
 											]
+										},
+										{
+											"name": "Get orders statistics",
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{accessToken}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "GET",
+												"header": [
+													{
+														"key": "Authorization",
+														"value": "Bearer <token>",
+														"description": "Added as a part of security scheme: bearer"
+													}
+												],
+												"url": {
+													"raw": "localhost:5000/api/admin/orders/stats",
+													"host": [
+														"localhost"
+													],
+													"port": "5000",
+													"path": [
+														"api",
+														"admin",
+														"orders",
+														"stats"
+													]
+												}
+											},
+											"response": []
 										}
 									]
 								}
@@ -2237,7 +1655,7 @@
 													"bearer": [
 														{
 															"key": "token",
-															"value": "{{bearerToken}}",
+															"value": "{{accessToken}}",
 															"type": "string"
 														}
 													]
@@ -2277,10 +1695,11 @@
 															}
 														],
 														"url": {
-															"raw": "{{baseUrl}}/api/admin/user-by-token/:token",
+															"raw": "localhost:5000/api/admin/user-by-token/:token",
 															"host": [
-																"{{baseUrl}}"
+																"localhost"
 															],
+															"port": "5000",
 															"path": [
 																"api",
 																"admin",
@@ -2321,7 +1740,7 @@
 													"bearer": [
 														{
 															"key": "token",
-															"value": "{{bearerToken}}",
+															"value": "{{accessToken}}",
 															"type": "string"
 														}
 													]
@@ -2390,10 +1809,11 @@
 															}
 														},
 														"url": {
-															"raw": "{{baseUrl}}/api/admin/set-password/:token",
+															"raw": "localhost:5000/api/admin/set-password/:token",
 															"host": [
-																"{{baseUrl}}"
+																"localhost"
 															],
+															"port": "5000",
 															"path": [
 																"api",
 																"admin",
@@ -2431,7 +1851,7 @@
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{bearerToken}}",
+													"value": "{{accessToken}}",
 													"type": "string"
 												}
 											]
@@ -2477,7 +1897,7 @@
 													},
 													{
 														"key": "Authorization",
-														"value": "Bearer <token>",
+														"value": "{{accessToken}}",
 														"description": "Added as a part of security scheme: bearer"
 													}
 												],
@@ -2492,10 +1912,11 @@
 													}
 												},
 												"url": {
-													"raw": "{{baseUrl}}/api/admin/send-email",
+													"raw": "localhost:5000/api/admin/send-email",
 													"host": [
-														"{{baseUrl}}"
+														"localhost"
 													],
+													"port": "5000",
 													"path": [
 														"api",
 														"admin",
@@ -2511,6 +1932,55 @@
 											"body": ""
 										}
 									]
+								},
+								{
+									"name": "Send email",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "{{accessToken}}",
+												"description": "Added as a part of security scheme: bearer"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"recipients\": [\n    \"example@example.com\"\n  ],\n  \"subject\": \"Test Email\",\n  \"html\": \"<p>This is a test email</p>\",\n  \"text\": \"Optional plain text content\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/admin/send-email",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"admin",
+												"send-email"
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},
@@ -2528,7 +1998,7 @@
 													"bearer": [
 														{
 															"key": "token",
-															"value": "{{bearerToken}}",
+															"value": "{{accessToken}}",
 															"type": "string"
 														}
 													]
@@ -2555,44 +2025,7 @@
 													]
 												}
 											},
-											"response": [
-												{
-													"name": "Untitled Response",
-													"originalRequest": {
-														"method": "GET",
-														"header": [
-															{
-																"key": "Authorization",
-																"value": "Bearer <token>",
-																"description": "Added as a part of security scheme: bearer"
-															}
-														],
-														"url": {
-															"raw": "{{baseUrl}}/api/admin/verify-token/:token",
-															"host": [
-																"{{baseUrl}}"
-															],
-															"path": [
-																"api",
-																"admin",
-																"verify-token",
-																":token"
-															],
-															"variable": [
-																{
-																	"key": "token"
-																}
-															]
-														}
-													},
-													"status": "OK",
-													"code": 200,
-													"_postman_previewlanguage": "text",
-													"header": [],
-													"cookie": [],
-													"body": ""
-												}
-											]
+											"response": []
 										}
 									]
 								}
@@ -2614,7 +2047,7 @@
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{bearerToken}}",
+													"value": "{{accessToken}}",
 													"type": "string"
 												}
 											]
@@ -2652,71 +2085,17 @@
 											]
 										}
 									},
-									"response": [
-										{
-											"name": "Public order created",
-											"originalRequest": {
-												"method": "POST",
-												"header": [
-													{
-														"key": "Content-Type",
-														"value": "application/json"
-													},
-													{
-														"key": "Accept",
-														"value": "application/json"
-													},
-													{
-														"key": "Authorization",
-														"value": "Bearer <token>",
-														"description": "Added as a part of security scheme: bearer"
-													}
-												],
-												"body": {
-													"mode": "raw",
-													"raw": "{\n  \"name\": \"John\",\n  \"surname\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+1234567890\",\n  \"age\": 30,\n  \"course\": \"FS\",\n  \"course_format\": \"online\",\n  \"course_type\": \"pro\",\n  \"status\": \"New\",\n  \"sum\": 1000,\n  \"alreadyPaid\": 500,\n  \"created_at\": \"2023-01-01T00:00:00.000Z\",\n  \"manager\": {\n    \"id\": \"pariatur ea Lorem dolor\",\n    \"email\": \"culpa\",\n    \"name\": \"incididunt\",\n    \"surname\": \"proident do\",\n    \"last_login\": \"2015-07-27T16:23:53.556Z\",\n    \"is_active\": true,\n    \"image\": \"cupidatat Excepteur officia\",\n    \"role\": \"dolor\"\n  },\n  \"group\": \"Group A\",\n  \"msg\": \"This is a message.\",\n  \"utm\": \"utm_source=google\"\n}",
-													"options": {
-														"raw": {
-															"headerFamily": "json",
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{baseUrl}}/api/orders/register",
-													"host": [
-														"{{baseUrl}}"
-													],
-													"path": [
-														"api",
-														"orders",
-														"register"
-													]
-												}
-											},
-											"status": "OK",
-											"code": 200,
-											"_postman_previewlanguage": "json",
-											"header": [
-												{
-													"key": "Content-Type",
-													"value": "application/json"
-												}
-											],
-											"cookie": [],
-											"body": "{}"
-										}
-									]
+									"response": []
 								},
 								{
-									"name": "{{baseUrl}}/api/orders/register",
+									"name": "Public order created",
 									"request": {
 										"auth": {
 											"type": "bearer",
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{bearerToken}}",
+													"value": "{{accessToken}}",
 													"type": "string"
 												}
 											]
@@ -2777,7 +2156,7 @@
 													"bearer": [
 														{
 															"key": "token",
-															"value": "{{bearerToken}}",
+															"value": "{{accessToken}}",
 															"type": "string"
 														}
 													]
@@ -2823,70 +2202,10 @@
 													]
 												}
 											},
-											"response": [
-												{
-													"name": "Order with added comment",
-													"originalRequest": {
-														"method": "POST",
-														"header": [
-															{
-																"key": "Content-Type",
-																"value": "application/json"
-															},
-															{
-																"key": "Accept",
-																"value": "application/json"
-															},
-															{
-																"key": "Authorization",
-																"value": "Bearer <token>",
-																"description": "Added as a part of security scheme: bearer"
-															}
-														],
-														"body": {
-															"mode": "raw",
-															"raw": "{}",
-															"options": {
-																"raw": {
-																	"headerFamily": "json",
-																	"language": "json"
-																}
-															}
-														},
-														"url": {
-															"raw": "{{baseUrl}}/api/orders/:orderId/comment",
-															"host": [
-																"{{baseUrl}}"
-															],
-															"path": [
-																"api",
-																"orders",
-																":orderId",
-																"comment"
-															],
-															"variable": [
-																{
-																	"key": "orderId"
-																}
-															]
-														}
-													},
-													"status": "OK",
-													"code": 200,
-													"_postman_previewlanguage": "json",
-													"header": [
-														{
-															"key": "Content-Type",
-															"value": "application/json"
-														}
-													],
-													"cookie": [],
-													"body": "{\n  \"id\": 796,\n  \"name\": \"John\",\n  \"surname\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+1234567890\",\n  \"age\": 30,\n  \"course\": \"JavaScript\",\n  \"course_format\": \"Online\",\n  \"course_type\": \"Part-time\",\n  \"status\": \"Active\",\n  \"sum\": 1000,\n  \"alreadyPaid\": 500,\n  \"created_at\": \"2023-01-01T00:00:00.000Z\",\n  \"manager\": {\n    \"id\": \"deserunt cillum eiusmod laboris adipisicing\",\n    \"email\": \"ul\",\n    \"name\": \"fugiat irure sunt consec\",\n    \"surname\": \"ali\",\n    \"last_login\": \"2000-02-07T19:56:29.513Z\",\n    \"is_active\": true,\n    \"image\": \"non ipsum dolore officia\",\n    \"role\": \"aute officia\"\n  },\n  \"group\": \"Group A\",\n  \"comments\": [\n    {\n      \"text\": \"Good student\",\n      \"author\": \"Default\",\n      \"createdAt\": \"2025-02-28T16:40:00.000Z\"\n    },\n    {\n      \"text\": \"Good student\",\n      \"author\": \"Default\",\n      \"createdAt\": \"2025-02-28T16:40:00.000Z\"\n    }\n  ],\n  \"utm\": \"utm_source=google\",\n  \"msg\": \"Hello\"\n}"
-												}
-											]
+											"response": []
 										},
 										{
-											"name": "{{baseUrl}}/api/orders/1/comment",
+											"name": "Adding the comment",
 											"request": {
 												"auth": {
 													"type": "bearer",
@@ -2954,7 +2273,7 @@
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{bearerToken}}",
+													"value": "{{accessToken}}",
 													"type": "string"
 												}
 											]
@@ -2988,55 +2307,10 @@
 											]
 										}
 									},
-									"response": [
-										{
-											"name": "Untitled Response",
-											"originalRequest": {
-												"method": "POST",
-												"header": [
-													{
-														"key": "Content-Type",
-														"value": "application/json"
-													},
-													{
-														"key": "Authorization",
-														"value": "Bearer <token>",
-														"description": "Added as a part of security scheme: bearer"
-													}
-												],
-												"body": {
-													"mode": "raw",
-													"raw": "{}",
-													"options": {
-														"raw": {
-															"headerFamily": "json",
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{baseUrl}}/api/orders/excel",
-													"host": [
-														"{{baseUrl}}"
-													],
-													"path": [
-														"api",
-														"orders",
-														"excel"
-													]
-												}
-											},
-											"status": "Created",
-											"code": 201,
-											"_postman_previewlanguage": "text",
-											"header": [],
-											"cookie": [],
-											"body": ""
-										}
-									]
+									"response": []
 								},
 								{
-									"name": "{{baseUrl}}/api/orders/excel",
+									"name": "Generate excel",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -3139,70 +2413,10 @@
 													]
 												}
 											},
-											"response": [
-												{
-													"name": "Updated order",
-													"originalRequest": {
-														"method": "PATCH",
-														"header": [
-															{
-																"key": "Content-Type",
-																"value": "application/json"
-															},
-															{
-																"key": "Accept",
-																"value": "application/json"
-															},
-															{
-																"key": "Authorization",
-																"value": "Bearer <token>",
-																"description": "Added as a part of security scheme: bearer"
-															}
-														],
-														"body": {
-															"mode": "raw",
-															"raw": "{\n  \"name\": \"John\",\n  \"surname\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+380953456789\",\n  \"age\": 30,\n  \"course\": \"FS\",\n  \"course_format\": \"online\",\n  \"course_type\": \"pro\",\n  \"status\": \"New\",\n  \"sum\": 1000,\n  \"alreadyPaid\": 500,\n  \"group\": \"june-2025\"\n}",
-															"options": {
-																"raw": {
-																	"headerFamily": "json",
-																	"language": "json"
-																}
-															}
-														},
-														"url": {
-															"raw": "{{baseUrl}}/api/orders/:id/edit",
-															"host": [
-																"{{baseUrl}}"
-															],
-															"path": [
-																"api",
-																"orders",
-																":id",
-																"edit"
-															],
-															"variable": [
-																{
-																	"key": "id"
-																}
-															]
-														}
-													},
-													"status": "OK",
-													"code": 200,
-													"_postman_previewlanguage": "json",
-													"header": [
-														{
-															"key": "Content-Type",
-															"value": "application/json"
-														}
-													],
-													"cookie": [],
-													"body": "{}"
-												}
-											]
+											"response": []
 										},
 										{
-											"name": "{{baseUrl}}/api/orders/1/edit",
+											"name": "Update Orders",
 											"request": {
 												"auth": {
 													"type": "bearer",
@@ -3273,7 +2487,7 @@
 													"bearer": [
 														{
 															"key": "token",
-															"value": "{{bearerToken}}",
+															"value": "{{accessToken}}",
 															"type": "string"
 														}
 													]
@@ -3313,10 +2527,11 @@
 															}
 														],
 														"url": {
-															"raw": "{{baseUrl}}/api/orders/comments/:commentId",
+															"raw": "localhost:5000/api/orders/comments/:commentId",
 															"host": [
-																"{{baseUrl}}"
+																"localhost"
 															],
+															"port": "5000",
 															"path": [
 																"api",
 																"orders",
@@ -3376,7 +2591,7 @@
 											]
 										},
 										{
-											"name": "{{baseUrl}}/api/orders/comments/:ca519266-7c74-4b90-b360-e7638b5edf38",
+											"name": "Delete comment",
 											"request": {
 												"auth": {
 													"type": "bearer",
@@ -3417,13 +2632,16 @@
 						},
 						{
 							"name": "Order Controller get List Orders",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
 							"request": {
 								"auth": {
 									"type": "bearer",
 									"bearer": [
 										{
 											"key": "token",
-											"value": "{{bearerToken}}",
+											"value": "{{accessToken}}",
 											"type": "string"
 										}
 									]
@@ -3435,8 +2653,17 @@
 										"value": "application/json"
 									}
 								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
-									"raw": "{{baseUrl}}/api/orders?page=1&limit=25&sort=id&order=DESC&name=sed officia&surname=sed officia&phone=sed officia&email=sed officia&age=sed officia&course=sed officia&course_format=sed officia&course_type=sed officia&status=sed officia&sum=sed officia&alreadyPaid=sed officia&group=sed officia&created_at=sed officia&manager=sed officia&manager_id=sed officia&myOrders=true",
+									"raw": "{{baseUrl}}/api/orders?page=1&limit=25&sort=id&order=DESC&name=&surname=&phone=&email=&age=&course=&course_format=&course_type=&status=&sum=&alreadyPaid=&group=&created_at=&manager=&manager_id=&myOrders=true",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -3467,77 +2694,77 @@
 										},
 										{
 											"key": "name",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by name"
 										},
 										{
 											"key": "surname",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by surname"
 										},
 										{
 											"key": "phone",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by phone"
 										},
 										{
 											"key": "email",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by email"
 										},
 										{
 											"key": "age",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by age"
 										},
 										{
 											"key": "course",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by course"
 										},
 										{
 											"key": "course_format",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by course format"
 										},
 										{
 											"key": "course_type",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by course type"
 										},
 										{
 											"key": "status",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by status"
 										},
 										{
 											"key": "sum",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by sum"
 										},
 										{
 											"key": "alreadyPaid",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by already paid"
 										},
 										{
 											"key": "group",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by group"
 										},
 										{
 											"key": "created_at",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by created at"
 										},
 										{
 											"key": "manager",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by manager"
 										},
 										{
 											"key": "manager_id",
-											"value": "sed officia",
+											"value": "",
 											"description": "Filter by manager ID"
 										},
 										{
@@ -3548,282 +2775,10 @@
 									]
 								}
 							},
-							"response": [
-								{
-									"name": "List of orders with pagination",
-									"originalRequest": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Accept",
-												"value": "application/json"
-											},
-											{
-												"key": "Authorization",
-												"value": "Bearer <token>",
-												"description": "Added as a part of security scheme: bearer"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/api/orders?page=1&limit=25&sort=id&order=DESC&name=sed officia&surname=sed officia&phone=sed officia&email=sed officia&age=sed officia&course=sed officia&course_format=sed officia&course_type=sed officia&status=sed officia&sum=sed officia&alreadyPaid=sed officia&group=sed officia&created_at=sed officia&manager=sed officia&manager_id=sed officia&myOrders=true",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"orders"
-											],
-											"query": [
-												{
-													"key": "page",
-													"value": "1",
-													"description": "Page number (default: 1)"
-												},
-												{
-													"key": "limit",
-													"value": "25",
-													"description": "Limit per page (default: 25)"
-												},
-												{
-													"key": "sort",
-													"value": "id",
-													"description": "Sort field (default: id)"
-												},
-												{
-													"key": "order",
-													"value": "DESC",
-													"description": "Sort order (default: ASC)"
-												},
-												{
-													"key": "name",
-													"value": "sed officia",
-													"description": "Filter by name"
-												},
-												{
-													"key": "surname",
-													"value": "sed officia",
-													"description": "Filter by surname"
-												},
-												{
-													"key": "phone",
-													"value": "sed officia",
-													"description": "Filter by phone"
-												},
-												{
-													"key": "email",
-													"value": "sed officia",
-													"description": "Filter by email"
-												},
-												{
-													"key": "age",
-													"value": "sed officia",
-													"description": "Filter by age"
-												},
-												{
-													"key": "course",
-													"value": "sed officia",
-													"description": "Filter by course"
-												},
-												{
-													"key": "course_format",
-													"value": "sed officia",
-													"description": "Filter by course format"
-												},
-												{
-													"key": "course_type",
-													"value": "sed officia",
-													"description": "Filter by course type"
-												},
-												{
-													"key": "status",
-													"value": "sed officia",
-													"description": "Filter by status"
-												},
-												{
-													"key": "sum",
-													"value": "sed officia",
-													"description": "Filter by sum"
-												},
-												{
-													"key": "alreadyPaid",
-													"value": "sed officia",
-													"description": "Filter by already paid"
-												},
-												{
-													"key": "group",
-													"value": "sed officia",
-													"description": "Filter by group"
-												},
-												{
-													"key": "created_at",
-													"value": "sed officia",
-													"description": "Filter by created at"
-												},
-												{
-													"key": "manager",
-													"value": "sed officia",
-													"description": "Filter by manager"
-												},
-												{
-													"key": "manager_id",
-													"value": "sed officia",
-													"description": "Filter by manager ID"
-												},
-												{
-													"key": "myOrders",
-													"value": "true",
-													"description": "Filter only my orders (true/false)"
-												}
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "Content-Type",
-											"value": "application/json"
-										}
-									],
-									"cookie": [],
-									"body": "{}"
-								},
-								{
-									"name": "Unauthorized",
-									"originalRequest": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Authorization",
-												"value": "Bearer <token>",
-												"description": "Added as a part of security scheme: bearer"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/api/orders?page=1&limit=25&sort=id&order=DESC&name=sed officia&surname=sed officia&phone=sed officia&email=sed officia&age=sed officia&course=sed officia&course_format=sed officia&course_type=sed officia&status=sed officia&sum=sed officia&alreadyPaid=sed officia&group=sed officia&created_at=sed officia&manager=sed officia&manager_id=sed officia&myOrders=true",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"orders"
-											],
-											"query": [
-												{
-													"key": "page",
-													"value": "1",
-													"description": "Page number (default: 1)"
-												},
-												{
-													"key": "limit",
-													"value": "25",
-													"description": "Limit per page (default: 25)"
-												},
-												{
-													"key": "sort",
-													"value": "id",
-													"description": "Sort field (default: id)"
-												},
-												{
-													"key": "order",
-													"value": "DESC",
-													"description": "Sort order (default: ASC)"
-												},
-												{
-													"key": "name",
-													"value": "sed officia",
-													"description": "Filter by name"
-												},
-												{
-													"key": "surname",
-													"value": "sed officia",
-													"description": "Filter by surname"
-												},
-												{
-													"key": "phone",
-													"value": "sed officia",
-													"description": "Filter by phone"
-												},
-												{
-													"key": "email",
-													"value": "sed officia",
-													"description": "Filter by email"
-												},
-												{
-													"key": "age",
-													"value": "sed officia",
-													"description": "Filter by age"
-												},
-												{
-													"key": "course",
-													"value": "sed officia",
-													"description": "Filter by course"
-												},
-												{
-													"key": "course_format",
-													"value": "sed officia",
-													"description": "Filter by course format"
-												},
-												{
-													"key": "course_type",
-													"value": "sed officia",
-													"description": "Filter by course type"
-												},
-												{
-													"key": "status",
-													"value": "sed officia",
-													"description": "Filter by status"
-												},
-												{
-													"key": "sum",
-													"value": "sed officia",
-													"description": "Filter by sum"
-												},
-												{
-													"key": "alreadyPaid",
-													"value": "sed officia",
-													"description": "Filter by already paid"
-												},
-												{
-													"key": "group",
-													"value": "sed officia",
-													"description": "Filter by group"
-												},
-												{
-													"key": "created_at",
-													"value": "sed officia",
-													"description": "Filter by created at"
-												},
-												{
-													"key": "manager",
-													"value": "sed officia",
-													"description": "Filter by manager"
-												},
-												{
-													"key": "manager_id",
-													"value": "sed officia",
-													"description": "Filter by manager ID"
-												},
-												{
-													"key": "myOrders",
-													"value": "true",
-													"description": "Filter only my orders (true/false)"
-												}
-											]
-										}
-									},
-									"status": "Unauthorized",
-									"code": 401,
-									"_postman_previewlanguage": "text",
-									"header": [],
-									"cookie": [],
-									"body": ""
-								}
-							]
+							"response": []
 						},
 						{
-							"name": "{{baseUrl}}/api/orders?page=1&limit=25&sort=id",
+							"name": "Get all orders",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -3883,189 +2838,7 @@
 					"name": "groups",
 					"item": [
 						{
-							"name": "Group Controller create Group",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{bearerToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/groups",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"groups"
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "Group created",
-									"originalRequest": {
-										"method": "POST",
-										"header": [
-											{
-												"key": "Accept",
-												"value": "application/json"
-											},
-											{
-												"key": "Authorization",
-												"value": "Bearer <token>",
-												"description": "Added as a part of security scheme: bearer"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/api/groups",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"groups"
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "Content-Type",
-											"value": "application/json"
-										}
-									],
-									"cookie": [],
-									"body": "{}"
-								}
-							]
-						},
-						{
-							"name": "Group Controller find All",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{bearerToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/groups",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"groups"
-									]
-								}
-							},
-							"response": [
-								{
-									"name": "List of groups",
-									"originalRequest": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "Accept",
-												"value": "application/json"
-											},
-											{
-												"key": "Authorization",
-												"value": "Bearer <token>",
-												"description": "Added as a part of security scheme: bearer"
-											}
-										],
-										"url": {
-											"raw": "{{baseUrl}}/api/groups",
-											"host": [
-												"{{baseUrl}}"
-											],
-											"path": [
-												"api",
-												"groups"
-											]
-										}
-									},
-									"status": "OK",
-									"code": 200,
-									"_postman_previewlanguage": "json",
-									"header": [
-										{
-											"key": "Content-Type",
-											"value": "application/json"
-										}
-									],
-									"cookie": [],
-									"body": "[]"
-								}
-							]
-						},
-						{
-							"name": "{{baseUrl}}/api/groups",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{accessToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"value": "Bearer <token>",
-										"description": "Added as a part of security scheme: bearer"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/groups",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"groups"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "{{baseUrl}}/api/groups",
+							"name": "Create group",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -4091,13 +2864,84 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"name\":\"october-2024\"}",
+									"raw": "{\"name\":\"september-2025\"}",
 									"options": {
 										"raw": {
 											"language": "json"
 										}
 									}
 								},
+								"url": {
+									"raw": "{{baseUrl}}/api/groups",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"groups"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Group Controller find All",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/groups",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"groups"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Getting all groups",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer <token>",
+										"description": "Added as a part of security scheme: bearer"
+									}
+								],
 								"url": {
 									"raw": "{{baseUrl}}/api/groups",
 									"host": [
@@ -4128,33 +2972,10 @@
 							]
 						}
 					},
-					"response": [
-						{
-							"name": "API is running",
-							"originalRequest": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/api",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api"
-									]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "text",
-							"header": [],
-							"cookie": [],
-							"body": ""
-						}
-					]
+					"response": []
 				},
 				{
-					"name": "{{baseUrl}}/api",
+					"name": "API health testing",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -4176,10 +2997,72 @@
 			]
 		}
 	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"const responseJSON = pm.response.json();\r",
+					"\r",
+					"// Test to check if the response is successful and has tokens\r",
+					"pm.test(\"Response is successful and contains tokens\", function () {\r",
+					"    pm.expect(pm.response).to.have.status(200);\r",
+					"    pm.expect(responseJSON).to.have.property('tokens');\r",
+					"    pm.expect(responseJSON.tokens).to.have.property('accessToken').that.is.a('string').and.is.not.empty;\r",
+					"    pm.expect(responseJSON.tokens).to.have.property('refreshToken').that.is.a('string').and.is.not.empty;\r",
+					"});\r",
+					"\r",
+					"// Save tokens to environment variables\r",
+					"pm.environment.set(\"accessToken\", responseJSON.tokens.accessToken);\r",
+					"pm.environment.set(\"refreshToken\", responseJSON.tokens.refreshToken);\r",
+					"\r",
+					"\r",
+					"pm.environment.set(\"userId\", responseJSON.user.id);"
+				]
+			}
+		}
+	],
 	"variable": [
 		{
 			"key": "baseUrl",
 			"value": "/"
+		},
+		{
+			"key": "accessToken",
+			"value": "{{accessToken}}",
+			"type": "default"
+		},
+		{
+			"key": "userId",
+			"value": "{{userId}}",
+			"type": "default"
+		},
+		{
+			"key": "refreshToken",
+			"value": "{{refreshToken}}",
+			"type": "string"
 		}
 	]
 }
