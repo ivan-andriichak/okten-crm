@@ -22,6 +22,7 @@ import { LoggerService } from '../../logger/logger.service';
 import { StatusEnum } from '../../orders/enums/order.enums';
 import { UserResDto } from '../../users/dto/res/user.res.dto';
 import { RegisterAdminReqDto } from '../dto/req/register-admin.req.dto';
+import { GetManagersResDto } from '../dto/res/manager.res.dto';
 
 @Injectable()
 export class AdminService {
@@ -292,34 +293,38 @@ export class AdminService {
   }
 
   async getManagers(
-    page = 1,
-    limit = 10,
+    page: number = 1,
+    limit: number = 15,
     sort = 'created_at',
-    order: 'ASC' | 'DESC' = 'DESC',
+    order = 'DESC',
   ): Promise<{
-    managers: (UserEntity & { statistics: { totalOrders: number; activeOrders: number }; hasPassword: boolean })[];
+    managers: GetManagersResDto[];
     total: number;
   }> {
     const userRepository = this.dataSource.getRepository(UserEntity);
+
+    // Явне приведення до числа
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 15;
+
     const [managers, total] = await userRepository.findAndCount({
       where: [{ role: Role.MANAGER }, { role: Role.ADMIN }],
       order: {
         role: 'DESC',
         [sort]: order,
       },
-      skip: (page - 1) * limit,
-      take: limit,
-      select: ['id', 'email', 'name', 'surname', 'is_active', 'password', 'created_at', 'last_login', 'role'],
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
+      select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at', 'last_login', 'role'],
     });
 
-    this.loggerService.log(`Fetched ${managers.length} managers, page: ${page}, limit: ${limit}`);
+    this.loggerService.log(`Fetched ${managers.length} managers, page: ${pageNum}, limit: ${limitNum}`);
 
     const managersWithStats = await Promise.all(
       managers.map(async (manager) => {
         const stats = await this.getManagerStatistics(manager.id);
         return {
           ...manager,
-          hasPassword: !!manager.password,
           statistics: {
             totalOrders: stats.Total || 0,
             activeOrders: stats[StatusEnum.IN_WORK] || 0,
@@ -330,7 +335,6 @@ export class AdminService {
 
     return { managers: managersWithStats, total };
   }
-
   async getOrderStatistics(): Promise<Record<string, number>> {
     const orderRepository = this.dataSource.getRepository(OrderEntity);
     const stats = await this.getStatistics(orderRepository);

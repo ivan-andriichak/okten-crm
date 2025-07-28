@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -11,6 +11,7 @@ import { MailDto } from '../email/mail.dto';
 import { UserResDto } from '../users/dto/res/user.res.dto';
 import { RegisterAdminReqDto } from './dto/req/register-admin.req.dto';
 import { SetPasswordReqDto } from './dto/req/set-password.req.dto';
+import { GetManagersResDto } from './dto/res/manager.res.dto';
 import { AdminService } from './services/admin.service';
 
 @ApiBearerAuth()
@@ -22,12 +23,14 @@ export class AdminController {
 
   @Roles(Role.ADMIN)
   @Get('managers')
+  @ApiOperation({ summary: 'Get all managers' })
+  @ApiResponse({ status: 200, description: 'List of managers', type: [GetManagersResDto] })
   async getManagers(
-    @Query('page') page = 1,
-    @Query('limit') limit = 25,
-    @Query('sort') sort = 'created_at',
-    @Query('order') order: 'ASC' | 'DESC' = 'DESC',
-  ): Promise<{ managers: UserEntity[]; total: number }> {
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('sort') sort?: string,
+    @Query('order') order?: 'ASC' | 'DESC',
+  ): Promise<{ managers: GetManagersResDto[]; total: number }> {
     return await this.adminService.getManagers(page, limit, sort, order);
   }
 

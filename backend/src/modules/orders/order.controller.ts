@@ -31,7 +31,7 @@ export class OrderController {
   @ApiQuery({ name: 'page', required: false, description: 'Page number (default: 1)' })
   @ApiQuery({ name: 'limit', required: false, description: 'Limit per page (default: 25)' })
   @ApiQuery({ name: 'sort', required: false, description: 'Sort field (default: id)' })
-  @ApiQuery({ name: 'order', required: false, enum: ['ASC', 'DESC'], description: 'Sort order (default: ASC)' })
+  @ApiQuery({ name: 'order', required: false, enum: ['ASC', 'DESC'], description: 'Sort order (default: DESC)' })
   @ApiQuery({ name: 'name', required: false, description: 'Filter by name' })
   @ApiQuery({ name: 'surname', required: false, description: 'Filter by surname' })
   @ApiQuery({ name: 'email', required: false, description: 'Filter by email' })
