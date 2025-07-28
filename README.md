@@ -143,6 +143,9 @@ The backend includes Swagger UI for interactive API documentation and testing.
  - Test endpoints like GET http://localhost:5000/api directly in Swagger.
  - To get the raw Swagger JSON, open:
    http://localhost:5000/swagger-json
+ - **Postman Collection:** You can also use the provided Postman collection for API testing.
+
+ - **Alternative:** [Online Postman documentation (web link)](https://web.postman.co/workspace/d202087f-6453-4c79-8561-4e8a6f4a37f8/collection/33173621-63ee6331-545b-4130-9bcf-96a9149decf8?action=share&source=copy-link&creator=33173621)
 
 ### Via Nginx:
  - Alternative, use:
