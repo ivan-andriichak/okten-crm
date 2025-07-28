@@ -11,7 +11,7 @@ import { OrdersRepository } from '../../repository/services/orders.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { CommentDto } from '../dto/req/comment.req.dto';
 import { EditOrderDto } from '../dto/req/edit-order.req.dto';
-import { ExcelQueryDto } from '../dto/req/excel-guery.req.dto';
+import { ExcelQueryDto } from '../dto/req/excel-query.req.dto';
 import { OrderListQueryDto } from '../dto/req/order-list.query.dto';
 import { OrderListItemResDto } from '../dto/res/order-list-item.res.dto';
 import { OrderMapper } from './order.mapper';

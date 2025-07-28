@@ -9,7 +9,7 @@ import { IUserData } from '../auth/interfaces/user-data.interface';
 import { RegisterOrderDto } from '../groups/dto/req/register-oreder.dto';
 import { CommentDto } from './dto/req/comment.req.dto';
 import { EditOrderDto } from './dto/req/edit-order.req.dto';
-import { ExcelQueryDto } from './dto/req/excel-guery.req.dto';
+import { ExcelQueryDto } from './dto/req/excel-query.req.dto';
 import { OrderListQueryDto } from './dto/req/order-list.query.dto';
 import { OrderListItemResDto } from './dto/res/order-list-item.res.dto';
 import { OrderListDto } from './dto/res/ored-list.res';
@@ -77,7 +77,8 @@ export class OrderController {
   }
 
   @Post('excel')
-  async generateExcel(@CurrentUser() userData: IUserData, @Body() query: ExcelQueryDto, @Res() res: Response) {
+  @ApiOkResponse({ description: 'No body required' })
+  async generateExcel(@CurrentUser() userData: IUserData, @Query() query: ExcelQueryDto, @Res() res: Response) {
     const buffer = await this.ordersService.generateExcel(userData, query);
 
     res.set({

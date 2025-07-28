@@ -22,10 +22,10 @@ export class ExcelQueryDto {
   @IsString()
   sort?: string = 'id';
 
-  @ApiProperty({ description: 'Sort order', required: false, enum: ['ASC', 'DESC'], default: 'ASC' })
+  @ApiProperty({ description: 'Sort order', required: false, enum: ['ASC', 'DESC'], default: 'DESC' })
   @IsOptional()
   @IsEnum(['ASC', 'DESC'])
-  order?: 'ASC' | 'DESC' = 'ASC';
+  order?: 'DESC';
 
   @ApiProperty({ description: 'Filter by name', required: false })
   @IsOptional()

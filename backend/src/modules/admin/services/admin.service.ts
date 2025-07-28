@@ -303,7 +303,6 @@ export class AdminService {
   }> {
     const userRepository = this.dataSource.getRepository(UserEntity);
 
-    // Явне приведення до числа
     const pageNum = Number(page) || 1;
     const limitNum = Number(limit) || 15;
 
