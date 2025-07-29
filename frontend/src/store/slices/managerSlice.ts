@@ -79,7 +79,6 @@ export const fetchOverallStats = createAsyncThunk<
   const response = await api.get('/admin/orders/stats', {
     headers: { Authorization: `Bearer ${token}` },
   });
-  console.log('fetchOverallStats response:', response.data);
   return response.data;
 });
 

@@ -10,7 +10,6 @@ const redisProvider: Provider = {
   useFactory: (configService: ConfigService<Config>): Redis => {
     const redisConfig = configService.get<RedisConfig>('redis');
 
-    // console.log('Connecting to Redis with password:', redisConfig.password);
     return new Redis({
       port: redisConfig.port,
       host: redisConfig.host,

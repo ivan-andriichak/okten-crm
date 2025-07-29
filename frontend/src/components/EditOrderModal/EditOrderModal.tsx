@@ -384,6 +384,11 @@ const EditOrderModal = ({
                 name="sum"
                 value={editForm.sum ?? ''}
                 onChange={handleEditChange}
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                    e.preventDefault();
+                  }
+                }}
                 className={css.input}
               />
             </div>
@@ -394,6 +399,11 @@ const EditOrderModal = ({
                 name="alreadyPaid"
                 value={editForm.alreadyPaid ?? ''}
                 onChange={handleEditChange}
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                    e.preventDefault();
+                  }
+                }}
                 className={css.input}
               />
             </div>

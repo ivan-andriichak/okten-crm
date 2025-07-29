@@ -285,7 +285,7 @@
 					]
 				},
 				{
-					"name": "logOut",
+					"name": "log-out",
 					"item": [
 						{
 							"name": "Log out",
@@ -402,11 +402,10 @@
 															]
 														},
 														"url": {
-															"raw": "localhost:5000/api/users/me/avatar",
+															"raw": "{{baseUrl}}/api/users/me/avatar",
 															"host": [
-																"localhost"
+																"{{baseUrl}}"
 															],
-															"port": "5000",
 															"path": [
 																"api",
 																"users",
@@ -465,11 +464,10 @@
 															}
 														],
 														"url": {
-															"raw": "localhost:5000/api/users/me/avatar",
+															"raw": "{{baseUrl}}/api/users/me/avatar",
 															"host": [
-																"localhost"
+																"{{baseUrl}}"
 															],
-															"port": "5000",
 															"path": [
 																"api",
 																"users",
@@ -529,11 +527,10 @@
 													}
 												],
 												"url": {
-													"raw": "localhost:5000/api/users/me",
+													"raw": "{{baseUrl}}/api/users/me",
 													"host": [
-														"localhost"
+														"{{baseUrl}}"
 													],
-													"port": "5000",
 													"path": [
 														"api",
 														"users",
@@ -714,11 +711,10 @@
 													}
 												},
 												"url": {
-													"raw": "localhost:5000/api/users/me",
+													"raw": "{{baseUrl}}/api/users/me",
 													"host": [
-														"localhost"
+														"{{baseUrl}}"
 													],
-													"port": "5000",
 													"path": [
 														"api",
 														"users",
@@ -907,11 +903,10 @@
 													}
 												],
 												"url": {
-													"raw": "localhost:5000/api/users/me",
+													"raw": "{{baseUrl}}/api/users/me",
 													"host": [
-														"localhost"
+														"{{baseUrl}}"
 													],
-													"port": "5000",
 													"path": [
 														"api",
 														"users",
@@ -1105,7 +1100,7 @@
 											"name": "activate",
 											"item": [
 												{
-													"name": "Activate managers",
+													"name": "Activate manager",
 													"request": {
 														"auth": {
 															"type": "bearer",
@@ -1239,7 +1234,7 @@
 													"response": []
 												},
 												{
-													"name": "Ban managers",
+													"name": "Ban manager",
 													"request": {
 														"auth": {
 															"type": "bearer",
@@ -1319,7 +1314,7 @@
 													"response": []
 												},
 												{
-													"name": "Unban Managers",
+													"name": "Unban manager",
 													"request": {
 														"auth": {
 															"type": "bearer",
@@ -1396,7 +1391,7 @@
 									"response": []
 								},
 								{
-									"name": "Get managers",
+									"name": "Get manager",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -1481,7 +1476,7 @@
 									"response": []
 								},
 								{
-									"name": "Created managers",
+									"name": "Create manager",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -1578,11 +1573,10 @@
 															}
 														],
 														"url": {
-															"raw": "localhost:5000/api/admin/orders/stats",
+															"raw": "{{baseUrl}}/api/admin/orders/stats",
 															"host": [
-																"localhost"
+																"{{baseUrl}}"
 															],
-															"port": "5000",
 															"path": [
 																"api",
 																"admin",
@@ -1695,11 +1689,10 @@
 															}
 														],
 														"url": {
-															"raw": "localhost:5000/api/admin/user-by-token/:token",
+															"raw": "{{baseUrl}}/api/admin/user-by-token/:token",
 															"host": [
-																"localhost"
+																"{{baseUrl}}"
 															],
-															"port": "5000",
 															"path": [
 																"api",
 																"admin",
@@ -1809,11 +1802,10 @@
 															}
 														},
 														"url": {
-															"raw": "localhost:5000/api/admin/set-password/:token",
+															"raw": "{{baseUrl}}/api/admin/set-password/:token",
 															"host": [
-																"localhost"
+																"{{baseUrl}}"
 															],
-															"port": "5000",
 															"path": [
 																"api",
 																"admin",
@@ -1912,11 +1904,10 @@
 													}
 												},
 												"url": {
-													"raw": "localhost:5000/api/admin/send-email",
+													"raw": "{{baseUrl}}/api/admin/send-email",
 													"host": [
-														"localhost"
+														"{{baseUrl}}"
 													],
-													"port": "5000",
 													"path": [
 														"api",
 														"admin",
@@ -2088,7 +2079,7 @@
 									"response": []
 								},
 								{
-									"name": "Public order created",
+									"name": "Create public order",
 									"request": {
 										"auth": {
 											"type": "bearer",
@@ -2205,7 +2196,7 @@
 											"response": []
 										},
 										{
-											"name": "Adding the comment",
+											"name": "Add comment",
 											"request": {
 												"auth": {
 													"type": "bearer",
@@ -2416,7 +2407,7 @@
 											"response": []
 										},
 										{
-											"name": "Update Orders",
+											"name": "Update Order",
 											"request": {
 												"auth": {
 													"type": "bearer",
@@ -2527,11 +2518,10 @@
 															}
 														],
 														"url": {
-															"raw": "localhost:5000/api/orders/comments/:commentId",
+															"raw": "{{baseUrl}}/api/orders/comments/:commentId",
 															"host": [
-																"localhost"
+																"{{baseUrl}}"
 															],
-															"port": "5000",
 															"path": [
 																"api",
 																"orders",
@@ -2918,7 +2908,7 @@
 							"response": []
 						},
 						{
-							"name": "Getting all groups",
+							"name": "Get all groups",
 							"request": {
 								"auth": {
 									"type": "bearer",
