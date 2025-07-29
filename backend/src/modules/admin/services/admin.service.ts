@@ -244,14 +244,20 @@ export class AdminService {
       });
       if (!manager) {
         this.loggerService.error(`Manager not found: ${managerId}`);
-        throw new NotFoundException(ERROR_MESSAGES.MANAGER_NOT_FOUND);
       }
       if (!manager.is_active) {
         this.loggerService.warn(`Manager is already inactive: ${managerId}`);
-        throw new BadRequestException(ERROR_MESSAGES.MANAGER_ALREADY_INACTIVE);
       }
 
-      await queryRunner.manager.update(UserEntity, { id: managerId }, { is_active: false });
+      const hashedPassword = manager.password || (await bcrypt.hash('banned_placeholder', 10));
+      await queryRunner.manager.update(
+        UserEntity,
+        { id: managerId },
+        {
+          is_active: false,
+          password: hashedPassword,
+        },
+      );
       await queryRunner.manager.delete(RefreshTokenEntity, { user: { id: managerId } });
       await queryRunner.commitTransaction();
       this.loggerService.log(`Manager banned: ${managerId}`);
@@ -263,7 +269,6 @@ export class AdminService {
       await queryRunner.release();
     }
   }
-
   async verifyToken(token: string): Promise<{ email: string }> {
     return await this.getUserByToken(token);
   }
@@ -314,7 +319,7 @@ export class AdminService {
       },
       skip: (pageNum - 1) * limitNum,
       take: limitNum,
-      select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at', 'last_login', 'role'],
+      select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at', 'last_login', 'role', 'password'],
     });
 
     this.loggerService.log(`Fetched ${managers.length} managers, page: ${pageNum}, limit: ${limitNum}`);

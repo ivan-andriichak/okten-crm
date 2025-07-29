@@ -118,7 +118,6 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
         case 'recover': {
           const result = await dispatch(recoverPassword(managerId)).unwrap();
           await navigator.clipboard.writeText(result.link);
-
           break;
         }
         case 'ban': {
@@ -180,15 +179,21 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
               Total: {overallStats.Total ?? 0}
             </p>
             <p>
+              In Work:{' '}
+              <span style={{ color: 'blue', fontWeight: 'bold' }}>
+                {overallStats['In work'] ?? 0}
+              </span>
+            </p>
+            <p>
               New:{' '}
               <span style={{ color: 'green', fontWeight: 'bold' }}>
                 {overallStats.New ?? 0}
               </span>
             </p>
             <p>
-              In Work:{' '}
-              <span style={{ color: 'blue', fontWeight: 'bold' }}>
-                {overallStats['In work'] ?? 0}
+              Null:{' '}
+              <span style={{ color: 'grey', fontWeight: 'bold' }}>
+                {overallStats.NULL ?? 0}
               </span>
             </p>
             <p>
@@ -241,62 +246,57 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           <>
             <table className={css.table}>
               <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Email</th>
-                  <th>Name</th>
-                  <th>Surname</th>
-                  <th>Status</th>
-                  <th>Statistics</th>
-                  <th>Last login</th>
-                  <th>Actions</th>
-                </tr>
+              <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Status</th>
+                <th>Statistics</th>
+                <th>Last login</th>
+                <th>Actions</th>
+              </tr>
               </thead>
               <tbody>
-                {[...managers]
-                  .sort((a, b) => {
-                    if (a.role === 'admin' && b.role !== 'admin') return -1;
-                    if (a.role !== 'admin' && b.role === 'admin') return 1;
-                    return 0;
-                  })
-                  .map((manager, index) => {
-                    const status = getManagerStatus(manager);
-                    const displayIndex = index + 1 + (page - 1) * limit;
-                    const isAdmin = manager.role === 'admin';
-                    return (
-                      <tr
-                        key={manager.id}
-                        style={
-                          isAdmin
-                            ? { backgroundColor: 'rgb(240, 255, 232)' }
-                            : {}
-                        }>
-                        <td>{displayIndex}</td>
-                        <td>
-                          <span>
-                            {manager.email}{' '}
-                            {isAdmin && (
-                              <h4
-                                style={{
-                                  textDecoration: isAdmin
-                                    ? 'underline'
-                                    : 'none',
-                                }}>
-                                (Admin)
-                              </h4>
-                            )}
-                          </span>
-                        </td>
-                        <td>{manager.name}</td>
-                        <td>{manager.surname}</td>
-                        <td style={{ color: manager.hasPassword ? 'red' : status.color }}>{status.text}</td>
-                        <td>
-                          Total Orders: {manager.statistics?.totalOrders ?? 0},
-                          Active: {manager.statistics?.activeOrders ?? 0}
-                        </td>
-                        <td>{formatCell('last_login', manager.last_login)}</td>
-                        <td>
-                          {isAdmin ? (
+              {managers.map((manager, index) => {
+                const status = getManagerStatus(manager);
+                const displayIndex = index + 1 + (page - 1) * limit;
+                const isAdmin = manager.role === 'admin';
+                return (
+                  <tr
+                    key={manager.id}
+                    style={
+                      isAdmin ? { backgroundColor: 'rgb(240, 255, 232)' } : {}
+                    }>
+                    <td>{displayIndex}</td>
+                    <td>
+                        <span>
+                          {manager.email}{' '}
+                          {isAdmin && (
+                            <h4 style={{ textDecoration: 'underline' }}>
+                              (Admin)
+                            </h4>
+                          )}
+                        </span>
+                    </td>
+                    <td>{manager.name}</td>
+                    <td>{manager.surname}</td>
+                    <td style={{ color: status.color }}>{status.text}</td>
+                    <td>
+                      Total Orders: {manager.statistics?.totalOrders ?? 0},
+                      Active: {manager.statistics?.activeOrders ?? 0}
+                    </td>
+                    <td>{formatCell('last_login', manager.last_login)}</td>
+                    <td>
+                      {isAdmin ? (
+                        <Button
+                          className={`${css.actionButton} ${css.recoverButton}`}
+                          onClick={() => handleAction('recover', manager.id)}>
+                          Recover Password
+                        </Button>
+                      ) : (
+                        <>
+                          {manager.is_active ? (
                             <Button
                               className={`${css.actionButton} ${css.recoverButton}`}
                               onClick={() =>
@@ -305,70 +305,43 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
                               Recover Password
                             </Button>
                           ) : (
-                            <>
-                              {manager.is_active ? (
-                                <Button
-                                  className={`${css.actionButton} ${css.recoverButton}`}
-                                  onClick={() =>
-                                    handleAction('recover', manager.id)
-                                  }>
-                                  Recover Password
-                                </Button>
-                              ) : (
-                                <Button
-                                  className={`${css.actionButton} ${css.activateButton}`}
-                                  onClick={() =>
-                                    handleAction('activate', manager.id)
-                                  }
-                                  disabled={manager.hasPassword}
-                                  data-tooltip-id={`activate-tooltip-${manager.id}`}
-                                  data-tooltip-content={
-                                    manager.hasPassword
-                                      ? 'Manager is banned'
-                                      : 'Generate activation link'
-                                  }>
-                                  Activate
-                                  {manager.hasPassword && (
-                                    <ReactTooltip
-                                      id={`activate-tooltip-${manager.id}`}
-                                      style={{
-                                        backgroundColor: 'red',
-                                        color: 'white',
-                                        borderRadius: '8px',
-                                      }}
-                                    />
-                                  )}
-                                </Button>
-                              )}
-                              {manager.is_active ? (
-                                <Button
-                                  className={`${css.actionButton} ${css.banButton}`}
-                                  onClick={() =>
-                                    handleAction('ban', manager.id)
-                                  }
-                                  disabled={
-                                    manager.role === 'admin'
-                                  }>
-                                  Ban
-                                </Button>
-                              ) : (
-                                <Button
-                                  className={`${css.actionButton} ${css.unbanButton}`}
-                                  onClick={() =>
-                                    handleAction('unban', manager.id)
-                                  }
-                                  disabled={
-                                    manager.role === 'admin'
-                                  }>
-                                  Unban
-                                </Button>
-                              )}
-                            </>
+                            !manager.is_active && !manager.hasPassword && (
+                            <Button
+                            className={`${css.actionButton} ${css.activateButton}`}
+                          onClick={() => handleAction('activate', manager.id)}
+                          data-tooltip-id={`activate-tooltip-${manager.id}`}
+                          data-tooltip-content="Generate activation link"
+                          >
+                        Activate
+                        </Button>
+                            ))}
+                          {manager.is_active ? (
+                            <Button
+                              className={`${css.actionButton} ${css.banButton}`}
+                              onClick={() => handleAction('ban', manager.id)}
+                              disabled={!manager.is_active}>
+                              Ban
+                            </Button>
+                          ) : (
+                            manager.hasPassword && (
+                              <Button
+                                className={`${css.actionButton} ${css.unbanButton}`}
+                                onClick={() =>
+                                  handleAction('unban', manager.id)
+                                }
+                                disabled={
+                                  manager.is_active || !manager.hasPassword
+                                }>
+                                Unban
+                              </Button>
+                            )
                           )}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
               </tbody>
             </table>
             <div className={css.pagination}>
