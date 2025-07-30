@@ -6,7 +6,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { OrderEntity } from '../../database/entities/order.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { IUserData } from '../auth/interfaces/user-data.interface';
-import { RegisterOrderDto } from '../groups/dto/req/register-oreder.dto';
+import { RegisterOrderDto } from '../groups/dto/req/register-order.dto';
 import { CommentDto } from './dto/req/comment.req.dto';
 import { EditOrderDto } from './dto/req/edit-order.req.dto';
 import { ExcelQueryDto } from './dto/req/excel-query.req.dto';

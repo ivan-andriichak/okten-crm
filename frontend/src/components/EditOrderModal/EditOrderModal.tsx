@@ -338,6 +338,7 @@ const EditOrderModal = ({
                 value={editForm.phone ?? ''}
                 onChange={handleEditChange}
                 className={css.input}
+                placeholder="+380 XX XXX XXXX"
               />
               {validationErrors.phone && <div className={css.error}>{validationErrors.phone}</div>}
             </div>

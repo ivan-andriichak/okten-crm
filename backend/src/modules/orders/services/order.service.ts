@@ -1,10 +1,10 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import * as ExcelJS from 'exceljs';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Workbook } from 'exceljs';
 
 import { Role } from '../../../common/enums/role.enum';
 import { OrderEntity } from '../../../database/entities/order.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
-import { RegisterOrderDto } from '../../groups/dto/req/register-oreder.dto';
+import { RegisterOrderDto } from '../../groups/dto/req/register-order.dto';
 import { LoggerService } from '../../logger/logger.service';
 import { CommentRepository } from '../../repository/services/comment.repository';
 import { OrdersRepository } from '../../repository/services/orders.repository';
@@ -21,34 +21,47 @@ export class OrderService {
   constructor(
     private readonly ordersRepository: OrdersRepository,
     private readonly userRepository: UserRepository,
-    private readonly logger: LoggerService,
+    private readonly loggerService: LoggerService,
     private readonly commentRepository: CommentRepository,
   ) {}
 
   public async getListOrders(userData: IUserData, query: OrderListQueryDto): Promise<[OrderEntity[], number]> {
-    const userId = userData.role === Role.MANAGER || userData.role === Role.ADMIN ? userData.userId : undefined;
+    if (query.page < 1 || query.limit < 1) {
+      throw new BadRequestException('Invalid pagination parameters');
+    }
+    const userId = this.getUserIdForRole(userData);
+    this.loggerService.log(
+      `Fetching orders for user ${userData.userId} (role: ${userData.role}) with query: ${JSON.stringify(query)}`,
+    );
     return await this.ordersRepository.getListOrders(userId, query);
   }
 
   public async getAllOrders(userData: IUserData, query: ExcelQueryDto): Promise<OrderEntity[]> {
-    const userId = userData.role === Role.MANAGER || userData.role === Role.ADMIN ? userData.userId : undefined;
-    this.logger.log(
+    const userId = this.getUserIdForRole(userData);
+    if (!query || Object.keys(query).length === 0) {
+      throw new BadRequestException('Query parameters are required');
+    }
+    this.loggerService.log(
       `Fetching all orders for Excel for user ${userData.userId} (role: ${userData.role}) 
       with query: ${JSON.stringify(query)}`,
     );
     return await this.ordersRepository.getAllOrders(userId, query);
   }
 
+  private getUserIdForRole(userData: IUserData): string | undefined {
+    return userData.role === Role.MANAGER || userData.role === Role.ADMIN ? userData.userId : undefined;
+  }
+
   async getOrderById(orderId: number): Promise<OrderEntity> {
     const order = await this.ordersRepository.findOne({ where: { id: orderId } });
     if (!order) {
-      throw new Error('Order not found');
+      throw new NotFoundException(`Order with id ${orderId} not found`);
     }
     return order;
   }
 
   async addComment(orderId: number, commentDto: CommentDto, userData: IUserData): Promise<OrderListItemResDto> {
-    this.logger.log(`addComment called for order ${orderId} by user ${userData.userId}`);
+    this.loggerService.log(`addComment called for order ${orderId} by user ${userData.userId}`);
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
       relations: ['manager', 'comments', 'comments.user'],
@@ -112,7 +125,9 @@ export class OrderService {
   }
 
   async editOrder(orderId: number, editOrderDto: EditOrderDto, userData: IUserData): Promise<OrderEntity> {
-    this.logger.log(`Editing order ${orderId} by user ${userData.userId} with data: ${JSON.stringify(editOrderDto)}`);
+    this.loggerService.log(
+      `Editing order ${orderId} by user ${userData.userId} with data: ${JSON.stringify(editOrderDto)}`,
+    );
 
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
@@ -167,7 +182,9 @@ export class OrderService {
       order.manager = user;
     }
 
-    this.logger.log(`Order ${orderId} updated with status: ${order.status}, manager: ${order.manager?.id || 'none'}`);
+    this.loggerService.log(
+      `Order ${orderId} updated with status: ${order.status}, manager: ${order.manager?.id || 'none'}`,
+    );
     return await this.ordersRepository.save(order);
   }
 
@@ -184,14 +201,14 @@ export class OrderService {
   }
 
   async generateExcel(userData: IUserData, query: ExcelQueryDto): Promise<Buffer> {
-    this.logger.log(
+    this.loggerService.log(
       `Generating Excel for user ${userData.userId} (role: ${userData.role}) with query: ${JSON.stringify(query)}`,
     );
 
     const orders = await this.getAllOrders(userData, query);
-    this.logger.log(`Fetched ${orders.length} orders for Excel generation`);
+    this.loggerService.log(`Fetched ${orders.length} orders for Excel generation`);
 
-    const workbook = new ExcelJS.Workbook();
+    const workbook = new Workbook();
     const worksheet = workbook.addWorksheet('Orders');
 
     worksheet.columns = [
@@ -211,7 +228,6 @@ export class OrderService {
       { header: 'Created At', key: 'created_at', width: 20 },
       { header: 'Manager', key: 'manager', width: 20 },
     ];
-
     orders.forEach((order) => {
       worksheet.addRow({
         id: order.id,
