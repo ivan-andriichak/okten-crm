@@ -6,7 +6,7 @@ import storage from '../../utils/storage';
 import {
   ERROR_MESSAGES,
   NOTIFICATION_TYPES,
-  SUCCESS_MESSAGES,
+  // SUCCESS_MESSAGES,
 } from '../../constants/error-messages';
 import { addNotification } from './notificationSlice';
 import { RootState } from '../store';
@@ -81,14 +81,14 @@ export const refreshTokens = createAsyncThunk(
         deviceId,
       });
 
-      dispatch(
-        addNotification({
-          message: SUCCESS_MESSAGES.TOKEN_REFRESH_SUCCESS,
-          type: 'success',
-          duration: 5000,
-          notificationType: NOTIFICATION_TYPES.STANDARD,
-        }),
-      );
+      // dispatch(
+      //   addNotification({
+      //     message: SUCCESS_MESSAGES.TOKEN_REFRESH_SUCCESS,
+      //     type: 'success',
+      //     duration: 5000,
+      //     notificationType: NOTIFICATION_TYPES.STANDARD,
+      //   }),
+      // );
       return response.data;
     } catch (error: any) {
       const errorMessage =
