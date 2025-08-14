@@ -27,6 +27,9 @@ export class GetManagersResDto {
   @Transform(({ value }) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value))
   surname: string;
 
+  @IsString()
+  hasPassword?: boolean;
+
   @IsBoolean()
   is_active: boolean;
 

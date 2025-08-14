@@ -22,6 +22,7 @@ import Header from '../Header/Header';
 import { Pagination } from '../Pagination/Pagination';
 import { formatCell } from '../../utils/timeUtils';
 import SupportEmail from '../SupportEmail/SupportEmail';
+import { Manager } from '../../store/slices/interfaces/manager';
 
 interface ManagerFormData {
   email: string;
@@ -95,11 +96,11 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
     setSearchParams({ page: newPage.toString(), limit: limit.toString() });
   };
 
-  const getManagerStatus = (manager: any) => {
+  const getManagerStatus = (manager: Manager) => {
     if (manager.is_active) {
       return { text: 'Active', color: 'green' };
     }
-    if (!manager.hasPassword) {
+    if (manager.hasPassword) {
       return { text: 'Banned', color: 'red' };
     }
     return { text: 'Inactive', color: 'orange' };
@@ -288,7 +289,7 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
                           </Button>
                         ) : (
                           <>
-                            {manager.is_active ? (
+                            {manager.is_active && manager.hasPassword && (
                               <Button
                                 className={`${css.actionButton} ${css.recoverButton}`}
                                 onClick={() =>
@@ -296,28 +297,26 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
                                 }>
                                 Recover Password
                               </Button>
-                            ) : (
-                              !manager.is_active &&
-                              !manager.hasPassword && (
-                                <Button
-                                  className={`${css.actionButton} ${css.activateButton}`}
-                                  onClick={() =>
-                                    handleAction('activate', manager.id)
-                                  }
-                                  data-tooltip-id={`activate-tooltip-${manager.id}`}
-                                  data-tooltip-content="Generate activation link">
-                                  Activate
-                                </Button>
-                              )
                             )}
-                            {manager.is_active ? (
+                            {!manager.is_active && !manager.hasPassword && (
+                              <Button
+                                className={`${css.actionButton} ${css.activateButton}`}
+                                onClick={() =>
+                                  handleAction('activate', manager.id)
+                                }
+                                data-tooltip-id={`activate-tooltip-${manager.id}`}
+                                data-tooltip-content="Generate activation link">
+                                Activate
+                              </Button>
+                            )}
+                            {manager.is_active && (
                               <Button
                                 className={`${css.actionButton} ${css.banButton}`}
-                                onClick={() => handleAction('ban', manager.id)}
-                                disabled={!manager.is_active}>
+                                onClick={() => handleAction('ban', manager.id)}>
                                 Ban
                               </Button>
-                            ) : (
+                            )}
+                            {manager.hasPassword && !manager.is_active && (
                               <Button
                                 className={`${css.actionButton} ${css.unbanButton}`}
                                 onClick={() =>

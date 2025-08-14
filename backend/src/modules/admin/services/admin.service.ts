@@ -319,17 +319,18 @@ export class AdminService {
       },
       skip: (pageNum - 1) * limitNum,
       take: limitNum,
-      select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at', 'last_login', 'role'],
+      select: ['id', 'email', 'name', 'surname', 'is_active', 'password', 'created_at', 'last_login', 'role'],
     });
 
     this.loggerService.log(`Fetched ${managers.length} managers, page: ${pageNum}, limit: ${limitNum}`);
 
     const managersWithStats = await Promise.all(
       managers.map(async (manager) => {
+        const { password, ...managerWithoutPassword } = manager;
         const stats = await this.getManagerStatistics(manager.id);
         return {
-          ...manager,
-          hasPassword: !!manager.password,
+          ...managerWithoutPassword,
+          hasPassword: !!password,
           statistics: {
             totalOrders: stats.Total || 0,
             activeOrders: stats[StatusEnum.IN_WORK] || 0,
@@ -352,7 +353,7 @@ export class AdminService {
     const userRepository = this.dataSource.getRepository(UserEntity);
     const manager = await userRepository.findOne({
       where: { id, role: In([Role.MANAGER, Role.ADMIN]) },
-      select: ['id'],
+      select: ['id', 'password'],
     });
     if (!manager) {
       this.loggerService.error(`Manager not found: ${id}`);
