@@ -17,7 +17,7 @@ const Header: React.FC = () => {
   const { pathname } = useLocation();
   const { role, name, surname } = useSelector((state: RootState) => state.auth);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     dispatch(logout());
     navigate('/login');
   };

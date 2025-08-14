@@ -65,8 +65,8 @@ const Orders = ({}: OrdersProps) => {
           page: currentPage,
           filters: {
             ...filters,
-            myOrders: myOrdersOnly ? 'true' : undefined,
-            managerId: myOrdersOnly ? currentUserId || undefined : undefined,
+           myOrders: myOrdersOnly ? 'true' : false,
+            managerId: myOrdersOnly ? currentUserId ?? '' : '',
           },
         }),
       );
