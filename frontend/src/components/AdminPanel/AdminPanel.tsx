@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import css from './AdminPanel.module.css';
 import {
@@ -37,7 +37,12 @@ interface AdminPanelProps {
 const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { managers, total, loading, page, limit, overallStats } = useSelector(
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = Number(searchParams.get('page')) || 1;
+  const limit = Number(searchParams.get('limit')) || 15;
+
+  const { managers, total, loading, overallStats } = useSelector(
     (state: RootState) => state.managers,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -87,14 +92,7 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
   };
 
   const handlePageChange = (newPage: number) => {
-    dispatch(
-      fetchManagers({
-        page: newPage,
-        limit,
-        sort: 'created_at',
-        order: 'DESC',
-      }),
-    );
+    setSearchParams({ page: newPage.toString(), limit: limit.toString() });
   };
 
   const getManagerStatus = (manager: any) => {
@@ -191,12 +189,6 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
               </span>
             </p>
             <p>
-              Null:{' '}
-              <span style={{ color: 'grey', fontWeight: 'bold' }}>
-                {overallStats.NULL ?? 0}
-              </span>
-            </p>
-            <p>
               Agree:{' '}
               <span style={{ color: 'green', fontWeight: 'bold' }}>
                 {overallStats.Agree ?? 0}
@@ -246,30 +238,30 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
           <>
             <table className={css.table}>
               <thead>
-              <tr>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Name</th>
-                <th>Surname</th>
-                <th>Status</th>
-                <th>Statistics</th>
-                <th>Last login</th>
-                <th>Actions</th>
-              </tr>
+                <tr>
+                  <th>ID</th>
+                  <th>Email</th>
+                  <th>Name</th>
+                  <th>Surname</th>
+                  <th>Status</th>
+                  <th>Statistics</th>
+                  <th>Last login</th>
+                  <th>Actions</th>
+                </tr>
               </thead>
               <tbody>
-              {managers.map((manager, index) => {
-                const status = getManagerStatus(manager);
-                const displayIndex = index + 1 + (page - 1) * limit;
-                const isAdmin = manager.role === 'admin';
-                return (
-                  <tr
-                    key={manager.id}
-                    style={
-                      isAdmin ? { backgroundColor: 'rgb(240, 255, 232)' } : {}
-                    }>
-                    <td>{displayIndex}</td>
-                    <td>
+                {managers.map((manager, index) => {
+                  const status = getManagerStatus(manager);
+                  const displayIndex = index + 1 + (page - 1) * limit;
+                  const isAdmin = manager.role === 'admin';
+                  return (
+                    <tr
+                      key={manager.id}
+                      style={
+                        isAdmin ? { backgroundColor: 'rgb(240, 255, 232)' } : {}
+                      }>
+                      <td>{displayIndex}</td>
+                      <td>
                         <span>
                           {manager.email}{' '}
                           {isAdmin && (
@@ -278,70 +270,73 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
                             </h4>
                           )}
                         </span>
-                    </td>
-                    <td>{manager.name}</td>
-                    <td>{manager.surname}</td>
-                    <td style={{ color: status.color }}>{status.text}</td>
-                    <td>
-                      Total Orders: {manager.statistics?.totalOrders ?? 0},
-                      Active: {manager.statistics?.activeOrders ?? 0}
-                    </td>
-                    <td>{formatCell('last_login', manager.last_login)}</td>
-                    <td>
-                      {isAdmin ? (
-                        <Button
-                          className={`${css.actionButton} ${css.recoverButton}`}
-                          onClick={() => handleAction('recover', manager.id)}>
-                          Recover Password
-                        </Button>
-                      ) : (
-                        <>
-                          {manager.is_active ? (
-                            <Button
-                              className={`${css.actionButton} ${css.recoverButton}`}
-                              onClick={() =>
-                                handleAction('recover', manager.id)
-                              }>
-                              Recover Password
-                            </Button>
-                          ) : (
-                            !manager.is_active && !manager.hasPassword && (
-                            <Button
-                            className={`${css.actionButton} ${css.activateButton}`}
-                          onClick={() => handleAction('activate', manager.id)}
-                          data-tooltip-id={`activate-tooltip-${manager.id}`}
-                          data-tooltip-content="Generate activation link"
-                          >
-                        Activate
-                        </Button>
-                            ))}
-                          {manager.is_active ? (
-                            <Button
-                              className={`${css.actionButton} ${css.banButton}`}
-                              onClick={() => handleAction('ban', manager.id)}
-                              disabled={!manager.is_active}>
-                              Ban
-                            </Button>
-                          ) : (
-                            manager.hasPassword && (
+                      </td>
+                      <td>{manager.name}</td>
+                      <td>{manager.surname}</td>
+                      <td style={{ color: status.color }}>{status.text}</td>
+                      <td>
+                        Total Orders: {manager.statistics?.totalOrders ?? 0},
+                        Active: {manager.statistics?.activeOrders ?? 0}
+                      </td>
+                      <td>{formatCell('last_login', manager.last_login)}</td>
+                      <td>
+                        {isAdmin ? (
+                          <Button
+                            className={`${css.actionButton} ${css.recoverButton}`}
+                            onClick={() => handleAction('recover', manager.id)}>
+                            Recover Password
+                          </Button>
+                        ) : (
+                          <>
+                            {manager.is_active ? (
                               <Button
-                                className={`${css.actionButton} ${css.unbanButton}`}
+                                className={`${css.actionButton} ${css.recoverButton}`}
                                 onClick={() =>
-                                  handleAction('unban', manager.id)
-                                }
-                                disabled={
-                                  manager.is_active || !manager.hasPassword
+                                  handleAction('recover', manager.id)
                                 }>
-                                Unban
+                                Recover Password
                               </Button>
-                            )
-                          )}
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+                            ) : (
+                              !manager.is_active &&
+                              !manager.hasPassword && (
+                                <Button
+                                  className={`${css.actionButton} ${css.activateButton}`}
+                                  onClick={() =>
+                                    handleAction('activate', manager.id)
+                                  }
+                                  data-tooltip-id={`activate-tooltip-${manager.id}`}
+                                  data-tooltip-content="Generate activation link">
+                                  Activate
+                                </Button>
+                              )
+                            )}
+                            {manager.is_active ? (
+                              <Button
+                                className={`${css.actionButton} ${css.banButton}`}
+                                onClick={() => handleAction('ban', manager.id)}
+                                disabled={!manager.is_active}>
+                                Ban
+                              </Button>
+                            ) : (
+                              manager.hasPassword && (
+                                <Button
+                                  className={`${css.actionButton} ${css.unbanButton}`}
+                                  onClick={() =>
+                                    handleAction('unban', manager.id)
+                                  }
+                                  disabled={
+                                    manager.is_active || !manager.hasPassword
+                                  }>
+                                  Unban
+                                </Button>
+                              )
+                            )}
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             <div className={css.pagination}>

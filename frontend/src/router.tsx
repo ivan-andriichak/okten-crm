@@ -48,8 +48,22 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     errorElement: <ErrorPage />,
     children: [
-      { path: '/', element: localStorage.getItem('token') ? <Navigate to="/orders" replace /> : <Navigate to="/login" replace /> },
-      { path: '/login', element: <Login /> },
+      {
+        path: '/',
+        element: localStorage.getItem('token') ? (
+          <Navigate to="/orders" replace />
+        ) : (
+          <Navigate to="/login" replace />
+        ),
+      },
+      {
+        path: '/login',
+        element: localStorage.getItem('token') ? (
+          <Navigate to="/orders" replace />
+        ) : (
+          <Login />
+        ),
+      },
       { path: '/orders', element: <ProtectedOrdersRoute /> },
       { path: '/admin', element: <ProtectedAdminRoute /> },
       { path: '/activate/:token', element: <SetPassword /> },

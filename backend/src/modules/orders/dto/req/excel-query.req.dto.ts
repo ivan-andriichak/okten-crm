@@ -1,22 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class ExcelQueryDto {
-  @ApiProperty({ description: 'Page number', required: false, default: 1 })
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Type(() => Number)
-  page?: number = 1;
-
-  @ApiProperty({ description: 'Limit per page', required: false, default: 25 })
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Type(() => Number)
-  limit?: number = 25;
-
   @ApiProperty({ description: 'Sort field', required: false, default: 'id' })
   @IsOptional()
   @IsString()

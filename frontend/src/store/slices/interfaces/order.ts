@@ -54,6 +54,8 @@ export interface OrderState {
   editForm: Partial<EditForm>;
   commentText: string;
   groups: string[];
+  filters: {},
+  myOrdersOnly: boolean,
 }
 
 export interface Comment {

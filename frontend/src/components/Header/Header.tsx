@@ -71,7 +71,7 @@ const Header: React.FC = () => {
               />
             </Button>
           </Link>
-        ) : (
+        ) : role === 'admin'?(
           <Button
             onClick={(e) => {
               e.stopPropagation();
@@ -81,7 +81,7 @@ const Header: React.FC = () => {
             data-tooltip-content="Go to admin panel">
             <img src={admin} alt="admin" className={css.resetButton} />
           </Button>
-        )}
+        ): null}
 
         <Button data-tooltip-id="logout-tooltip" data-tooltip-content="Logout">
           <img

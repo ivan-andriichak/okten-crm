@@ -78,7 +78,7 @@ export class OrderController {
 
   @Post('excel')
   @ApiOkResponse({ description: 'No body required' })
-  async generateExcel(@CurrentUser() userData: IUserData, @Query() query: ExcelQueryDto, @Res() res: Response) {
+  async generateExcel(@CurrentUser() userData: IUserData, @Body() query: ExcelQueryDto, @Res() res: Response) {
     const buffer = await this.ordersService.generateExcel(userData, query);
 
     res.set({

@@ -1,11 +1,15 @@
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, fetchGroups, generateExcel, addNotification } from '../../store';
+import {
+  addNotification,
+  AppDispatch,
+  fetchGroups,
+  generateExcel,
+} from '../../store';
 import css from './Filters.module.css';
 import resetImage from '../../images/reset.png';
 import excel from '../../images/excel.png';
 import { debounce } from '../../utils/debounce';
-import { api } from '../../services/api';
 
 interface FiltersProps {
   filters: Record<string, string>;
@@ -16,19 +20,21 @@ interface FiltersProps {
 }
 
 interface RootState {
-  orders: { groups: string[] ; sort: string; order: 'ASC' | 'DESC'};
+  orders: { groups: string[]; sort: string; order: 'ASC' | 'DESC' };
   auth: { token: string | null };
 }
 
 const Filters = ({
-                   filters,
-                   setFilters,
-                   myOrdersOnly,
-                   setMyOrdersOnly,
-                   resetFilters,
-                 }: FiltersProps) => {
+  filters,
+  setFilters,
+  myOrdersOnly,
+  setMyOrdersOnly,
+  resetFilters,
+}: FiltersProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { groups, sort, order } = useSelector((state: RootState) => state.orders);
+  const { groups, sort, order } = useSelector(
+    (state: RootState) => state.orders,
+  );
   const token = useSelector((state: RootState) => state.auth.token);
 
   const [inputValues, setInputValues] =
@@ -56,11 +62,10 @@ const Filters = ({
   }, [debouncedSetFilters]);
 
   const handleFilterChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
-    // Update input values immediately
     setInputValues(prev => ({ ...prev, [name]: value }));
 
     if (e.target.tagName === 'INPUT') {
@@ -76,54 +81,25 @@ const Filters = ({
 
   const handleGenerateExcel = async () => {
     try {
-      const params: any = {
+      const params: Record<string, string | boolean> = {
         sort,
         order,
-        ...(myOrdersOnly && { myOrders: 'true' }),
-        ...(filters?.name && { name: filters.name }),
-        ...(filters?.surname && { surname: filters.surname }),
-        ...(filters?.email && { email: filters.email }),
-        ...(filters?.phone && { phone: filters.phone }),
-        ...(filters?.age && { age: filters.age }),
-        ...(filters?.course && { course: filters.course }),
-        ...(filters?.course_format && { course_format: filters.course_format }),
-        ...(filters?.course_type && { course_type: filters.course_type }),
-        ...(filters?.status && { status: filters.status }),
-        ...(filters?.sum && { sum: filters.sum }),
-        ...(filters?.alreadyPaid && { alreadyPaid: filters.alreadyPaid }),
-        ...(filters?.group && { group: filters.group }),
-        ...(filters?.created_at && { created_at: filters.created_at }),
-        ...(filters?.manager && { manager: filters.manager }),
+        myOrders: myOrdersOnly,
+        ...Object.fromEntries(
+          Object.entries(filters).filter(([_, value]) => value !== '' && value != null),
+        ),
       };
 
-      const response = await api.post('/orders/excel', params, {
-        headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob',
-      });
-
-      const url = window.URL.createObjectURL(new Blob([response.data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `orders_${new Date().toISOString().split('T')[0]}.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      console.log('Sending Excel params:', params);
 
       await dispatch(
         generateExcel({
-          filters: {
-            ...filters,
-            ...(myOrdersOnly && { myOrders: 'true' }),
-          },
+          filters: params,
         }),
       ).unwrap();
-
     } catch (error: any) {
       const errorMessage =
-     error.response?.data?.message || 'Failed to generate Excel file';
+        error.response?.data?.message || 'Failed to generate Excel file';
       dispatch(
         addNotification({
           message: errorMessage,
@@ -188,8 +164,7 @@ const Filters = ({
           name="course"
           value={filters.course || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course ? css.selectedInput : ''}`}>
           <option value="">Filter by course</option>
           {courseOptions.map(option => (
             <option key={option} value={option}>
@@ -201,8 +176,7 @@ const Filters = ({
           name="course_format"
           value={filters.course_format || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course_format ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course_format ? css.selectedInput : ''}`}>
           <option value="">Filter by course format</option>
           {courseFormatOptions.map(option => (
             <option key={option} value={option}>
@@ -214,8 +188,7 @@ const Filters = ({
           name="course_type"
           value={filters.course_type || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.course_type ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.course_type ? css.selectedInput : ''}`}>
           <option value="">Filter by course type</option>
           {courseTypeOptions.map(option => (
             <option key={option} value={option}>
@@ -227,8 +200,7 @@ const Filters = ({
           name="status"
           value={filters.status || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.status ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.status ? css.selectedInput : ''}`}>
           <option value="">Filter by status</option>
           {statusOptions.map(option => (
             <option key={option} value={option}>
@@ -240,8 +212,7 @@ const Filters = ({
           name="group"
           value={filters.group || ''}
           onChange={handleFilterChange}
-          className={`${css.filterInput} ${filters.group ? css.selectedInput : ''}`}
-        >
+          className={`${css.filterInput} ${filters.group ? css.selectedInput : ''}`}>
           <option value="">Filter by group</option>
           {groups.map(group => (
             <option key={group} value={group}>

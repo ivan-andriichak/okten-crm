@@ -18,6 +18,8 @@ const initialState: OrderState = {
   editForm: {},
   commentText: '',
   groups: [],
+  filters: {},
+  myOrdersOnly: false,
 };
 
 interface ThunkConfig {
@@ -28,11 +30,11 @@ interface ThunkConfig {
 
 interface FetchOrdersParams {
   page: number;
-  filters: Record<string, string | undefined>;
+  filters: Record<string, string | boolean>;
 }
 
 interface GenerateExcelParams {
-  filters: Record<string, string | undefined>;
+  filters: Record<string, string | boolean>;
 }
 
 const fetchOrders = createAsyncThunk<
@@ -159,43 +161,45 @@ const deleteComment = createAsyncThunk<string, string, ThunkConfig>(
 );
 
 const generateExcel = createAsyncThunk<
-  { success: boolean },
+  { success: boolean; blob: Blob },
   GenerateExcelParams,
   ThunkConfig
 >(
   'orders/generateExcel',
-  async ({ filters }, { getState, rejectWithValue}) => {
+  async ({ filters }, { getState, rejectWithValue }) => {
     try {
       const state = getState();
       const { token } = state.auth;
       const { sort, order } = state.orders;
 
-      const params: any = {
+      const params: Record<string, string | boolean> = {
         sort: filters.sort || sort,
         order: filters.order || order,
-        ...(filters?.myOrders && { myOrders: filters.myOrders }),
-        ...(filters?.name && { name: filters.name }),
-        ...(filters?.surname && { surname: filters.surname }),
-        ...(filters?.email && { email: filters.email }),
-        ...(filters?.phone && { phone: filters.phone }),
-        ...(filters?.age && { age: filters.age }),
-        ...(filters?.course && { course: filters.course }),
-        ...(filters?.course_format && { course_format: filters.course_format }),
-        ...(filters?.course_type && { course_type: filters.course_type }),
-        ...(filters?.status && { status: filters.status }),
-        ...(filters?.sum && { sum: filters.sum }),
-        ...(filters?.alreadyPaid && { alreadyPaid: filters.alreadyPaid }),
-        ...(filters?.group && { group: filters.group }),
-        ...(filters?.created_at && { created_at: filters.created_at }),
-        ...(filters?.manager && { manager: filters.manager }),
+        ...Object.fromEntries(
+          Object.entries(filters).filter(
+            ([_, value]) => value !== '' && value != null,
+          ),
+        ),
       };
 
-      await api.post('/orders/excel', params, {
+      const response = await api.post('/orders/excel', params, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob',
       });
 
-      return { success: true };
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      return { success: true, blob };
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || 'Failed to generate Excel file';
@@ -214,6 +218,15 @@ const orderSlice = createSlice({
     ) => {
       state.sort = action.payload.sort;
       state.order = action.payload.order;
+      state.page = 1;
+    },
+    setFilters: (state, action: PayloadAction<Record<string, string>>) => {
+      state.filters = action.payload;
+      state.page = 1;
+    },
+    setMyOrdersOnly: (state, action: PayloadAction<boolean>) => {
+      state.myOrdersOnly = action.payload;
+      state.page = 1;
     },
     toggleExpand: (state, action: PayloadAction<string>) => {
       state.expandedOrderId =

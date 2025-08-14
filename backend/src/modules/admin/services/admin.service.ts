@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { DataSource, Equal, In, MoreThan, Repository } from 'typeorm';
+import { DataSource, In, MoreThan, Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
@@ -319,7 +319,7 @@ export class AdminService {
       },
       skip: (pageNum - 1) * limitNum,
       take: limitNum,
-      select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at', 'last_login', 'role', 'password'],
+      select: ['id', 'email', 'name', 'surname', 'is_active', 'created_at', 'last_login', 'role'],
     });
 
     this.loggerService.log(`Fetched ${managers.length} managers, page: ${pageNum}, limit: ${limitNum}`);
@@ -340,6 +340,7 @@ export class AdminService {
 
     return { managers: managersWithStats, total };
   }
+
   async getOrderStatistics(): Promise<Record<string, number>> {
     const orderRepository = this.dataSource.getRepository(OrderEntity);
     const stats = await this.getStatistics(orderRepository);
@@ -367,27 +368,34 @@ export class AdminService {
     orderRepository: Repository<OrderEntity>,
     where: Record<string, any> = {},
   ): Promise<Record<string, number>> {
-    const statuses = [
-      StatusEnum.NEW,
-      StatusEnum.NULL,
-      StatusEnum.IN_WORK,
-      StatusEnum.AGREE,
-      StatusEnum.DISAGREE,
-      StatusEnum.DUBBING,
-    ];
+    const statuses = [StatusEnum.IN_WORK, StatusEnum.AGREE, StatusEnum.DISAGREE, StatusEnum.DUBBING];
     const stats: Record<string, number> = {};
 
+    const result = await orderRepository
+      .createQueryBuilder('order')
+      .select('order.status', 'status')
+      .addSelect('COUNT(*)', 'count')
+      .where(where)
+      .groupBy('order.status')
+      .getRawMany();
+
     for (const status of statuses) {
-      stats[status] = await orderRepository.count({
-        where: { ...where, status: Equal(status) },
-      });
+      stats[status] = 0;
+    }
+    stats[StatusEnum.NEW] = 0;
+
+    // Обробляємо результати
+    for (const row of result) {
+      if (row.status === null) {
+        stats[StatusEnum.NEW] += Number(row.count);
+      } else {
+        stats[row.status] = Number(row.count);
+      }
     }
 
-    stats['NULL'] = await orderRepository.count({
-      where: { ...where, status: null },
-    });
-
     stats['Total'] = await orderRepository.count({ where });
+    this.loggerService.log(`Total orders: ${stats['Total']}`);
+
     return stats;
   }
 }
