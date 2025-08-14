@@ -141,7 +141,7 @@ export const createManager = createAsyncThunk<
     addNotification({
       message: SUCCESS_MESSAGES.CREATE_MANAGER_SUCCESS,
       type: 'success',
-      duration: 5000,
+      duration: 6000,
       notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );
@@ -270,7 +270,7 @@ export const banManager = createAsyncThunk<
       addNotification({
         message: ERROR_MESSAGES.SESSION_EXPIRED,
         type: 'error',
-        duration: 6000,
+        duration: 4000,
         notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
       }),
     );
@@ -287,7 +287,7 @@ export const banManager = createAsyncThunk<
     addNotification({
       message: SUCCESS_MESSAGES.BAN_MANAGER_SUCCESS,
       type: 'success',
-      duration: 5000,
+      duration: 2000,
       notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );
@@ -313,7 +313,7 @@ export const unbanManager = createAsyncThunk<
       addNotification({
         message: ERROR_MESSAGES.SESSION_EXPIRED,
         type: 'error',
-        duration: 6000,
+        duration: 4000,
         notificationType: NOTIFICATION_TYPES.WITH_SUPPORT_EMAIL,
       }),
     );
@@ -331,7 +331,7 @@ export const unbanManager = createAsyncThunk<
     addNotification({
       message: SUCCESS_MESSAGES.UNBAN_MANAGER_SUCCESS,
       type: 'success',
-      duration: 5000,
+      duration: 2000,
       notificationType: NOTIFICATION_TYPES.STANDARD,
     }),
   );

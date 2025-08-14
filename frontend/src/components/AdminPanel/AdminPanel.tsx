@@ -99,7 +99,7 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
     if (manager.is_active) {
       return { text: 'Active', color: 'green' };
     }
-    if (manager.hasPassword) {
+    if (!manager.hasPassword) {
       return { text: 'Banned', color: 'red' };
     }
     return { text: 'Inactive', color: 'orange' };
@@ -318,18 +318,13 @@ const AdminPanel: FC<AdminPanelProps> = ({ token, role }) => {
                                 Ban
                               </Button>
                             ) : (
-                              manager.hasPassword && (
-                                <Button
-                                  className={`${css.actionButton} ${css.unbanButton}`}
-                                  onClick={() =>
-                                    handleAction('unban', manager.id)
-                                  }
-                                  disabled={
-                                    manager.is_active || !manager.hasPassword
-                                  }>
-                                  Unban
-                                </Button>
-                              )
+                              <Button
+                                className={`${css.actionButton} ${css.unbanButton}`}
+                                onClick={() =>
+                                  handleAction('unban', manager.id)
+                                }>
+                                Unban
+                              </Button>
                             )}
                           </>
                         )}

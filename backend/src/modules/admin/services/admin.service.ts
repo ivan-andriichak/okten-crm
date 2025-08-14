@@ -384,7 +384,6 @@ export class AdminService {
     }
     stats[StatusEnum.NEW] = 0;
 
-    // Обробляємо результати
     for (const row of result) {
       if (row.status === null) {
         stats[StatusEnum.NEW] += Number(row.count);

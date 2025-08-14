@@ -29,8 +29,7 @@ const notificationSlice = createSlice({
       state.notifications.push({
         ...action.payload,
         id,
-        // message: payloadMessage,
-        duration: action.payload.duration ?? 5000,
+        duration: action.payload.duration ?? 3000,
       });
     },
     removeNotification: (state, action: PayloadAction<string>) => {
