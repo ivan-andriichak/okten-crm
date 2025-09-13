@@ -56,7 +56,6 @@ export class EditOrderDto {
   @ApiProperty({ example: 'New', enum: StatusEnum, required: false })
   @IsOptional()
   @IsEnum(StatusEnum)
-  @Transform(TransformHelper.combine([TransformHelper.nullIfEmpty, TransformHelper.toLowerCase]))
   status?: string | null;
 
   @ApiProperty({ example: 1000, required: false })
