@@ -22,4 +22,14 @@ export class TransformHelper {
   public static toLowerCaseArray({ value }) {
     return value ? value.map((item: string) => item.toLowerCase()) : value;
   }
+
+  public static nullIfEmpty({ value }) {
+    return value === '' || value === null ? null : value;
+  }
+
+  public static combine(fns: Array<(ctx: { value: any }) => any>) {
+    return ({ value }) => {
+      return fns.reduce((acc, fn) => fn({ value: acc }), value);
+    };
+  }
 }

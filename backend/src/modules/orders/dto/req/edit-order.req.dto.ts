@@ -2,126 +2,79 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsEmail, IsEnum, IsInt, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 
+import { TransformHelper } from '../../../../common/helpers/transform.helper';
 import { CourseEnum, CourseFormatEnum, CourseTypeEnum, StatusEnum } from '../../enums/order.enums';
 
 export class EditOrderDto {
-  @ApiProperty({
-    example: 'John',
-    description: 'First name of the customer.',
-    required: false,
-  })
+  @ApiProperty({ example: 'John', required: false })
   @IsOptional()
   @IsString()
+  @Transform(TransformHelper.combine([TransformHelper.trim]))
   name?: string;
 
-  @ApiProperty({
-    example: 'Doe',
-    description: 'Surname of the customer.',
-    required: false,
-  })
-  @IsString()
+  @ApiProperty({ example: 'Doe', required: false })
   @IsOptional()
+  @IsString()
+  @Transform(TransformHelper.combine([TransformHelper.trim]))
   surname?: string;
 
-  @ApiProperty({
-    example: 'john.doe@example.com',
-    description: 'Email address of the customer.',
-    required: false,
-  })
-  @IsEmail({}, { message: 'Invalid email format' })
+  @ApiProperty({ example: 'john.doe@example.com', required: false })
   @IsOptional()
+  @IsEmail()
+  @Transform(TransformHelper.combine([TransformHelper.trim, TransformHelper.toLowerCase]))
   email?: string;
 
-  @ApiProperty({
-    example: '+380953456789',
-    description: 'Phone number of the customer (UA format).',
-    required: false,
-  })
-  @IsPhoneNumber('UA', { message: 'Invalid phone format' })
+  @ApiProperty({ example: '+380953456789', required: false })
   @IsOptional()
+  @IsPhoneNumber('UA')
+  @Transform(TransformHelper.combine([TransformHelper.trim]))
   phone?: string;
 
-  @ApiProperty({
-    example: 30,
-    description: 'Age of the customer.',
-    required: false,
-  })
+  @ApiProperty({ example: 30, required: false })
   @IsOptional()
   @IsInt()
   @Type(() => Number)
   age?: number;
 
-  @ApiProperty({
-    example: 'FS',
-    description: 'Course name.',
-    enum: CourseEnum,
-    required: false,
-  })
+  @ApiProperty({ example: 'FS', enum: CourseEnum, required: false })
   @IsOptional()
   @IsEnum(CourseEnum)
   course?: string;
 
-  @ApiProperty({
-    example: 'online',
-    description: 'Course format.',
-    enum: CourseFormatEnum,
-    required: false,
-  })
+  @ApiProperty({ example: 'online', enum: CourseFormatEnum, required: false })
   @IsOptional()
   @IsEnum(CourseFormatEnum)
-  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  @Transform(TransformHelper.combine([TransformHelper.nullIfEmpty, TransformHelper.toLowerCase]))
   course_format?: string | null;
 
-  @ApiProperty({
-    example: 'pro',
-    description: 'Course type.',
-    enum: CourseTypeEnum,
-    required: false,
-  })
+  @ApiProperty({ example: 'pro', enum: CourseTypeEnum, required: false })
   @IsOptional()
   @IsEnum(CourseTypeEnum)
-  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  @Transform(TransformHelper.combine([TransformHelper.nullIfEmpty, TransformHelper.toLowerCase]))
   course_type?: string | null;
 
-  @ApiProperty({
-    example: 'New',
-    description: 'Status of the order.',
-    enum: StatusEnum,
-    required: false,
-  })
+  @ApiProperty({ example: 'New', enum: StatusEnum, required: false })
   @IsOptional()
   @IsEnum(StatusEnum)
-  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  @Transform(TransformHelper.combine([TransformHelper.nullIfEmpty, TransformHelper.toLowerCase]))
   status?: string | null;
 
-  @ApiProperty({
-    example: 1000,
-    description: 'Total sum of the order.',
-    required: false,
-  })
+  @ApiProperty({ example: 1000, required: false })
   @IsOptional()
   @IsInt()
   @Type(() => Number)
   sum?: number;
 
-  @ApiProperty({
-    example: 500,
-    description: 'Amount already paid.',
-    required: false,
-  })
+  @ApiProperty({ example: 500, required: false })
   @IsOptional()
   @IsInt()
   @Type(() => Number)
   alreadyPaid?: number;
 
-  @ApiProperty({
-    example: 'june-2025',
-    description: 'Group associated with the order.',
-    required: false,
-  })
+  @ApiProperty({ example: 'june-2025', required: false })
   @IsOptional()
   @IsString()
-  @Transform(({ value }) => (value === '' || value === null ? null : value))
+  @Transform(TransformHelper.combine([TransformHelper.nullIfEmpty, TransformHelper.trim]))
   group?: string | null;
 
   @IsOptional()

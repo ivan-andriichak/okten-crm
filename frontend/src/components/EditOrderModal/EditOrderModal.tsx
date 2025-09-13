@@ -52,7 +52,12 @@ const EditOrderModal = ({
    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
  ) => {
    const { name, value } = e.target;
-   if ((name === 'name' || name === 'surname') && /[0-9]/.test(value)) return;
+   if ((name === 'name' || name === 'surname')) {
+     if (/[0-9\s]/.test(value)) return;
+     const trimmedValue = value.replace(/\s+/g, '');
+     dispatch(updateEditForm({ [name]: capitalizeFirstLetter(trimmedValue) }));
+     return;
+   }
    const parsedValue = value === '' ? null : value;
    dispatch(updateEditForm({ [name]: capitalizeFirstLetter(parsedValue) }));
  };
