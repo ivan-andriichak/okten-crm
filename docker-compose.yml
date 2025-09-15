@@ -36,7 +36,7 @@ services:
       dockerfile: Dockerfile
     command: sh -c "npm run migration:run && npm run start:local"
     env_file:
-      - ./backend/environments/prod.env
+      - backend/environments/prod.env
     depends_on:
       redis:
         condition: service_healthy
