@@ -62,4 +62,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 
 !/.text
-!/environments/local.env
+/environments/local.env
